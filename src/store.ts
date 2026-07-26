@@ -65,6 +65,8 @@ interface AppState {
   aiChatOpen: boolean;
   /** Left "Oppskrift" step-jump drawer. */
   jumpOpen: boolean;
+  /** Phone: full step text sheet (separate from 3D workspace). */
+  recipeOpen: boolean;
   /** Collapsed/expanded Maske-for-maske overlay on the 3D stage. */
   stitchPanelOpen: boolean;
   /** False until the user leaves the welcome screen. */
@@ -89,6 +91,7 @@ interface AppState {
   setTroubleOpen: (v: boolean) => void;
   setAiChatOpen: (v: boolean) => void;
   setJumpOpen: (v: boolean) => void;
+  setRecipeOpen: (v: boolean) => void;
   setStitchPanelOpen: (v: boolean) => void;
   setWelcomeDone: (v: boolean) => void;
   setLocale: (v: Locale) => void;
@@ -114,7 +117,8 @@ export const useApp = create<AppState>()(
       troubleOpen: false,
       aiChatOpen: false,
       jumpOpen: false,
-      stitchPanelOpen: true,
+      recipeOpen: false,
+      stitchPanelOpen: false,
       welcomeDone: false,
       locale: 'no',
 
@@ -181,6 +185,7 @@ export const useApp = create<AppState>()(
       setTroubleOpen: (v) => set({ troubleOpen: v }),
       setAiChatOpen: (v) => set({ aiChatOpen: v }),
       setJumpOpen: (v) => set({ jumpOpen: v }),
+      setRecipeOpen: (v) => set({ recipeOpen: v }),
       setStitchPanelOpen: (v) => set({ stitchPanelOpen: v }),
       setWelcomeDone: (v) => set({ welcomeDone: v }),
       setLocale: (v) => {

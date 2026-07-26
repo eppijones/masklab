@@ -29,7 +29,14 @@ function FlagEn() {
 }
 
 /** Compact NO / EN language toggle with flags. */
-export default function LanguageSwitcher({ className = '' }: { className?: string }) {
+export default function LanguageSwitcher({
+  className = '',
+  flagsOnly = false,
+}: {
+  className?: string;
+  /** Hide NO/EN labels — use after language is chosen (guide topbar). */
+  flagsOnly?: boolean;
+}) {
   const locale = useApp((s) => s.locale);
   const setLocale = useApp((s) => s.setLocale);
   const ui = t(locale);
@@ -41,26 +48,32 @@ export default function LanguageSwitcher({ className = '' }: { className?: strin
   };
 
   return (
-    <div className={`lang-switch ${className}`} role="group" aria-label={ui.langGroup}>
+    <div
+      className={`lang-switch ${flagsOnly ? 'flags-only' : ''} ${className}`.trim()}
+      role="group"
+      aria-label={ui.langGroup}
+    >
       <button
         type="button"
         className={`lang-btn ${locale === 'no' ? 'on' : ''}`}
         onClick={() => set('no')}
         title={ui.langNo}
+        aria-label={ui.langNo}
         aria-pressed={locale === 'no'}
       >
         <FlagNo />
-        <span>NO</span>
+        {!flagsOnly && <span>NO</span>}
       </button>
       <button
         type="button"
         className={`lang-btn ${locale === 'en' ? 'on' : ''}`}
         onClick={() => set('en')}
         title={ui.langEn}
+        aria-label={ui.langEn}
         aria-pressed={locale === 'en'}
       >
         <FlagEn />
-        <span>EN</span>
+        {!flagsOnly && <span>EN</span>}
       </button>
     </div>
   );
