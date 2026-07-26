@@ -26,6 +26,10 @@ const no = {
   jumpOpen: 'Oppskrift',
   jumpList: 'Alle steg',
   school: 'Maskeskolen',
+  recipeFirstHint:
+    'Les oppskriften her. 3D-visningen starter når du begynner runde 1 av hatten.',
+  seeRecipeHint: 'Se Oppskrift for mer tekstinfo',
+  tapRecipeHint: 'Trykk Oppskrift for mer info',
   viewWorking: 'Sy-visning',
   viewFinished: 'Ferdig hatt',
   viewWorkingTitle: 'Slik arbeidet ligger i hendene dine',
@@ -125,6 +129,10 @@ const en: UiDict = {
   jumpOpen: 'Pattern',
   jumpList: 'All steps',
   school: 'Stitch school',
+  recipeFirstHint:
+    'Read the pattern here. The 3D view starts when you begin round 1 of the hat.',
+  seeRecipeHint: 'See Pattern for more text info',
+  tapRecipeHint: 'Tap Pattern for more info',
   viewWorking: 'Working view',
   viewFinished: 'Finished hat',
   viewWorkingTitle: 'How the work sits in your hands',

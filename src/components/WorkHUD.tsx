@@ -135,6 +135,9 @@ export default function WorkHUD({ hideControls = false }: { hideControls?: boole
 
         <div className={`workhud-panel ${showMarker ? 'has-marker' : ''}`}>
           <div className="workhud-msgs">
+            {hideControls && round.num === 1 && c < 4 && !done && (
+              <p className="workhud-recipe-hint">{ui.seeRecipeHint}</p>
+            )}
             {done ? (
               <div className="workhud-now">
                 <strong>{ui.hudRoundDone}</strong> {ui.hudRoundDoneHint}

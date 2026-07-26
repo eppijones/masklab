@@ -207,7 +207,6 @@ export const useApp = create<AppState>()(
         showFinished: s.showFinished,
         autoRotate: s.autoRotate,
         schoolOpen: s.schoolOpen,
-        stitchPanelOpen: s.stitchPanelOpen,
         welcomeDone: s.welcomeDone,
         locale: s.locale,
       }),
