@@ -3,6 +3,7 @@ import { useApp, getModel } from '../store';
 import { YARN_HEX, YARN_NAME } from '../data/types';
 import { WAVE_CHART_DISPLAY } from '../data/waves';
 import type { StepDef } from '../data/steps';
+import StartChapterArt from './StartChapterArt';
 
 /** Mini wave chart shown in the panel during the wave rounds. */
 function WaveMiniChart({ activeRow }: { activeRow: number }) {
@@ -281,10 +282,22 @@ export default function StepPanel() {
 
       <div className="panel-body">
         <div className="step-eyebrow">
-          <span className="step-num">{step.eyebrow}</span>
+          <span
+            className={`step-num ${
+              step.eyebrow === 'Startkapittel'
+                ? 'start'
+                : step.kind === 'done'
+                  ? 'finale'
+                  : ''
+            }`}
+          >
+            {step.eyebrow}
+          </span>
         </div>
 
         <h2 className="step-title">{step.title}</h2>
+
+        <StartChapterArt step={step} />
 
         {step.body.map((p, i) => (
           <p className="step-body" key={i}>

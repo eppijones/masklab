@@ -708,15 +708,27 @@ function CameraDirector({
   const lastPresetKey = useRef('');
 
   useEffect(() => {
+    const model = getModel();
+    const step = model.steps[stepIndex];
+    const celebrate =
+      showFinished || step?.kind === 'finish' || step?.kind === 'done';
+
     // Endless snurring owns the camera orbit — don't fight it with tweens.
+    // For the finale, snap once to a flattering finished-hat overview first.
     if (autoRotate || preview) {
+      if (celebrate && !preview) {
+        camera.position.set(44, 26, 52);
+        const c = controls.current;
+        if (c) {
+          c.target.set(0, 9, 0);
+          c.update();
+        }
+      }
       active.current = false;
       return;
     }
-    const model = getModel();
     const profile = buildProfile(model.rounds);
     const topY = profile[0].y;
-    const step = model.steps[stepIndex];
     if (!step) return;
     // Every +1 re-aims the camera to the standard front view of the next
     // stitch (manual drag still overrides until the next +1).
@@ -748,18 +760,24 @@ function CameraDirector({
         const sy = flipH - ring.y;
         const cx = Math.cos(wTheta);
         const cz = Math.sin(wTheta);
+        const tx = ring.r * cx;
+        const tz = ring.r * cz;
         if (isBrimPhase(round.phase)) {
           // Brim flares flat in sy-visning: look from BELOW up at the
           // working edge so the stitch faces point at the camera.
-          const tx = ring.r * cx;
-          const tz = ring.r * cz;
           goal.current.set(tx + 2.8 * cx, sy - 8.5, tz + 2.8 * cz);
           goalTarget.current.set(tx, sy - 0.15, tz);
+        } else if (round.phase === 'top') {
+          // Flat crown: after the sy-flip, stitch faces point downward.
+          // Sit under the working stitch and look up — same clear "face-on"
+          // read as runde 22, while azimuth follows the work right → left.
+          goal.current.set(tx + 4.8 * cx, sy - 6.4, tz + 4.8 * cz);
+          goalTarget.current.set(tx, sy - 0.12, tz);
         } else {
-          // Close-up, straight-on framing of the vertical working edge.
+          // Text / vertical side: close-up, straight-on (runde 22 framing).
           const dist = ring.r + 7.5;
           goal.current.set(dist * cx, sy + 1.9, dist * cz);
-          goalTarget.current.set(ring.r * 0.92 * cx, sy + 0.3, ring.r * 0.92 * cz);
+          goalTarget.current.set(tx * 0.98, sy + 0.3, tz * 0.98);
         }
         active.current = true;
         return;
@@ -772,10 +790,17 @@ function CameraDirector({
         const sy = flipH - ring.y;
         goal.current.set(8, sy - 18, 10);
         goalTarget.current.set(0, sy, 0);
+      } else if (step.roundIdx !== null && model.rounds[step.roundIdx].phase === 'top') {
+        // Crown overview from under the disc (not bird's-eye foreshortening).
+        const ring = profile[step.roundIdx];
+        const flipH = profile[0].y + profile[profile.length - 1].y;
+        const sy = flipH - ring.y;
+        goal.current.set(ring.r * 0.35 + 6, sy - 14, ring.r * 0.55 + 8);
+        goalTarget.current.set(0, sy, 0);
       } else {
-        // Bowl on the table — natural sitting angle for crown/text rounds.
-        goal.current.set(24, 26, 30);
-        goalTarget.current.set(0, topY * 0.45, 0);
+        // Vertical side overview — same eye height as stitch-follow.
+        goal.current.set(28, 12, 32);
+        goalTarget.current.set(0, topY * 0.35, 0);
       }
       active.current = true;
       return;
@@ -789,36 +814,39 @@ function CameraDirector({
       // Standard view while counting on the side of the hat: face the next
       // stitch straight on, so marker, ring and colours are always in front.
       const vis = computeVisible(model, stepIndex, stitchCursor, showFinished);
-      if (vis.stitchStepping && vis.currentRoundIdx !== null && round.phase !== 'top') {
+      if (vis.stitchStepping && vis.currentRoundIdx !== null) {
         const before = step.roundIdx > 0 ? model.cumCounts[step.roundIdx - 1] : 0;
         const nextIdx = Math.min(vis.shownStitches, model.cumCounts[step.roundIdx] - 1);
         const theta = stitchTheta(nextIdx - before, round.count);
         const ring = profile[step.roundIdx];
         const cx = Math.cos(theta);
         const cz = Math.sin(theta);
+        const tx = ring.r * cx;
+        const tz = ring.r * cz;
         if (isBrimPhase(round.phase)) {
-          const tx = ring.r * cx;
-          const tz = ring.r * cz;
           // Finished hat: brim flares down/out — sit just outside the plane
           // of the brim so the stitch faces face the camera.
           goal.current.set(tx + 8.5 * cx, ring.y - 2.8, tz + 8.5 * cz);
           goalTarget.current.set(tx * 0.96, ring.y, tz * 0.96);
+        } else if (round.phase === 'top') {
+          // Face-on to crown stitches (from above in ferdig-visning).
+          goal.current.set(tx + 4.2 * cx, ring.y + 6.8, tz + 4.2 * cz);
+          goalTarget.current.set(tx, ring.y + 0.15, tz);
         } else {
           const dist = ring.r + 7.5;
           goal.current.set(dist * cx, ring.y + 2.0, dist * cz);
-          goalTarget.current.set(ring.r * 0.92 * cx, ring.y - 0.2, ring.r * 0.92 * cz);
+          goalTarget.current.set(tx * 0.98, ring.y - 0.2, tz * 0.98);
         }
         active.current = true;
         return;
       }
       if (round.phase === 'top' && step.kind !== 'size-check') {
-        // Bird's-eye view of the flat disc, zoomed to the size of the work —
-        // the way you look at the piece in your own hands.
+        // Angled face-on over the working rim — not a distant bird's-eye.
         const r = profile[step.roundIdx].r;
-        pos = [2.5, topY + 13 + r * 1.1, 5.5 + r * 1.5];
-        target = [0, topY, 0];
+        pos = [r * 0.55 + 8, topY + 9, r * 0.75 + 10];
+        target = [r * 0.35, topY, r * 0.2];
       } else if (round.phase === 'top') {
-        pos = [16, 34, 20];
+        pos = [18, 22, 22];
         target = [0, topY - 1, 0];
       } else if (round.phase === 'text') {
         pos = [30, 20, 34];
