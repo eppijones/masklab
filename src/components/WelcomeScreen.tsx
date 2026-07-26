@@ -20,9 +20,17 @@ export default function WelcomeScreen() {
   const hasProgress = stepIndex > 0 || Object.keys(cursors).length > 0;
 
   const enter = (resume: boolean) => {
-    if (!resume) setStep(0);
-    setShowFinished(false);
-    setViewMode('working');
+    if (!resume) {
+      setStep(0);
+      setShowFinished(false);
+      setViewMode('working');
+    } else {
+      const step = getModel().steps[useApp.getState().stepIndex];
+      const finale = step?.kind === 'finish' || step?.kind === 'done';
+      setShowFinished(finale);
+      setViewMode(finale ? 'finished' : 'working');
+      if (finale) useApp.getState().setAutoRotate(true);
+    }
     setWelcomeDone(true);
   };
 
@@ -38,7 +46,7 @@ export default function WelcomeScreen() {
             <span style={{ background: '#00205B' }} />
           </div>
           <span className="welcome-brand">
-            Ro det i land <span>av Helene Spilling</span>
+            Ro det i land hatten <span>av Helene Spilling</span>
           </span>
         </div>
         <a className="welcome-pdf" href={PDF_URL} target="_blank" rel="noreferrer">

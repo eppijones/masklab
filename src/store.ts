@@ -185,6 +185,7 @@ export const useApp = create<AppState>()(
         showNumbers: s.showNumbers,
         showMarkers: s.showMarkers,
         viewMode: s.viewMode,
+        showFinished: s.showFinished,
         autoRotate: s.autoRotate,
         schoolOpen: s.schoolOpen,
         stitchPanelOpen: s.stitchPanelOpen,
