@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #EDE7DA; }
+  body { font-family: 'Karla', sans-serif; color: #201D18; }
+  a { color: #BA0C2F; }
+  a:hover { color: #A50A29; }
+</style>
+</helmet>
+<div style="max-width: 760px; margin: 0 auto; padding: 56px 32px 72px 32px; display: flex; flex-direction: column; gap: 28px;">
+  <header style="display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid #D8CFBC; padding-bottom: 24px;">
+    <span style="font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: #BA0C2F; font-weight: 800;">Notat til neste prosjekt</span>
+    <h1 style="font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 42px; line-height: 1.05; margin: 0;">Tekst i 3D-visninger — uten at det ser ut som 2000-talls grafikk</h1>
+    <p style="font-size: 16px; line-height: 1.6; color: #55503F; margin: 0; text-wrap: pretty;">Problemet: tekst som legges <em>inn i selve 3D-scenen</em> (et tall per maske, ord som svever over garnet) blir pikslete, roterer med objektet, blir okkludert stygt og bruker en annen «font» enn resten av UI-et. Det er derfor det ser gammelt ut.</p>
+  </header>
+
+  <section style="display: flex; flex-direction: column; gap: 8px;">
+    <h2 style="font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 24px; margin: 0;">1 · Merk mindre</h2>
+    <p style="font-size: 15px; line-height: 1.65; color: #55503F; margin: 0; text-wrap: pretty;">Roten til problemet er som regel informasjonstetthet, ikke teknikk. Ikke nummerér hver maske — fremhev kun <strong>den aktive masken</strong> (farge/glød), og vis tallet ett sted i UI-et. Alt annet er støy.</p>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 8px;">
+    <h2 style="font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 24px; margin: 0;">2 · Tekst som HTML-overlay, forankret i 3D</h2>
+    <p style="font-size: 15px; line-height: 1.65; color: #55503F; margin: 0; text-wrap: pretty;">Den beste generelle løsningen: teksten er ekte HTML som ligger <em>over</em> canvasen, men følger et 3D-punkt. Da er den alltid skarp, alltid vendt mot kamera, og bruker samme font som resten av siden. I three.js: <code style="background:#F3ECDC; padding:2px 6px; border-radius:4px; font-size:13px;">CSS2DRenderer</code> gjør dette ferdig — eller manuelt:</p>
+    <pre style="background: #201D18; color: #EDE7DA; border-radius: 8px; padding: 16px 18px; font-size: 13px; line-height: 1.5; overflow-x: auto; margin: 4px 0 0 0;">const p = point3D.clone().project(camera);
+label.style.left = (p.x * 0.5 + 0.5) * canvas.clientWidth  + 'px';
+label.style.top  = (-p.y * 0.5 + 0.5) * canvas.clientHeight + 'px';
+label.style.opacity = p.z &lt; 1 ? 1 : 0; // bak kamera → skjul</pre>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 8px;">
+    <h2 style="font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 24px; margin: 0;">3 · Prikk + strek til margen</h2>
+    <p style="font-size: 15px; line-height: 1.65; color: #55503F; margin: 0; text-wrap: pretty;">Når etiketten ikke får plass ved objektet: sett en liten prikk på selve masken og trekk en tynn «leader line» ut til en etikett i kanten av vinduet. Objektet holdes rent, teksten holdes lesbar.</p>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 8px;">
+    <h2 style="font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 24px; margin: 0;">4 · Skjul det som er bak</h2>
+    <p style="font-size: 15px; line-height: 1.65; color: #55503F; margin: 0; text-wrap: pretty;">Etiketter på baksiden av objektet skal fade ut, ikke skinne gjennom. Raycast fra kamera mot ankerpunktet — treffer strålen noe annet først, sett opacity mot 0. Fade også på avstand: langt unna = mindre og svakere.</p>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 8px;">
+    <h2 style="font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 24px; margin: 0;">5 · Må teksten inn i scenen? Bruk SDF</h2>
+    <p style="font-size: 15px; line-height: 1.65; color: #55503F; margin: 0; text-wrap: pretty;">Hvis teksten faktisk skal leve i 3D (f.eks. brodert på hatten): bruk <code style="background:#F3ECDC; padding:2px 6px; border-radius:4px; font-size:13px;">troika-three-text</code> — SDF-basert, skarp i alle størrelser, støtter outline for kontrast. Aldri canvas-teksturer eller extruded TextGeometry for etiketter. Billboard den mot kamera hvis den skal leses.</p>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #D8CFBC; padding-top: 24px;">
+    <h2 style="font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 24px; margin: 0;">6 · Tellere hører hjemme i rammen</h2>
+    <p style="font-size: 15px; line-height: 1.65; color: #55503F; margin: 0; text-wrap: pretty;">Omgangstellere, fremdrift og instruksjoner skal ligge i vinduets egen ramme (topp/bunn-linje rundt 3D-visningen) — aldri flytende midt i scenen. Tommelfingerregel: <strong>3D-vinduet viser formen, UI-et forteller historien.</strong></p>
+  </section>
+</div>
+</x-dc>
+</body>
+</html>
