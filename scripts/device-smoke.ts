@@ -312,12 +312,14 @@ async function runPersonaFlow(page: Page, profile: Profile): Promise<string[]> {
     recipe: !!document.querySelector('.recipe-sheet'),
     jump: !!document.querySelector('.jump-drawer'),
     stageVisible: !!document.querySelector('.layout.mobile-work .stage'),
-    stitchCollapsed: !!document.querySelector('.stitch-overlay.collapsed'),
+    noStageOverlay: !document.querySelector('.stitch-overlay'),
+    jumpInRecipe: !!document.querySelector('.recipe-sheet .stitch-jump-panel'),
   }));
   if (profile.expectDock) {
     if (!opened.recipe) fails.push('Oppskrift did not open recipe sheet in 3D work');
     if (!opened.stageVisible) fails.push('3D stage missing after round jump');
-    if (!opened.stitchCollapsed) fails.push('Maske for maske should start collapsed');
+    if (!opened.noStageOverlay) fails.push('Maske for maske still overlays 3D on phone');
+    if (!opened.jumpInRecipe) fails.push('color-run jumps missing inside Oppskrift');
   } else if (!opened.jump) {
     fails.push('Alle steg / jump drawer did not open');
   }

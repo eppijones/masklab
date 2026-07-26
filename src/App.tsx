@@ -522,7 +522,7 @@ export default function App() {
             </div>
             <div className="scene-wrap">
               <HatScene device={device} />
-              <StitchOverlay />
+              <StitchOverlay hiddenOnMobile={needsDock} />
               <FlipHint />
               <ConfettiBurst active={celebrateDone} />
               <div className="hint">

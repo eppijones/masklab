@@ -1,9 +1,10 @@
-import { useApp, getModel, isPatterned } from '../store';
+import { useApp, getModel } from '../store';
 import { t } from '../i18n/ui';
 
 /**
  * Fixed bottom control bar for phone (and portrait tablet).
- * −1 / +1 and step prev/next stay thumb-reachable while the recipe scrolls.
+ * −1 / +1 stay in a fixed thumb position — color-change jumps live in Oppskrift
+ * so they cannot be hit by mistake while crocheting.
  */
 export default function MobileDock({
   pulseRecipe = false,
@@ -37,8 +38,6 @@ export default function MobileDock({
     !showFinished;
 
   let done = false;
-  let jumpTo: number | null = null;
-  let jumpLabel = '';
   let c = 0;
   let roundCount = 0;
 
@@ -47,35 +46,6 @@ export default function MobileDock({
     roundCount = round.count;
     c = Math.min(cursor!, round.count);
     done = c >= round.count;
-
-    const patterned = isPatterned(round);
-    if (patterned && !done) {
-      const before = step.roundIdx > 0 ? model.cumCounts[step.roundIdx - 1] : 0;
-      let changeIdx: number | null = null;
-      for (let i = before + c; i < before + round.count; i++) {
-        if (model.stitches[i].changeColorAfter) {
-          changeIdx = i;
-          break;
-        }
-      }
-      const changeIn = changeIdx !== null ? changeIdx - (before + c) + 1 : null;
-      const changeIsNow = changeIn === 1;
-      if (changeIdx !== null) {
-        if (!changeIsNow) {
-          jumpTo = changeIdx - before;
-          jumpLabel = ui.toColorChange;
-        } else {
-          for (let i = before + c + 1; i < before + round.count; i++) {
-            if (model.stitches[i].changeColorAfter) {
-              jumpTo = i - before;
-              break;
-            }
-          }
-          if (jumpTo === null) jumpTo = round.count;
-          jumpLabel = ui.nextColorChange;
-        }
-      }
-    }
   }
 
   return (
@@ -128,16 +98,6 @@ export default function MobileDock({
             </button>
           )}
         </div>
-      )}
-
-      {counting && !done && jumpTo !== null && (
-        <button
-          type="button"
-          className="mobile-dock-jump"
-          onClick={() => setCursor(Math.min(roundCount, jumpTo))}
-        >
-          {jumpLabel}
-        </button>
       )}
 
       <div className="mobile-dock-nav">

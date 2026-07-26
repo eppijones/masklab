@@ -778,22 +778,19 @@ function CameraDirector({
         const tx = ring.r * cx;
         const tz = ring.r * cz;
         if (isBrimPhase(round.phase)) {
-          // Brim flares flat in sy-visning: look from BELOW up at the
-          // working edge so the stitch faces point at the camera.
-          goal.current.set(tx + 3.6 * close * cx, sy - 9.2 * close, tz + 3.6 * close * cz);
-          goalTarget.current.set(tx, sy - 0.15, tz);
+          // Brim: mild under-look so stitch faces stay readable, not steep.
+          goal.current.set(tx + 4.8 * close * cx, sy - 5.5 * close, tz + 4.8 * close * cz);
+          goalTarget.current.set(tx, sy + 0.05, tz);
         } else if (round.phase === 'top') {
-          // Flat crown: after the sy-flip, stitch faces point downward.
-          // Sit under the working stitch and look up — same clear "face-on"
-          // read as runde 22, while azimuth follows the work right → left.
-          goal.current.set(tx + 6.2 * close * cx, sy - 7.4 * close, tz + 6.2 * close * cz);
-          goalTarget.current.set(tx, sy - 0.12, tz);
+          // Crown: gentler under-angle than before — still right→left orbit.
+          goal.current.set(tx + 7.2 * close * cx, sy - 4.2 * close, tz + 7.2 * close * cz);
+          goalTarget.current.set(tx, sy + 0.05, tz);
         } else {
-          // Text / vertical side: ALSO look from below the working edge.
-          // A high side-on camera made +1 appear left→right on phone; the
-          // under-edge framing keeps right→left like the crown rounds.
-          goal.current.set(tx + 7.4 * close * cx, sy - 5.6 * close, tz + 7.4 * close * cz);
-          goalTarget.current.set(tx, sy + 0.15, tz);
+          // Text / side: nearly straight-on (eye level) so letters & colour
+          // changes read clearly — not a steep under/up diagonal.
+          const dist = (ring.r + 13.5) * close;
+          goal.current.set(dist * cx, sy + 1.6 * close, dist * cz);
+          goalTarget.current.set(tx * 0.96, sy + 0.45, tz * 0.96);
         }
         active.current = true;
         return;
