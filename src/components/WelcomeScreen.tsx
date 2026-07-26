@@ -1,4 +1,5 @@
 import { useApp, getModel } from '../store';
+import HatScene from './HatScene';
 
 const PDF_URL =
   'https://helenespilling.com/wp-content/uploads/2026/06/RO-DET-I-LAND-HATTEN.pdf';
@@ -10,18 +11,17 @@ const PDF_URL =
 export default function WelcomeScreen() {
   const setWelcomeDone = useApp((s) => s.setWelcomeDone);
   const setStep = useApp((s) => s.setStep);
+  const setShowFinished = useApp((s) => s.setShowFinished);
+  const setViewMode = useApp((s) => s.setViewMode);
   const stepIndex = useApp((s) => s.stepIndex);
   const cursors = useApp((s) => s.cursors);
 
-  const hasProgress =
-    stepIndex > 0 || Object.keys(cursors).length > 0;
+  const hasProgress = stepIndex > 0 || Object.keys(cursors).length > 0;
 
-  const start = () => {
-    setStep(0);
-    setWelcomeDone(true);
-  };
-
-  const resume = () => {
+  const enter = (resume: boolean) => {
+    if (!resume) setStep(0);
+    setShowFinished(false);
+    setViewMode('working');
     setWelcomeDone(true);
   };
 
@@ -37,7 +37,7 @@ export default function WelcomeScreen() {
             <span style={{ background: '#00205B' }} />
           </div>
           <span className="welcome-brand">
-            RO RO RO <span>· Bøttehatt · 4,0 mm</span>
+            Ro det i land <span>· Helene Spilling</span>
           </span>
         </div>
         <a className="welcome-pdf" href={PDF_URL} target="_blank" rel="noreferrer">
@@ -58,11 +58,11 @@ export default function WelcomeScreen() {
             Laget for deg som aldri har holdt en heklenål før. Hatten i 3D vokser mens du hekler.
           </p>
           <div className="welcome-cta">
-            <button type="button" className="welcome-start" onClick={start}>
+            <button type="button" className="welcome-start" onClick={() => enter(false)}>
               Start oppskriften →
             </button>
             {hasProgress && (
-              <button type="button" className="welcome-resume" onClick={resume}>
+              <button type="button" className="welcome-resume" onClick={() => enter(true)}>
                 Fortsett der du slapp
               </button>
             )}
@@ -72,13 +72,9 @@ export default function WelcomeScreen() {
           </p>
         </section>
 
-        <aside className="welcome-aside" aria-hidden>
-          <div className="welcome-hat-mark">
-            <span className="welcome-hat-ro">RO</span>
-            <span className="welcome-hat-ro">RO</span>
-            <span className="welcome-hat-ro">RO</span>
-          </div>
-          <p className="welcome-hint">Originaloppskrift · Helene Spilling</p>
+        <aside className="welcome-aside" aria-label="Ferdig hatt i 3D">
+          <HatScene preview />
+          <p className="welcome-hint">Dra for å rotere · snurring er på</p>
         </aside>
       </main>
 

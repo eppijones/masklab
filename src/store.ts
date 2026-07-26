@@ -55,7 +55,9 @@ interface AppState {
   chartOpen: boolean;
   cheatOpen: boolean;
   troubleOpen: boolean;
-  /** Left "Hopp til steg" drawer. */
+  /** Demo AI chat panel (bottom-left). */
+  aiChatOpen: boolean;
+  /** Left "Oppskrift" step-jump drawer. */
   jumpOpen: boolean;
   /** Collapsed/expanded Maske-for-maske overlay on the 3D stage. */
   stitchPanelOpen: boolean;
@@ -77,6 +79,7 @@ interface AppState {
   setChartOpen: (v: boolean) => void;
   setCheatOpen: (v: boolean) => void;
   setTroubleOpen: (v: boolean) => void;
+  setAiChatOpen: (v: boolean) => void;
   setJumpOpen: (v: boolean) => void;
   setStitchPanelOpen: (v: boolean) => void;
   setWelcomeDone: (v: boolean) => void;
@@ -100,6 +103,7 @@ export const useApp = create<AppState>()(
       chartOpen: false,
       cheatOpen: false,
       troubleOpen: false,
+      aiChatOpen: false,
       jumpOpen: false,
       stitchPanelOpen: true,
       welcomeDone: false,
@@ -107,9 +111,14 @@ export const useApp = create<AppState>()(
       setStep: (i, remember = false) => {
         const { steps } = getModel();
         const clamped = Math.max(0, Math.min(steps.length - 1, i));
+        const step = steps[clamped];
         set((s) => ({
           stepIndex: clamped,
-          stitchCursor: s.cursors[steps[clamped].id] ?? null,
+          // Round steps always count along — default 0 when no saved progress.
+          stitchCursor:
+            step.kind === 'round'
+              ? (s.cursors[step.id] ?? 0)
+              : null,
           // Navigating always returns you to the working (sy) view; the
           // "Ferdig hatt" toggle is a preview, not a place to work from.
           showFinished: false,
@@ -126,19 +135,12 @@ export const useApp = create<AppState>()(
       },
       next: () => {
         const s = get();
-        const { steps, rounds } = getModel();
+        const { steps } = getModel();
         const dest = Math.min(steps.length - 1, s.stepIndex + 1);
         const destStep = steps[dest];
-        // Stepping forward INTO a round means starting it: a saved cursor at
-        // full count is a stale "peek" (from browsing ahead with the slider
-        // or "Hele runden") and must not masquerade as real progress.
-        // Genuine mid-round progress (e.g. 40/80) is always kept.
-        if (destStep.kind === 'round' && destStep.roundIdx !== null) {
-          const saved = s.cursors[destStep.id];
-          const count = rounds[destStep.roundIdx].count;
-          if (saved !== undefined && saved >= count) {
-            set((st) => ({ cursors: { ...st.cursors, [destStep.id]: 0 } }));
-          }
+        // Neste steg always starts the round counter at 0.
+        if (destStep.kind === 'round') {
+          set((st) => ({ cursors: { ...st.cursors, [destStep.id]: 0 } }));
         }
         s.setStep(dest);
       },
@@ -165,6 +167,7 @@ export const useApp = create<AppState>()(
       setChartOpen: (v) => set({ chartOpen: v }),
       setCheatOpen: (v) => set({ cheatOpen: v }),
       setTroubleOpen: (v) => set({ troubleOpen: v }),
+      setAiChatOpen: (v) => set({ aiChatOpen: v }),
       setJumpOpen: (v) => set({ jumpOpen: v }),
       setStitchPanelOpen: (v) => set({ stitchPanelOpen: v }),
       setWelcomeDone: (v) => set({ welcomeDone: v }),

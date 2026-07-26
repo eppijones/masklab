@@ -40,7 +40,9 @@ function Dot({ color, big }: { color: YarnColor; big?: boolean }) {
 export default function WorkHUD() {
   const stepIndex = useApp((s) => s.stepIndex);
   const cursor = useApp((s) => s.stitchCursor);
+  const setCursor = useApp((s) => s.setStitchCursor);
   const showFinished = useApp((s) => s.showFinished);
+  const next = useApp((s) => s.next);
 
   const model = getModel();
   const step = model.steps[stepIndex];
@@ -106,9 +108,35 @@ export default function WorkHUD() {
   return (
     <div className="workhud">
       <div className="workhud-top">
-        <div className="workhud-count">
-          <strong>{c}</strong>
-          <span>av {round.count}</span>
+        <div className="workhud-count-col">
+          <div className="workhud-count">
+            <strong>{c}</strong>
+            <span>av {round.count}</span>
+          </div>
+          <div className="workhud-stepper">
+            <button
+              type="button"
+              className="workhud-pm minus"
+              onClick={() => setCursor(Math.max(0, c - 1))}
+              title="−1 maske"
+            >
+              −1
+            </button>
+            {done ? (
+              <button type="button" className="workhud-pm plus" onClick={next}>
+                Neste →
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="workhud-pm plus"
+                onClick={() => setCursor(Math.min(round.count, c + 1))}
+                title="+1 maske"
+              >
+                +1
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="workhud-msgs">

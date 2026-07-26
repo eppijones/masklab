@@ -352,9 +352,9 @@ export default function StepPanel() {
           type="button"
           className="btn jump-open"
           onClick={() => setJumpOpen(true)}
-          title="Hopp til steg"
+          title="Vis hele oppskriften og hopp til et steg"
         >
-          Hopp til…
+          Oppskrift
         </button>
         <button type="button" className="btn next" onClick={next} disabled={isLast}>
           {isLast ? 'Ferdig!' : 'Neste steg →'}
