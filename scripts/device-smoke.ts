@@ -229,6 +229,22 @@ async function runPersonaFlow(page: Page, profile: Profile): Promise<string[]> {
     fails.push('missing step nav buttons');
   }
 
+  if (profile.expectDock) {
+    const phoneShell = await page.evaluate(() => {
+      const layout = document.querySelector('.layout');
+      const stage = document.querySelector('.layout.mobile-work .stage') as HTMLElement | null;
+      return {
+        hasInlinePanel: !!document.querySelector('.layout > .panel'),
+        mobileWork: !!document.querySelector('.layout.mobile-work'),
+        stageFlex: stage ? getComputedStyle(stage).flexGrow : null,
+        layoutOverflow: layout ? getComputedStyle(layout).overflowY || getComputedStyle(layout).overflow : null,
+      };
+    });
+    if (phoneShell.hasInlinePanel) fails.push('recipe panel still inline under 3D (should be sheet)');
+    if (!phoneShell.mobileWork) fails.push('missing layout.mobile-work');
+    if (phoneShell.stageFlex === '0') fails.push('stage is not flex-growing on phone');
+  }
+
   // Round counting: +1/−1 reachable
   await page.evaluate(() => {
     const api = (window as unknown as { __robo: Robo }).__robo;
@@ -284,7 +300,7 @@ async function runPersonaFlow(page: Page, profile: Profile): Promise<string[]> {
   });
   await wait(300);
 
-  // Jump drawer via Oppskrift
+  // Dock Oppskrift → recipe sheet; desktop foot → step list
   await page.evaluate(() => {
     const btn = document.querySelector(
       '.mobile-dock-nav-btn.jump, .panel-foot .btn.jump-open',
@@ -292,8 +308,15 @@ async function runPersonaFlow(page: Page, profile: Profile): Promise<string[]> {
     btn?.click();
   });
   await wait(400);
-  const jumpOpen = await page.evaluate(() => !!document.querySelector('.jump-drawer'));
-  if (!jumpOpen) fails.push('oppskrift/jump drawer did not open');
+  const opened = await page.evaluate(() => ({
+    recipe: !!document.querySelector('.recipe-sheet'),
+    jump: !!document.querySelector('.jump-drawer'),
+  }));
+  if (profile.expectDock) {
+    if (!opened.recipe) fails.push('Oppskrift did not open recipe sheet');
+  } else if (!opened.jump) {
+    fails.push('Alle steg / jump drawer did not open');
+  }
   await page.evaluate(() => {
     (window as unknown as { __robo: Robo }).__robo.closeOverlays();
   });

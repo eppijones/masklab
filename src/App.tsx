@@ -10,6 +10,7 @@ import JumpDrawer from './components/JumpDrawer';
 import WelcomeScreen from './components/WelcomeScreen';
 import ConfettiBurst from './components/ConfettiBurst';
 import MobileDock from './components/MobileDock';
+import RecipeSheet from './components/RecipeSheet';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import { useApp, getModel } from './store';
 import { useDeviceClass, useNeedsMobileDock } from './hooks/useDeviceClass';
@@ -87,11 +88,14 @@ function TopBar() {
           <span style={{ background: '#FDFAF3', border: '1px solid #D8CFBC' }} />
           <span style={{ background: '#00205B' }} />
         </div>
-        <span className="kicker">{ui.brandWelcome}</span>
+        {/* Desktop keeps full line; phone/portrait uses short brand for space */}
+        <span className="kicker kicker-full">{ui.brandWelcome}</span>
+        <span className="kicker kicker-short">{ui.brandKicker}</span>
       </div>
 
       <div className="topbar-tools" ref={toolsRef}>
-        <LanguageSwitcher />
+        {/* Flags only — language was chosen on welcome; frees space for the title */}
+        <LanguageSwitcher flagsOnly />
         <button
           type="button"
           className="icon-btn"
@@ -354,7 +358,9 @@ export default function App() {
         st.setCheatOpen(false);
         st.setTroubleOpen(false);
         st.setJumpOpen(false);
+        st.setRecipeOpen(false);
         st.setSchoolOpen(false);
+        st.setAiChatOpen(false);
       },
       device: () => document.documentElement.dataset.device ?? 'desktop',
       orientation: () => document.documentElement.dataset.orientation ?? 'landscape',
@@ -447,8 +453,8 @@ export default function App() {
     <div className={`app ${needsDock ? 'has-mobile-dock' : ''}`}>
       <TopBar />
       <ReturnPill />
-      <div className="layout">
-        <StepPanel hideFoot={needsDock} />
+      <div className={`layout ${needsDock ? 'mobile-work' : ''}`}>
+        {!needsDock && <StepPanel />}
         <section className="card stage">
           <div className="card-head stage-head">
             <ViewToggle />
@@ -476,6 +482,7 @@ export default function App() {
         </section>
       </div>
       {needsDock && <MobileDock />}
+      {needsDock && <RecipeSheet />}
       <Maskeskolen />
       <JumpDrawer />
       <ChartView />

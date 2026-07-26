@@ -14,7 +14,7 @@ export default function MobileDock() {
   const showFinished = useApp((s) => s.showFinished);
   const next = useApp((s) => s.next);
   const prev = useApp((s) => s.prev);
-  const setJumpOpen = useApp((s) => s.setJumpOpen);
+  const setRecipeOpen = useApp((s) => s.setRecipeOpen);
 
   const model = getModel();
   const steps = model.steps;
@@ -136,7 +136,7 @@ export default function MobileDock() {
         <button
           type="button"
           className="mobile-dock-nav-btn jump"
-          onClick={() => setJumpOpen(true)}
+          onClick={() => setRecipeOpen(true)}
           title={ui.jumpOpen}
         >
           {ui.jumpOpen}

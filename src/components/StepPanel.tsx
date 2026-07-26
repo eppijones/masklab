@@ -53,7 +53,14 @@ function WaveMiniChart({ activeRow, locale }: { activeRow: number; locale: 'no' 
   );
 }
 
-export default function StepPanel({ hideFoot = false }: { hideFoot?: boolean }) {
+export default function StepPanel({
+  hideFoot = false,
+  variant = 'inline',
+}: {
+  hideFoot?: boolean;
+  /** `sheet` = body only inside RecipeSheet (no outer card chrome). */
+  variant?: 'inline' | 'sheet';
+}) {
   const locale = useApp((s) => s.locale);
   const ui = t(locale);
   const stepIndex = useApp((s) => s.stepIndex);
@@ -86,6 +93,86 @@ export default function StepPanel({ hideFoot = false }: { hideFoot?: boolean }) 
             ? ui.yarnBlue
             : null;
 
+  const body = (
+    <>
+      <div className="step-eyebrow">
+        <span
+          className={`step-num ${
+            startChapter ? 'start' : step.kind === 'done' ? 'finale' : ''
+          }`}
+        >
+          {step.eyebrow}
+        </span>
+        {variant === 'sheet' && (
+          <span className="sub">{ui.stepOf(stepIndex + 1, steps.length)}</span>
+        )}
+      </div>
+
+      <h2 className="step-title">{step.title}</h2>
+
+      <StartChapterArt step={step} />
+
+      {step.body.map((p, i) => (
+        <p className="step-body" key={i}>
+          {p}
+        </p>
+      ))}
+
+      {step.bullets && (
+        <ul className="step-bullets">
+          {step.bullets.map((b, i) => (
+            <li key={i}>{b}</li>
+          ))}
+        </ul>
+      )}
+
+      {step.checklist && (
+        <div className="checklist">
+          {step.checklist.map((item, i) => {
+            const key = `check:${step.id}:${i}`;
+            const on = !!confirmed[key];
+            return (
+              <label key={i} className={on ? 'checked' : ''}>
+                <input type="checkbox" checked={on} onChange={() => toggleConfirm(key)} />
+                {item}
+              </label>
+            );
+          })}
+        </div>
+      )}
+
+      {isWave && round?.waveRow != null && (
+        <WaveMiniChart activeRow={round.waveRow} locale={locale} />
+      )}
+
+      {step.confirm && (
+        <label className={`confirm-box ${confirmed[step.id] ? 'ok' : ''}`}>
+          <input
+            type="checkbox"
+            checked={!!confirmed[step.id]}
+            onChange={() => toggleConfirm(step.id)}
+          />
+          {step.confirm}
+        </label>
+      )}
+
+      <div className="step-meta">
+        {step.yarn && yarnLabel && (
+          <span className="chip">
+            <span className="swatch" style={{ background: YARN_HEX[step.yarn] }} />
+            {yarnLabel}
+          </span>
+        )}
+        {step.countChip && <span className="chip">{step.countChip}</span>}
+        <span className="chip">{ui.needleChip}</span>
+      </div>
+    </>
+  );
+
+  if (variant === 'sheet') {
+    return <div className="panel-body sheet-body">{body}</div>;
+  }
+
   return (
     <section className="card panel">
       <div className="card-head">
@@ -93,76 +180,7 @@ export default function StepPanel({ hideFoot = false }: { hideFoot?: boolean }) 
         <span className="sub">{ui.stepOf(stepIndex + 1, steps.length)}</span>
       </div>
 
-      <div className="panel-body">
-        <div className="step-eyebrow">
-          <span
-            className={`step-num ${
-              startChapter ? 'start' : step.kind === 'done' ? 'finale' : ''
-            }`}
-          >
-            {step.eyebrow}
-          </span>
-        </div>
-
-        <h2 className="step-title">{step.title}</h2>
-
-        <StartChapterArt step={step} />
-
-        {step.body.map((p, i) => (
-          <p className="step-body" key={i}>
-            {p}
-          </p>
-        ))}
-
-        {step.bullets && (
-          <ul className="step-bullets">
-            {step.bullets.map((b, i) => (
-              <li key={i}>{b}</li>
-            ))}
-          </ul>
-        )}
-
-        {step.checklist && (
-          <div className="checklist">
-            {step.checklist.map((item, i) => {
-              const key = `check:${step.id}:${i}`;
-              const on = !!confirmed[key];
-              return (
-                <label key={i} className={on ? 'checked' : ''}>
-                  <input type="checkbox" checked={on} onChange={() => toggleConfirm(key)} />
-                  {item}
-                </label>
-              );
-            })}
-          </div>
-        )}
-
-        {isWave && round?.waveRow != null && (
-          <WaveMiniChart activeRow={round.waveRow} locale={locale} />
-        )}
-
-        {step.confirm && (
-          <label className={`confirm-box ${confirmed[step.id] ? 'ok' : ''}`}>
-            <input
-              type="checkbox"
-              checked={!!confirmed[step.id]}
-              onChange={() => toggleConfirm(step.id)}
-            />
-            {step.confirm}
-          </label>
-        )}
-
-        <div className="step-meta">
-          {step.yarn && yarnLabel && (
-            <span className="chip">
-              <span className="swatch" style={{ background: YARN_HEX[step.yarn] }} />
-              {yarnLabel}
-            </span>
-          )}
-          {step.countChip && <span className="chip">{step.countChip}</span>}
-          <span className="chip">{ui.needleChip}</span>
-        </div>
-      </div>
+      <div className="panel-body">{body}</div>
 
       {!hideFoot && (
         <div className="panel-foot">
@@ -170,9 +188,9 @@ export default function StepPanel({ hideFoot = false }: { hideFoot?: boolean }) 
             type="button"
             className="btn jump-open"
             onClick={() => setJumpOpen(true)}
-            title={ui.jumpOpen}
+            title={ui.jumpList}
           >
-            {ui.jumpOpen}
+            {ui.jumpList}
           </button>
           <button type="button" className="btn prev" onClick={prev} disabled={stepIndex === 0}>
             {ui.prev}

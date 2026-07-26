@@ -716,8 +716,8 @@ function CameraDirector({
   const goalTarget = useRef(new THREE.Vector3(0, 9, 0));
   const active = useRef(false);
   const lastPresetKey = useRef('');
-  /** Phone/tablet: pull camera a bit closer so work stays readable in portrait. */
-  const close = device === 'phone' ? 0.82 : device === 'tablet' ? 0.9 : 1;
+  /** Phone/tablet: pull camera closer so stitches fill the portrait stage. */
+  const close = device === 'phone' ? 0.58 : device === 'tablet' ? 0.78 : 1;
 
   useEffect(() => {
     const model = getModel();
@@ -958,8 +958,13 @@ export default function HatScene({
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const autoRotateStore = useApp((s) => s.autoRotate);
   const spinning = preview || autoRotateStore;
-  const fov = device === 'phone' ? 44 : device === 'tablet' ? 40 : 36;
+  const fov = device === 'phone' ? 38 : device === 'tablet' ? 40 : 36;
   const dpr: [number, number] = device === 'phone' ? [1, 1.5] : [1, 2];
+  const startPos: [number, number, number] = preview
+    ? [44, 26, 52]
+    : device === 'phone'
+      ? [14, 22, 18]
+      : [20, 30, 26];
   return (
     <div id="scene-root" className={preview ? 'scene-preview' : undefined}>
       <Canvas
@@ -968,7 +973,7 @@ export default function HatScene({
           fov,
           near: 0.5,
           far: 300,
-          position: preview ? [44, 26, 52] : [20, 30, 26],
+          position: startPos,
         }}
         gl={{ antialias: true }}
       >
@@ -988,7 +993,7 @@ export default function HatScene({
           dampingFactor={0.06}
           autoRotate={spinning}
           autoRotateSpeed={1.2}
-          minDistance={5}
+          minDistance={device === 'phone' ? 3.2 : 5}
           maxDistance={90}
           // Allow near-overhead (brim in sy-visning) and slightly under-horizon
           // (brim in ferdig-visning) so stitches can face the camera.
