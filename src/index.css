@@ -1073,9 +1073,14 @@ a { color: var(--red); }
 }
 .speed-btns button.on { background: var(--blue); border-color: var(--blue); color: var(--card); }
 
-/* "hopp tilbake dit du var" pill after a quick jump */
+/* "hopp tilbake dit du var" — own row under topbar, never over stage controls */
+.return-pill-bar {
+  flex: none;
+  display: flex; justify-content: center; align-items: center;
+  padding: 0 24px 10px;
+  min-height: 0;
+}
 .return-pill {
-  position: fixed; top: 66px; left: 50%; transform: translateX(-50%); z-index: 25;
   font-family: 'Karla', sans-serif; font-weight: 800; font-size: 13px;
   letter-spacing: 0.04em;
   background: var(--blue); color: var(--card);
@@ -1083,9 +1088,11 @@ a { color: var(--red); }
   box-shadow: 0 14px 28px -14px rgba(0, 32, 91, 0.65);
   transition: background 0.12s, transform 0.12s;
   animation: pill-in 0.2s ease;
+  max-width: min(560px, calc(100vw - 48px));
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.return-pill:hover { background: var(--blue-dark); transform: translateX(-50%) translateY(-1px); }
-@keyframes pill-in { from { opacity: 0; transform: translateX(-50%) translateY(-6px); } to { opacity: 1; transform: translateX(-50%); } }
+.return-pill:hover { background: var(--blue-dark); transform: translateY(-1px); }
+@keyframes pill-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 
 /* ---------- overlays ---------- */
 .overlay {
@@ -1363,8 +1370,10 @@ html[data-device="phone"] .app {
   max-width: 100%; max-height: 88dvh; width: 100%;
   border-radius: 16px 16px 0 0; padding: 18px 16px;
 }
+[data-device="phone"] .return-pill-bar {
+  padding: 0 12px 8px;
+}
 [data-device="phone"] .return-pill {
-  top: max(56px, calc(env(safe-area-inset-top) + 48px));
   font-size: 12px; padding: 10px 14px; max-width: calc(100vw - 24px);
 }
 [data-device="phone"] .flip-hint {

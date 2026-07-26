@@ -251,14 +251,16 @@ function ReturnPill() {
         : `Runde ${round.num}`
       : step.title;
   return (
-    <button className="return-pill" onClick={() => setStep(returnTo)}>
-      {ui.returnTo(label)}
-      {savedCursor != null && round
-        ? locale === 'en'
-          ? ` · stitch ${savedCursor}/${round.count}`
-          : ` · maske ${savedCursor}/${round.count}`
-        : ''}
-    </button>
+    <div className="return-pill-bar">
+      <button type="button" className="return-pill" onClick={() => setStep(returnTo)}>
+        {ui.returnTo(label)}
+        {savedCursor != null && round
+          ? locale === 'en'
+            ? ` · stitch ${savedCursor}/${round.count}`
+            : ` · maske ${savedCursor}/${round.count}`
+          : ''}
+      </button>
+    </div>
   );
 }
 
@@ -438,6 +440,7 @@ export default function App() {
   return (
     <div className={`app ${needsDock ? 'has-mobile-dock' : ''}`}>
       <TopBar />
+      <ReturnPill />
       <div className="layout">
         <StepPanel hideFoot={needsDock} />
         <section className="card stage">
@@ -470,7 +473,6 @@ export default function App() {
       {needsDock && <MobileDock />}
       <Maskeskolen />
       <JumpDrawer />
-      <ReturnPill />
       <ChartView />
       <CheatSheet />
       <TroubleDrawer />
