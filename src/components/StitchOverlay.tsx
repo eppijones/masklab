@@ -14,8 +14,8 @@ function rhythmChip(round: { increaseEvery: number | null; count: number; num: n
 }
 
 /**
- * Maske-for-maske overlay docked on the 3D stage — never in the left panel.
- * Pointer events only on the panel so the canvas stays usable around it.
+ * Maske-for-maske overlay on the 3D stage: overview + jumps.
+ * +1/−1 live in the stage foot (WorkHUD) next to «1 av N».
  */
 export default function StitchOverlay() {
   const stepIndex = useApp((s) => s.stepIndex);
@@ -24,7 +24,6 @@ export default function StitchOverlay() {
   const showFinished = useApp((s) => s.showFinished);
   const open = useApp((s) => s.stitchPanelOpen);
   const setOpen = useApp((s) => s.setStitchPanelOpen);
-  const next = useApp((s) => s.next);
 
   const model = getModel();
   const step = model.steps[stepIndex];
@@ -32,40 +31,12 @@ export default function StitchOverlay() {
   const patterned = round ? isPatterned(round) : false;
 
   useEffect(() => {
-    if (step?.kind === 'round' && round && patterned && cursor === null) setCursor(0);
+    if (step?.kind === 'round' && round && cursor === null) setCursor(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stepIndex]);
 
   if (!step || step.kind !== 'round' || !round || showFinished) return null;
-
-  if (cursor === null) {
-    return (
-      <div className={`stitch-overlay ${open ? '' : 'collapsed'}`}>
-        <button
-          type="button"
-          className="stitch-overlay-toggle"
-          onClick={() => setOpen(!open)}
-          aria-expanded={open}
-        >
-          <span>Tell med appen</span>
-          <span className="stitch-overlay-count">0 / {round.count}</span>
-          <span className="stitch-overlay-chevron" aria-hidden>
-            {open ? '▾' : '▸'}
-          </span>
-        </button>
-        {open && (
-          <div className="stitch-overlay-body stitch-overlay-start">
-            <p className="stepper-next">
-              Trykk «+1 maske» for hver maske du lager — appen husker hvor du var.
-            </p>
-            <button className="stitch-start-btn" onClick={() => setCursor(0)}>
-              Start telling fra 0
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  }
+  if (cursor === null) return null;
 
   const c = Math.min(cursor, round.count);
   const before = step.roundIdx! > 0 ? model.cumCounts[step.roundIdx! - 1] : 0;
@@ -74,7 +45,6 @@ export default function StitchOverlay() {
   const role = nextStitch ? increaseRole(c, round.increaseEvery, round.num) : null;
   const curRun = runs.find((r) => c + 1 >= r.from && c + 1 <= r.to);
   const hasIncreases = round.increaseEvery !== null && round.num !== 1;
-  const done = c >= round.count;
 
   const nextColorBoundary = (() => {
     const cur = before + c;
@@ -128,29 +98,7 @@ export default function StitchOverlay() {
         <div className="stitch-overlay-body">
           {rhythm && <p className="stepper-rhythm">{rhythm}</p>}
 
-          <div className="stitch-controls">
-            <button
-              type="button"
-              className="stitch-btn minus"
-              onClick={() => setCursor(Math.max(0, c - 1))}
-              title="−1 (← ↓ Backspace)"
-            >
-              −1
-            </button>
-            {done ? (
-              <button type="button" className="stitch-btn plus" onClick={next}>
-                Neste steg →
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="stitch-btn plus"
-                onClick={() => setCursor(Math.min(round.count, c + 1))}
-                title="+1 (Space Enter → ↑)"
-              >
-                +1 maske
-              </button>
-            )}
+          <div className="stitch-controls stitch-controls-slim">
             {patterned ? (
               <button
                 type="button"
@@ -167,9 +115,7 @@ export default function StitchOverlay() {
               >
                 Til neste økning
               </button>
-            ) : (
-              <span className="stitch-btn-spacer" />
-            )}
+            ) : null}
             <button
               type="button"
               className="stitch-btn secondary"
@@ -179,18 +125,12 @@ export default function StitchOverlay() {
             </button>
           </div>
 
-          {c > 0 && (
-            <button type="button" className="stepper-reset" onClick={() => setCursor(0)}>
-              ⟲ Start runden fra 0
-            </button>
-          )}
-
           {nextStitch ? (
             <p className="stepper-next">
               {role === 'second-of-two' ? (
                 <>
                   Neste (nr. {c + 1}): <strong>2/2</strong> — økning i{' '}
-                  <strong>samme V</strong> som nr. {c}. Ikke gå videre.
+                  <strong>samme V</strong> som nr. {c}.
                 </>
               ) : role === 'first-of-two' ? (
                 <>
@@ -198,7 +138,7 @@ export default function StitchOverlay() {
                   <strong style={{ color: colorCss(nextStitch.color) }}>
                     {colorName(nextStitch.color)} fastmaske
                   </strong>{' '}
-                  i neste V (første av to; neste = samme hull)
+                  (neste = samme hull)
                 </>
               ) : (
                 <>
@@ -206,17 +146,16 @@ export default function StitchOverlay() {
                   <strong style={{ color: colorCss(nextStitch.color) }}>
                     {colorName(nextStitch.color)} fastmaske
                   </strong>
-                  {role === 'plain' ? ' — én vanlig i neste V' : ''}
                 </>
               )}
               {nextStitch.changeColorAfter && (
                 <>
                   {' '}
-                  — og i DENNE masken bytter du til{' '}
+                  — bytt til{' '}
                   <strong style={{ color: colorCss(nextStitch.changeColorAfter) }}>
                     {YARN_NAME[nextStitch.changeColorAfter].toLowerCase()}
                   </strong>{' '}
-                  på siste gjennomtrekk (se «Fargebytte» i Maskeskolen).
+                  på siste gjennomtrekk.
                 </>
               )}
             </p>

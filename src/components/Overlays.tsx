@@ -39,7 +39,7 @@ export function TroubleDrawer() {
       <div className="overlay" style={{ background: 'rgba(32,29,24,0.25)' }} onClick={() => setOpen(false)} />
       <div className="drawer">
         <div className="drawer-head">
-          <h3 className="overlay-title">Feilsøking</h3>
+          <h3 className="overlay-title">Hjelp</h3>
           <button className="overlay-close" onClick={() => setOpen(false)}>
             Lukk
           </button>

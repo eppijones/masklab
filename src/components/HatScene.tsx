@@ -689,11 +689,18 @@ function isBrimPhase(phase: string): boolean {
 }
 
 /** Smoothly flies the camera to a preset per phase; user drag cancels the tween. */
-function CameraDirector({ controls }: { controls: React.RefObject<OrbitControlsImpl | null> }) {
+function CameraDirector({
+  controls,
+  preview,
+}: {
+  controls: React.RefObject<OrbitControlsImpl | null>;
+  preview?: boolean;
+}) {
   const stepIndex = useApp((s) => s.stepIndex);
   const viewMode = useApp((s) => s.viewMode);
   const stitchCursor = useApp((s) => s.stitchCursor);
   const showFinished = useApp((s) => s.showFinished);
+  const autoRotate = useApp((s) => s.autoRotate);
   const { camera } = useThree();
   const goal = useRef(new THREE.Vector3());
   const goalTarget = useRef(new THREE.Vector3(0, 9, 0));
@@ -701,6 +708,11 @@ function CameraDirector({ controls }: { controls: React.RefObject<OrbitControlsI
   const lastPresetKey = useRef('');
 
   useEffect(() => {
+    // Endless snurring owns the camera orbit — don't fight it with tweens.
+    if (autoRotate || preview) {
+      active.current = false;
+      return;
+    }
     const model = getModel();
     const profile = buildProfile(model.rounds);
     const topY = profile[0].y;
@@ -824,7 +836,7 @@ function CameraDirector({ controls }: { controls: React.RefObject<OrbitControlsI
     goal.current.set(...pos);
     goalTarget.current.set(...target);
     active.current = true;
-  }, [stepIndex, viewMode, stitchCursor, showFinished]);
+  }, [stepIndex, viewMode, stitchCursor, showFinished, autoRotate, preview]);
 
   useEffect(() => {
     const c = controls.current;
@@ -835,7 +847,7 @@ function CameraDirector({ controls }: { controls: React.RefObject<OrbitControlsI
   }, [controls]);
 
   useFrame(() => {
-    if (!active.current) return;
+    if (autoRotate || preview || !active.current) return;
     camera.position.lerp(goal.current, 0.04);
     const c = controls.current;
     if (c) {
@@ -894,14 +906,31 @@ function CameraDevHook({ controls }: { controls: React.RefObject<OrbitControlsIm
   return null;
 }
 
-export default function HatScene() {
+/** Finished-hat overview for the landing page (always spinning). */
+function PreviewFinished() {
+  const setShowFinished = useApp((s) => s.setShowFinished);
+  const setViewMode = useApp((s) => s.setViewMode);
+  useEffect(() => {
+    setShowFinished(true);
+    setViewMode('finished');
+  }, [setShowFinished, setViewMode]);
+  return null;
+}
+
+export default function HatScene({ preview = false }: { preview?: boolean }) {
   const controlsRef = useRef<OrbitControlsImpl>(null);
-  const autoRotate = useApp((s) => s.autoRotate);
+  const autoRotateStore = useApp((s) => s.autoRotate);
+  const spinning = preview || autoRotateStore;
   return (
-    <div id="scene-root">
+    <div id="scene-root" className={preview ? 'scene-preview' : undefined}>
       <Canvas
         dpr={[1, 2]}
-        camera={{ fov: 36, near: 0.5, far: 300, position: [20, 30, 26] }}
+        camera={{
+          fov: 36,
+          near: 0.5,
+          far: 300,
+          position: preview ? [44, 26, 52] : [20, 30, 26],
+        }}
         gl={{ antialias: true }}
       >
         <color attach="background" args={[BG]} />
@@ -909,17 +938,18 @@ export default function HatScene() {
         <hemisphereLight args={['#fff6e6', '#cbbfa4', 1.15]} />
         <directionalLight position={[30, 45, 25]} intensity={1.5} />
         <directionalLight position={[-38, 22, -30]} intensity={0.5} color="#dfe8ff" />
+        {preview && <PreviewFinished />}
         <Hat />
         <GroundShadow />
-        <CameraDirector controls={controlsRef} />
-        <CameraDevHook controls={controlsRef} />
+        <CameraDirector controls={controlsRef} preview={preview} />
+        {!preview && <CameraDevHook controls={controlsRef} />}
         <OrbitControls
           ref={controlsRef}
           target={[0, 9, 0]}
           enableDamping
           dampingFactor={0.06}
-          autoRotate={autoRotate}
-          autoRotateSpeed={0.7}
+          autoRotate={spinning}
+          autoRotateSpeed={1.2}
           minDistance={5}
           maxDistance={90}
           // Allow near-overhead (brim in sy-visning) and slightly under-horizon

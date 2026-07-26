@@ -8,6 +8,7 @@ import { CheatSheet, TroubleDrawer } from './components/Overlays';
 import StitchOverlay from './components/StitchOverlay';
 import JumpDrawer from './components/JumpDrawer';
 import WelcomeScreen from './components/WelcomeScreen';
+import AiChatDemo from './components/AiChatDemo';
 import { useApp, getModel } from './store';
 
 function TopBar() {
@@ -15,8 +16,7 @@ function TopBar() {
   const setChartOpen = useApp((s) => s.setChartOpen);
   const setCheatOpen = useApp((s) => s.setCheatOpen);
   const setTroubleOpen = useApp((s) => s.setTroubleOpen);
-  const setStep = useApp((s) => s.setStep);
-  const stepIndex = useApp((s) => s.stepIndex);
+  const setWelcomeDone = useApp((s) => s.setWelcomeDone);
   const showNumbers = useApp((s) => s.showNumbers);
   const setShowNumbers = useApp((s) => s.setShowNumbers);
   const showMarkers = useApp((s) => s.showMarkers);
@@ -31,16 +31,20 @@ function TopBar() {
           <span style={{ background: '#FDFAF3', border: '1px solid #D8CFBC' }} />
           <span style={{ background: '#00205B' }} />
         </div>
-        <span className="kicker">RO RO RO · Bøttehatt · 4,0 mm</span>
+        <span className="kicker">Ro det i land</span>
       </div>
       <div className="topbar-actions">
-        <button className="tool-btn" onClick={() => setStep(0, true)} disabled={stepIndex === 0}>
+        <button
+          className="tool-btn"
+          onClick={() => setWelcomeDone(false)}
+          title="Tilbake til velkomstskjermen"
+        >
           ⟲ Til start
         </button>
         <button
           className={`tool-btn ${autoRotate ? 'active' : ''}`}
           onClick={() => setAutoRotate(!autoRotate)}
-          title="Snurr hatten sakte rundt av seg selv"
+          title="Snurr hatten 360° i ett endeløst loop"
         >
           {autoRotate ? '◉ Snurring PÅ' : '◎ Snurring'}
         </button>
@@ -65,7 +69,7 @@ function TopBar() {
           Huskelapp
         </button>
         <button className="tool-btn" onClick={() => setTroubleOpen(true)}>
-          Feilsøking
+          Hjelp
         </button>
       </div>
     </div>
@@ -255,6 +259,7 @@ export default function App() {
       if (e.key === 'Escape') {
         setSchoolOpen(false);
         setJumpOpen(false);
+        useApp.getState().setAiChatOpen(false);
       }
     };
     window.addEventListener('keydown', onKey);
@@ -297,6 +302,7 @@ export default function App() {
       </div>
       <Maskeskolen />
       <JumpDrawer />
+      <AiChatDemo />
       <ReturnPill />
       <ChartView />
       <CheatSheet />

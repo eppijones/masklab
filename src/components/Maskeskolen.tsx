@@ -71,8 +71,8 @@ export default function Maskeskolen() {
 
   return (
     <>
-      <div className="drawer-backdrop" onClick={() => setSchoolOpen(false)} aria-hidden />
-      <aside className="card school" role="dialog" aria-label="Maskeskolen">
+      <div className="drawer-backdrop school-backdrop" onClick={() => setSchoolOpen(false)} aria-hidden />
+      <aside className="card school school-popup" role="dialog" aria-label="Maskeskolen">
       <div className="card-head">
         <span className="label">Maskeskolen</span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

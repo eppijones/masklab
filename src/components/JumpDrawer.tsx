@@ -13,9 +13,9 @@ export default function JumpDrawer() {
   return (
     <>
       <div className="drawer-backdrop" onClick={() => setOpen(false)} aria-hidden />
-      <aside className="jump-drawer" role="dialog" aria-label="Hopp til steg">
+      <aside className="jump-drawer" role="dialog" aria-label="Oppskriften">
         <div className="card-head">
-          <span className="label">Hopp til steg</span>
+          <span className="label">Oppskriften</span>
           <button type="button" className="school-close" onClick={() => setOpen(false)} aria-label="Lukk">
             ×
           </button>
