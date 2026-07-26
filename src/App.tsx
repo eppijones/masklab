@@ -280,6 +280,13 @@ export default function App() {
   }, [locale]);
 
   useEffect(() => {
+    document.documentElement.dataset.screen = welcomeDone ? 'guide' : 'welcome';
+    return () => {
+      delete document.documentElement.dataset.screen;
+    };
+  }, [welcomeDone]);
+
+  useEffect(() => {
     const boot = () => {
       const params = new URLSearchParams(window.location.search);
       const steg = params.get('steg');

@@ -42,6 +42,19 @@ export default function WelcomeScreen() {
 
   const stepCount = getModel().steps.length;
 
+  const cta = (
+    <div className="welcome-cta">
+      <button type="button" className="welcome-start" onClick={() => enter(false)}>
+        {ui.welcomeStart}
+      </button>
+      {hasProgress && (
+        <button type="button" className="welcome-resume" onClick={() => enter(true)}>
+          {ui.welcomeResume}
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <div className="welcome">
       <header className="welcome-top">
@@ -74,16 +87,7 @@ export default function WelcomeScreen() {
             {ui.welcomeTitle2After}
           </h1>
           <p className="welcome-lede">{ui.welcomeLede}</p>
-          <div className="welcome-cta">
-            <button type="button" className="welcome-start" onClick={() => enter(false)}>
-              {ui.welcomeStart}
-            </button>
-            {hasProgress && (
-              <button type="button" className="welcome-resume" onClick={() => enter(true)}>
-                {ui.welcomeResume}
-              </button>
-            )}
-          </div>
+          {cta}
           <p className="welcome-fine">{ui.welcomeFine(stepCount)}</p>
         </section>
 
@@ -102,6 +106,9 @@ export default function WelcomeScreen() {
           </a>
         </p>
       </footer>
+
+      {/* Always-reachable start controls on phone / portrait tablet */}
+      <div className="welcome-mobile-bar">{cta}</div>
     </div>
   );
 }

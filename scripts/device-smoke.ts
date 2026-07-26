@@ -126,11 +126,70 @@ async function wait(ms: number) {
   await new Promise((r) => setTimeout(r, ms));
 }
 
-async function startGuide(page: Page) {
-  await page.evaluate(() => {
-    const btn = document.querySelector('.welcome-start') as HTMLButtonElement | null;
-    if (btn) btn.click();
+async function assertWelcomeUsable(page: Page, profile: Profile): Promise<string[]> {
+  const fails: string[] = [];
+  const check = await page.evaluate(() => {
+    const welcome = document.querySelector('.welcome') as HTMLElement | null;
+    const screen = document.documentElement.dataset.screen;
+    const starts = [...document.querySelectorAll('.welcome-start')] as HTMLButtonElement[];
+    const visibleStart = starts.find((b) => {
+      const r = b.getBoundingClientRect();
+      const style = getComputedStyle(b);
+      return (
+        r.width > 0 &&
+        r.height > 0 &&
+        style.visibility !== 'hidden' &&
+        style.display !== 'none' &&
+        r.bottom > 0 &&
+        r.top < window.innerHeight
+      );
+    });
+    const canScroll =
+      !!welcome &&
+      (welcome.scrollHeight > welcome.clientHeight + 8 ||
+        document.documentElement.scrollHeight > window.innerHeight + 8);
+    if (welcome) welcome.scrollTop = Math.min(80, welcome.scrollHeight);
+    return {
+      screen,
+      hasWelcome: !!welcome,
+      visibleStart: !!visibleStart,
+      canScrollOrFits:
+        canScroll ||
+        (!!welcome && welcome.scrollHeight <= welcome.clientHeight + 8 && !!visibleStart),
+      scrolled: welcome?.scrollTop ?? -1,
+      overflowY: welcome ? getComputedStyle(welcome).overflowY : null,
+    };
   });
+
+  if (check.screen !== 'welcome') fails.push(`screen=${check.screen} expected welcome`);
+  if (!check.hasWelcome) fails.push('welcome screen missing');
+  if (!check.visibleStart) fails.push('Start button not visible in viewport');
+  if (!check.canScrollOrFits && (profile.expectDevice === 'phone' || profile.expectDock)) {
+    fails.push('welcome cannot scroll and content may be clipped');
+  }
+  if (
+    (profile.expectDevice === 'phone' || profile.expectDock) &&
+    check.overflowY !== 'auto' &&
+    check.overflowY !== 'scroll'
+  ) {
+    fails.push(`welcome overflowY=${check.overflowY} expected auto/scroll`);
+  }
+  return fails;
+}
+
+async function startGuide(page: Page) {
+  const clicked = await page.evaluate(() => {
+    const starts = [...document.querySelectorAll('.welcome-start')] as HTMLButtonElement[];
+    const btn =
+      starts.find((b) => {
+        const r = b.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && r.top < window.innerHeight;
+      }) ?? starts[0];
+    if (!btn) return false;
+    btn.click();
+    return true;
+  });
+  if (!clicked) throw new Error('Could not click Start on welcome');
   await wait(800);
 }
 
@@ -287,8 +346,9 @@ async function main() {
     await page.reload({ waitUntil: 'networkidle0' });
     await wait(1200);
 
+    const welcomeFails = await assertWelcomeUsable(page, profile);
     await startGuide(page);
-    const fails = await runPersonaFlow(page, profile);
+    const fails = [...welcomeFails, ...(await runPersonaFlow(page, profile))];
     if (fails.length) {
       failed += 1;
       console.log(`✗ ${profile.id} — ${profile.persona}`);
