@@ -13,6 +13,7 @@ import ConfettiBurst from './components/ConfettiBurst';
 import MobileDock from './components/MobileDock';
 import { useApp, getModel } from './store';
 import { useDeviceClass, useNeedsMobileDock } from './hooks/useDeviceClass';
+import { hasSavedProgress, isHeleneEntry } from './lib/entry';
 
 function HomeIcon() {
   return (
@@ -264,36 +265,53 @@ export default function App() {
   const setJumpOpen = useApp((s) => s.setJumpOpen);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const steg = params.get('steg');
-    const maske = params.get('maske');
-    const st = useApp.getState();
-    const steps = getModel().steps;
+    const boot = () => {
+      const params = new URLSearchParams(window.location.search);
+      const steg = params.get('steg');
+      const maske = params.get('maske');
+      const st = useApp.getState();
+      const steps = getModel().steps;
 
-    const jump = (id: string) => {
-      const idx = steps.findIndex((s) => s.id === id);
-      if (idx < 0) return false;
-      st.setStep(idx);
-      if (maske !== null && !Number.isNaN(Number(maske))) {
-        st.setStitchCursor(Number(maske));
+      const jump = (id: string) => {
+        const idx = steps.findIndex((s) => s.id === id);
+        if (idx < 0) return false;
+        st.setStep(idx);
+        if (maske !== null && !Number.isNaN(Number(maske))) {
+          st.setStitchCursor(Number(maske));
+        }
+        return true;
+      };
+
+      if (steg) {
+        if (jump(steg)) {
+          window.history.replaceState(null, '', window.location.pathname);
+          useApp.setState({ welcomeDone: true, recipeVersion: 2 });
+        }
+        return;
       }
-      return true;
+
+      // /helene: first visit → home; return with progress → resume mid-guide.
+      if (isHeleneEntry()) {
+        useApp.setState({
+          welcomeDone: hasSavedProgress(st),
+          recipeVersion: 2,
+        });
+        return;
+      }
+
+      // Migration: only move mid-project users; never skip intro for fresh sessions.
+      if (st.recipeVersion < 2) {
+        if (hasSavedProgress(st)) jump('round-14');
+        useApp.setState({ recipeVersion: 2 });
+      }
     };
 
-    if (steg) {
-      if (jump(steg)) {
-        window.history.replaceState(null, '', window.location.pathname);
-        useApp.setState({ welcomeDone: true, recipeVersion: 2 });
-      }
+    // Wait for localStorage rehydrate so /helene resume is based on real progress.
+    if (useApp.persist.hasHydrated()) {
+      boot();
       return;
     }
-
-    // Migration: only move mid-project users; never skip intro for fresh sessions.
-    if (st.recipeVersion < 2) {
-      const hasProgress = st.stepIndex > 0 || Object.keys(st.cursors).length > 0;
-      if (hasProgress) jump('round-14');
-      useApp.setState({ recipeVersion: 2 });
-    }
+    return useApp.persist.onFinishHydration(() => boot());
   }, []);
 
   useEffect(() => {
