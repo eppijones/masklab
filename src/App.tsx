@@ -10,7 +10,9 @@ import JumpDrawer from './components/JumpDrawer';
 import WelcomeScreen from './components/WelcomeScreen';
 import AiChatDemo from './components/AiChatDemo';
 import ConfettiBurst from './components/ConfettiBurst';
+import MobileDock from './components/MobileDock';
 import { useApp, getModel } from './store';
+import { useDeviceClass, useNeedsMobileDock } from './hooks/useDeviceClass';
 
 function HomeIcon() {
   return (
@@ -252,6 +254,8 @@ function ReturnPill() {
 }
 
 export default function App() {
+  const device = useDeviceClass();
+  const needsDock = useNeedsMobileDock(device);
   const next = useApp((s) => s.next);
   const prev = useApp((s) => s.prev);
   const schoolOpen = useApp((s) => s.schoolOpen);
@@ -312,6 +316,8 @@ export default function App() {
         st.setJumpOpen(false);
         st.setSchoolOpen(false);
       },
+      device: () => document.documentElement.dataset.device ?? 'desktop',
+      orientation: () => document.documentElement.dataset.orientation ?? 'landscape',
     };
   }, []);
 
@@ -398,10 +404,10 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className={`app ${needsDock ? 'has-mobile-dock' : ''}`}>
       <TopBar />
       <div className="layout">
-        <StepPanel />
+        <StepPanel hideFoot={needsDock} />
         <section className="card stage">
           <div className="card-head stage-head">
             <ViewToggle />
@@ -428,9 +434,10 @@ export default function App() {
                 : 'Dra for å rotere · Rull for å zoome · Space/+1 · Backspace/−1'}
             </div>
           </div>
-          <StageFoot />
+          <StageFoot hideControls={needsDock} />
         </section>
       </div>
+      {needsDock && <MobileDock />}
       <Maskeskolen />
       <JumpDrawer />
       <ReturnPill />
