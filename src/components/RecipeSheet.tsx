@@ -1,10 +1,11 @@
 import { useApp } from '../store';
 import StepPanel from './StepPanel';
+import StitchJumpPanel from './StitchJumpPanel';
 import { t } from '../i18n/ui';
 
 /**
- * Phone / portrait-tablet: full step text lives here, not under the 3D stage.
- * Opened from the dock "Oppskrift" button so 3D + controls stay on screen.
+ * Phone / portrait-tablet: full step text + color-run jumps live here,
+ * not over the 3D stage.
  */
 export default function RecipeSheet() {
   const open = useApp((s) => s.recipeOpen);
@@ -43,6 +44,7 @@ export default function RecipeSheet() {
           </div>
         </div>
         <div className="recipe-sheet-body">
+          <StitchJumpPanel onPicked={() => setOpen(false)} />
           <StepPanel hideFoot variant="sheet" />
         </div>
       </aside>

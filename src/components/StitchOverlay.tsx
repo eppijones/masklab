@@ -14,10 +14,10 @@ function rhythmChip(round: { increaseEvery: number | null; count: number; num: n
 }
 
 /**
- * Maske-for-maske overlay on the 3D stage: overview + jumps.
- * +1/−1 live in the stage foot (WorkHUD) next to «1 av N».
+ * Desktop/tablet-landscape: Maske-for-maske overlay on the 3D stage.
+ * On phone (hiddenOnMobile) the jump grid lives in Oppskrift instead.
  */
-export default function StitchOverlay() {
+export default function StitchOverlay({ hiddenOnMobile = false }: { hiddenOnMobile?: boolean }) {
   const stepIndex = useApp((s) => s.stepIndex);
   const cursor = useApp((s) => s.stitchCursor);
   const setCursor = useApp((s) => s.setStitchCursor);
@@ -35,6 +35,7 @@ export default function StitchOverlay() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stepIndex]);
 
+  if (hiddenOnMobile) return null;
   if (!step || step.kind !== 'round' || !round || showFinished) return null;
   if (cursor === null) return null;
 

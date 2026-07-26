@@ -1369,7 +1369,7 @@ html[data-device="phone"] .app {
   padding: 0 8px;
   padding-left: max(8px, env(safe-area-inset-left));
   padding-right: max(8px, env(safe-area-inset-right));
-  padding-bottom: calc(118px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px));
   overflow: hidden;
   flex: 1;
   min-height: 0;
@@ -1493,6 +1493,25 @@ html[data-device="phone"] .app {
 .recipe-sheet .panel-body.sheet-body {
   padding: 14px 16px calc(24px + env(safe-area-inset-bottom, 0px));
 }
+.stitch-jump-panel {
+  margin: 12px 14px 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--chip);
+  border: 1px solid var(--card-border);
+}
+.stitch-jump-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; margin-bottom: 6px;
+}
+.stitch-jump-lead {
+  margin: 0 0 10px;
+  font-size: 12.5px; font-weight: 700; color: var(--ink-soft); line-height: 1.4;
+}
+.stitch-jump-panel .stitch-runs {
+  margin-top: 10px;
+  max-height: none;
+}
 .recipe-sheet .step-eyebrow .sub {
   font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
   font-weight: 700; color: var(--gold); white-space: nowrap;
@@ -1596,7 +1615,7 @@ html[data-device="tablet"][data-orientation="portrait"] .app {
 [data-device="tablet"][data-orientation="portrait"] .layout.mobile-work {
   display: flex; flex-direction: column;
   gap: 0;
-  padding-bottom: calc(128px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
   overflow: hidden;
   flex: 1; min-height: 0;
 }
