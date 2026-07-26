@@ -2,43 +2,43 @@ import { useRef, useState } from 'react';
 import { useApp } from '../store';
 
 /**
- * Demo placeholder for future AI assistance (ChatGPT / Claude).
+ * Demo AI assistant docked in the 3D stage (bottom-right).
  * Upload UI is local-only — nothing is sent anywhere yet.
  */
-export default function AiChatDemo() {
+export default function AiChatDemo({ docked = false }: { docked?: boolean }) {
   const open = useApp((s) => s.aiChatOpen);
   const setOpen = useApp((s) => s.setAiChatOpen);
   const [files, setFiles] = useState<File[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <>
+    <div className={`ai-dock ${docked ? 'in-stage' : 'floating'} ${open ? 'open' : ''}`}>
       <button
         type="button"
         className={`ai-fab ${open ? 'open' : ''}`}
         onClick={() => setOpen(!open)}
-        title="AI-hjelp (kommer snart)"
+        title="AI-assistent (kommer snart)"
         aria-expanded={open}
       >
         <span className="ai-fab-icon" aria-hidden>
           ✦
         </span>
-        <span className="ai-fab-label">AI</span>
+        <span className="ai-fab-label">AI assistent</span>
       </button>
 
       {open && (
-        <aside className="ai-panel" role="dialog" aria-label="AI-chat demo">
+        <aside className="ai-panel" role="dialog" aria-label="AI assistent">
           <div className="ai-panel-head">
-            <span className="label">AI-chat</span>
+            <span className="label">AI assistent</span>
             <button type="button" className="school-close" onClick={() => setOpen(false)} aria-label="Lukk">
               ×
             </button>
           </div>
           <div className="ai-panel-body">
-            <p className="ai-coming">AI CHAT KOMMER HER</p>
+            <p className="ai-coming">AI-chat kommer her</p>
             <p className="ai-panel-copy">
-              Snart kan du spørre ChatGPT eller Claude — en hekle-/strikkeekspert som kjenner
-              denne oppskriften inn og ut. Last opp bilde eller video av arbeidet ditt for hjelp.
+              Snart kan du spørre en hekleekspert (ChatGPT eller Claude) som kjenner denne
+              oppskriften. Last gjerne opp bilde eller video av arbeidet ditt.
             </p>
             <div className="ai-upload-row">
               <button type="button" className="ai-upload-btn" onClick={() => inputRef.current?.click()}>
@@ -87,6 +87,6 @@ export default function AiChatDemo() {
           </div>
         </aside>
       )}
-    </>
+    </div>
   );
 }

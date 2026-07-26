@@ -77,7 +77,6 @@ export default function WelcomeScreen() {
         <aside className="welcome-aside" aria-label="Ferdig hatt i 3D">
           <div className="welcome-stage">
             <HatScene preview />
-            <p className="welcome-hint">Dra for å rotere · snurring er på</p>
           </div>
         </aside>
       </main>

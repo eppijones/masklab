@@ -6,18 +6,17 @@ import { roundRuns, targetHole, increaseRole, rhythmCells } from '../data/patter
 const NAME_UPPER: Record<YarnColor, string> = { white: 'HVIT', red: 'RØD', blue: 'BLÅ' };
 const NAME_PLURAL: Record<YarnColor, string> = { white: 'hvite', red: 'røde', blue: 'blå' };
 
-/** Little locking stitch marker icon (like the plastic ones in the kit). */
 function MarkerIcon() {
   return (
     <svg className="hud-marker-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden>
       <path
         d="M8 3.5 C5 3.5 4 6 4 9 L4 15 C4 18.5 6.5 20.5 9.5 20.5 C12.5 20.5 15 18.5 15 15 L15 8 C15 6.8 16 6 17.2 6 C18.4 6 19.4 6.8 19.4 8 L19.4 10.5"
         fill="none"
-        stroke="#1E9E45"
+        stroke="#2F6B4F"
         strokeWidth="2.6"
         strokeLinecap="round"
       />
-      <circle cx="19.4" cy="12.4" r="1.9" fill="#1E9E45" />
+      <circle cx="19.4" cy="12.4" r="1.9" fill="#2F6B4F" />
     </svg>
   );
 }
@@ -32,10 +31,7 @@ function Dot({ color, big }: { color: YarnColor; big?: boolean }) {
 }
 
 /**
- * The work HUD, docked in the stage foot: live stitch count and exactly
- * what to do next. For increase rounds the next action is one of three
- * clear roles (én / første av to / andre i samme) — never a countdown
- * to "økning" that people misread against the recipe.
+ * Stable work HUD: fixed control row so +1/−1 never jump when alerts appear.
  */
 export default function WorkHUD() {
   const stepIndex = useApp((s) => s.stepIndex);
@@ -59,7 +55,6 @@ export default function WorkHUD() {
     ? increaseRole(c, round.increaseEvery, round.num)
     : null;
 
-  // First upcoming stitch that carries a colour change (inclusive).
   let changeIdx: number | null = null;
   if (!done) {
     for (let i = before + c; i < before + round.count; i++) {
@@ -74,12 +69,23 @@ export default function WorkHUD() {
     changeIdx !== null ? model.stitches[changeIdx].changeColorAfter! : null;
   const changeIsNow = changeIn === 1;
 
-  // Which run (colour field) the next stitch belongs to, and where in it.
+  let jumpTo: number | null = null;
+  if (!done && changeIdx !== null) {
+    if (!changeIsNow) jumpTo = changeIdx - before;
+    else {
+      for (let i = before + c + 1; i < before + round.count; i++) {
+        if (model.stitches[i].changeColorAfter) {
+          jumpTo = i - before;
+          break;
+        }
+      }
+      if (jumpTo === null) jumpTo = round.count;
+    }
+  }
+
   const runs = patterned ? roundRuns(model.stitches, step.roundIdx) : [];
   const curRun = !done ? runs.find((r) => c + 1 >= r.from && c + 1 <= r.to) : undefined;
 
-  // The stitch in the round BELOW that the next stitch is worked into —
-  // shown so app and fabric can be verified against each other per stitch.
   let belowColor: YarnColor | null = null;
   if (!done && step.roundIdx > 0) {
     const prevStart = step.roundIdx > 1 ? model.cumCounts[step.roundIdx - 2] : 0;
@@ -88,14 +94,13 @@ export default function WorkHUD() {
     belowColor = model.stitches[prevStart + Math.max(0, Math.min(hole, P - 1))].color;
   }
 
-  // Rhythm strip: one cell per hole in the recipe (1 · 1 · 2 i samme).
   const k = round.increaseEvery;
   const showRhythm = !done && !patterned && k !== null && round.num !== 1;
   const cells = k !== null ? rhythmCells(k) : [];
-  // Which recipe-cell the NEXT stitch belongs to (0-based into cells).
   const cellIdx =
     k === null ? -1 : k === 1 ? 0 : Math.min(c % (k + 1), k - 1);
   const repeats = k !== null ? Math.floor(round.count / (k + 1)) : 0;
+  const showMarker = !done && c > 0 && c % 10 === 0;
 
   const nowClass = changeIsNow
     ? 'change'
@@ -107,35 +112,11 @@ export default function WorkHUD() {
 
   return (
     <div className="workhud">
-      <div className="workhud-top">
+      <div className="workhud-main">
         <div className="workhud-count-col">
           <div className="workhud-count">
             <strong>{c}</strong>
             <span>av {round.count}</span>
-          </div>
-          <div className="workhud-stepper">
-            <button
-              type="button"
-              className="workhud-pm minus"
-              onClick={() => setCursor(Math.max(0, c - 1))}
-              title="−1 maske"
-            >
-              −1
-            </button>
-            {done ? (
-              <button type="button" className="workhud-pm plus" onClick={next}>
-                Neste →
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="workhud-pm plus"
-                onClick={() => setCursor(Math.min(round.count, c + 1))}
-                title="+1 maske"
-              >
-                +1
-              </button>
-            )}
           </div>
         </div>
 
@@ -148,17 +129,19 @@ export default function WorkHUD() {
             <div className={`workhud-now ${nowClass}`}>
               {changeIsNow && newColor ? (
                 <>
-                  <span className="workhud-alert">FARGEBYTTE I DENNE MASKEN</span>
-                  Hekle masken med <Dot color={nextStitch!.color} big />{' '}
-                  {NAME_UPPER[nextStitch!.color]}, men trekk{' '}
-                  <Dot color={newColor} big /> <strong>{NAME_UPPER[newColor]}</strong> gjennom
-                  de to siste løkkene.
+                  <span className="workhud-alert">Fargebytte i denne masken</span>
+                  <span className="workhud-line">
+                    Hekle med <Dot color={nextStitch!.color} big />{' '}
+                    {NAME_UPPER[nextStitch!.color]}, men trekk{' '}
+                    <Dot color={newColor} big /> <strong>{NAME_UPPER[newColor]}</strong> gjennom
+                    de to siste løkkene.
+                  </span>
                 </>
               ) : role === 'second-of-two' ? (
                 <>
                   <span className="workhud-alert inc">
                     <span className="workhud-frac">2/2</span>
-                    ØKNING — SAMME V
+                    Økning — samme V
                   </span>
                   <span className="workhud-line">
                     Nr. {c + 1}: <strong>den andre</strong> i samme V som nr. {c}. Ikke gå videre.
@@ -168,7 +151,7 @@ export default function WorkHUD() {
                 <>
                   <span className="workhud-alert pair">
                     <span className="workhud-frac">1/2</span>
-                    TO I SAMME — FØRSTE
+                    To i samme — første
                   </span>
                   <span className="workhud-line">
                     Nr. {c + 1}: <Dot color={nextStitch!.color} big />{' '}
@@ -192,7 +175,6 @@ export default function WorkHUD() {
                 {cells.map((label, h) => {
                   const isTwo = label !== '1';
                   const on = h === cellIdx;
-                  // On the «2 i samme» hole: show 1/2 or 2/2 instead of a vague label.
                   const text =
                     isTwo && on
                       ? role === 'second-of-two'
@@ -213,54 +195,6 @@ export default function WorkHUD() {
             </div>
           )}
 
-          {!done && c > 0 && c % 10 === 0 && (
-            <div className="workhud-marker">
-              <MarkerIcon />
-              <span className="workhud-marker-text">
-                <strong>SETT MARKØR NÅ</strong> — i V-en på masken du nettopp laget (nr. {c}).
-                <span className="workhud-marker-sub">
-                  Markør {c / 10} av {Math.floor(round.count / 10)} i denne runden.
-                </span>
-              </span>
-            </div>
-          )}
-
-          {!done && changeIn !== null && newColor && !changeIsNow && (
-            <div className="workhud-upcoming">
-              <span
-                className="workhud-bignum"
-                style={{
-                  color:
-                    YARN_HEX[nextStitch!.color] === YARN_HEX.white
-                      ? '#4A4033'
-                      : YARN_HEX[nextStitch!.color],
-                }}
-              >
-                {changeIn}
-              </span>
-              <span className="workhud-upcoming-text">
-                {NAME_PLURAL[nextStitch!.color]} igjen — så bytt til{' '}
-                <strong
-                  style={{
-                    color:
-                      YARN_HEX[newColor] === YARN_HEX.white ? '#4A4033' : YARN_HEX[newColor],
-                  }}
-                >
-                  {NAME_UPPER[newColor]}
-                </strong>
-              </span>
-              <span className="workhud-pips">
-                {Array.from({ length: Math.min(changeIn, 12) }, (_, i) => (
-                  <Dot key={i} color={nextStitch!.color} />
-                ))}
-                {changeIn > 12 && <span className="workhud-more">…</span>}
-                <span className="workhud-arrow">→</span>
-                <Dot color={newColor} />
-              </span>
-            </div>
-          )}
-
-          {/* colour verification matters only in the patterned rounds */}
           {!done && patterned && (curRun || belowColor) && (
             <div className="workhud-verify">
               {curRun && (
@@ -276,7 +210,7 @@ export default function WorkHUD() {
               {belowColor && (
                 <span>
                   Du stikker i en <Dot color={belowColor} />{' '}
-                  <strong>{NAME_UPPER[belowColor]} V</strong> under (den turkise ringen).
+                  <strong>{NAME_UPPER[belowColor]} V</strong> under.
                 </span>
               )}
             </div>
@@ -284,6 +218,63 @@ export default function WorkHUD() {
         </div>
       </div>
 
+      {/* Fixed control rail — −1/+1 stay centered; jump sits aside */}
+      <div className="workhud-controls">
+        <div className="workhud-controls-center">
+          <button
+            type="button"
+            className="workhud-pm minus"
+            onClick={() => setCursor(Math.max(0, c - 1))}
+            title="−1 maske"
+          >
+            −1
+          </button>
+          {done ? (
+            <button type="button" className="workhud-pm plus" onClick={next}>
+              Neste steg →
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="workhud-pm plus"
+              onClick={() => setCursor(Math.min(round.count, c + 1))}
+              title="+1 maske"
+            >
+              +1 maske
+            </button>
+          )}
+        </div>
+        <div className="workhud-controls-side">
+          {!done && patterned && jumpTo !== null ? (
+            <button
+              type="button"
+              className="workhud-pm jump"
+              onClick={() => setCursor(Math.min(round.count, jumpTo))}
+            >
+              {changeIsNow ? 'Neste fargebytte' : 'Til fargebytte'}
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Reserved alert slot — keeps height stable */}
+      <div className={`workhud-alert-slot ${showMarker ? 'on' : ''}`}>
+        {showMarker ? (
+          <div className="workhud-marker">
+            <MarkerIcon />
+            <span className="workhud-marker-text">
+              <strong>Sett markør nå</strong> — i V-en på masken du nettopp laget (nr. {c}).
+              <span className="workhud-marker-sub">
+                Markør {c / 10} av {Math.floor(round.count / 10)} i denne runden.
+              </span>
+            </span>
+          </div>
+        ) : (
+          <span className="workhud-alert-placeholder" aria-hidden>
+            {'\u00a0'}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

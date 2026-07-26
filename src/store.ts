@@ -112,6 +112,7 @@ export const useApp = create<AppState>()(
         const { steps } = getModel();
         const clamped = Math.max(0, Math.min(steps.length - 1, i));
         const step = steps[clamped];
+        const celebrate = step.kind === 'finish' || step.kind === 'done';
         set((s) => ({
           stepIndex: clamped,
           // Round steps always count along — default 0 when no saved progress.
@@ -119,10 +120,10 @@ export const useApp = create<AppState>()(
             step.kind === 'round'
               ? (s.cursors[step.id] ?? 0)
               : null,
-          // Navigating always returns you to the working (sy) view; the
-          // "Ferdig hatt" toggle is a preview, not a place to work from.
-          showFinished: false,
-          viewMode: 'working' as const,
+          // Finish / done: show the worn hat spinning. Other steps return to sy-visning.
+          showFinished: celebrate,
+          viewMode: celebrate ? ('finished' as const) : ('working' as const),
+          autoRotate: celebrate,
           // Landing back on the remembered step clears the reminder; a quick
           // jump away from it (first jump only) records where you came from.
           returnTo:
@@ -154,7 +155,8 @@ export const useApp = create<AppState>()(
             if (n === null) delete cursors[id];
             else cursors[id] = n;
           }
-          return { stitchCursor: n, cursors };
+          // +1 / −1 (and keyboard) stop snurring so the stitch camera can lock on.
+          return { stitchCursor: n, cursors, autoRotate: false };
         }),
       toggleConfirm: (id) =>
         set((s) => ({ confirmed: { ...s.confirmed, [id]: !s.confirmed[id] } })),
