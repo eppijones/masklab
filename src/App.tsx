@@ -26,15 +26,14 @@ function HomeIcon() {
   );
 }
 
-function SettingsIcon() {
+function MenuIcon() {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
-      <circle cx="12" cy="12" r="3.1" fill="none" stroke="currentColor" strokeWidth="1.8" />
       <path
-        d="M12 3.4 V5.6 M12 18.4 V20.6 M3.4 12 H5.6 M18.4 12 H20.6 M5.9 5.9 L7.5 7.5 M16.5 16.5 L18.1 18.1 M18.1 5.9 L16.5 7.5 M7.5 16.5 L5.9 18.1"
+        d="M5 7.5 H19 M5 12 H19 M5 16.5 H19"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.8"
+        strokeWidth="1.9"
         strokeLinecap="round"
       />
     </svg>
@@ -82,7 +81,7 @@ function TopBar() {
           <span style={{ background: '#FDFAF3', border: '1px solid #D8CFBC' }} />
           <span style={{ background: '#00205B' }} />
         </div>
-        <span className="kicker">Ro det i land</span>
+        <span className="kicker">Ro det i land hatten</span>
       </div>
 
       <div className="topbar-tools" ref={toolsRef}>
@@ -163,11 +162,11 @@ function TopBar() {
           type="button"
           className={`icon-btn settings-btn ${toolsOpen ? 'open' : ''} ${activeCount ? 'has-active' : ''}`}
           onClick={() => setToolsOpen((v) => !v)}
-          title="Innstillinger og hjelp"
-          aria-label="Innstillinger"
+          title="Meny — snurring, markører og hjelp"
+          aria-label="Meny"
           aria-expanded={toolsOpen}
         >
-          <SettingsIcon />
+          <MenuIcon />
           {activeCount > 0 && <span className="settings-dot" aria-hidden />}
         </button>
       </div>
@@ -180,17 +179,28 @@ function ViewToggle() {
   const setShowFinished = useApp((s) => s.setShowFinished);
   const viewMode = useApp((s) => s.viewMode);
   const setViewMode = useApp((s) => s.setViewMode);
-  const finished = showFinished || viewMode === 'finished';
+  const setAutoRotate = useApp((s) => s.setAutoRotate);
+  const stepIndex = useApp((s) => s.stepIndex);
+  const step = getModel().steps[stepIndex];
+  const onFinale = step?.kind === 'finish' || step?.kind === 'done';
+  const finished = onFinale || showFinished || viewMode === 'finished';
   const setView = (done: boolean) => {
+    if (onFinale && !done) return; // finale stays on ferdig hatt
     setViewMode(done ? 'finished' : 'working');
     setShowFinished(done);
+    if (done) setAutoRotate(true);
   };
   return (
     <div className="viewtoggle" role="group" aria-label="Visning av hatten">
       <button
         className={finished ? '' : 'on'}
         onClick={() => setView(false)}
-        title="Slik arbeidet ligger i hendene dine"
+        title={
+          onFinale
+            ? 'Avslutningen viser ferdig hatt'
+            : 'Slik arbeidet ligger i hendene dine'
+        }
+        disabled={onFinale}
       >
         Sy-visning
       </button>
@@ -369,6 +379,19 @@ export default function App() {
   const finaleKind = getModel().steps[stepIndex]?.kind;
   const celebrateDone = finaleKind === 'done';
   const onFinale = finaleKind === 'finish' || finaleKind === 'done';
+
+  // Keep finale locked to ferdig hatt + snurring (also after resume / reload).
+  useEffect(() => {
+    if (!welcomeDone || !onFinale) return;
+    const st = useApp.getState();
+    if (!st.showFinished || st.viewMode !== 'finished' || !st.autoRotate) {
+      useApp.setState({
+        showFinished: true,
+        viewMode: 'finished',
+        autoRotate: true,
+      });
+    }
+  }, [welcomeDone, stepIndex, onFinale]);
 
   if (!welcomeDone) {
     return <WelcomeScreen />;

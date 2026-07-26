@@ -408,7 +408,7 @@ function InsertTargetMarker({
   );
 }
 
-function Hat() {
+function Hat({ preview = false }: { preview?: boolean }) {
   const stepIndex = useApp((s) => s.stepIndex);
   const stitchCursor = useApp((s) => s.stitchCursor);
   const showFinished = useApp((s) => s.showFinished);
@@ -430,7 +430,13 @@ function Hat() {
   const meshRef = useRef<THREE.InstancedMesh>(null!);
   const total = model.stitches.length;
 
-  const visible = computeVisible(model, stepIndex, stitchCursor, showFinished);
+  const step = model.steps[stepIndex];
+  const finale =
+    preview ||
+    showFinished ||
+    step?.kind === 'finish' ||
+    step?.kind === 'done';
+  const visible = computeVisible(model, stepIndex, stitchCursor, finale);
   const shown = visible.shownStitches;
 
   // Reveal animation bookkeeping
@@ -549,7 +555,8 @@ function Hat() {
 
   // "Sy-visning": flip the whole hat upside down — the way it actually sits
   // in your hands / on the table while you crochet (a bowl growing upwards).
-  const flipped = viewMode === 'working';
+  // Finale / landing / preview always show the worn hat upright.
+  const flipped = !finale && viewMode === 'working';
   const flipH = profile[0].y + profile[profile.length - 1].y;
 
   // Invisible full-hat silhouette that the HTML labels raycast against, so
@@ -934,17 +941,6 @@ function CameraDevHook({ controls }: { controls: React.RefObject<OrbitControlsIm
   return null;
 }
 
-/** Finished-hat overview for the landing page (always spinning). */
-function PreviewFinished() {
-  const setShowFinished = useApp((s) => s.setShowFinished);
-  const setViewMode = useApp((s) => s.setViewMode);
-  useEffect(() => {
-    setShowFinished(true);
-    setViewMode('finished');
-  }, [setShowFinished, setViewMode]);
-  return null;
-}
-
 export default function HatScene({ preview = false }: { preview?: boolean }) {
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const autoRotateStore = useApp((s) => s.autoRotate);
@@ -966,8 +962,7 @@ export default function HatScene({ preview = false }: { preview?: boolean }) {
         <hemisphereLight args={['#fff6e6', '#cbbfa4', 1.15]} />
         <directionalLight position={[30, 45, 25]} intensity={1.5} />
         <directionalLight position={[-38, 22, -30]} intensity={0.5} color="#dfe8ff" />
-        {preview && <PreviewFinished />}
-        <Hat />
+        <Hat preview={preview} />
         <GroundShadow />
         <CameraDirector controls={controlsRef} preview={preview} />
         {!preview && <CameraDevHook controls={controlsRef} />}
