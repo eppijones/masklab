@@ -769,20 +769,20 @@ a { color: var(--red); }
   padding: 22px 34px 0;
 }
 .welcome-brand {
-  font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase;
+  font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
   font-weight: 800; color: var(--ink);
 }
-.welcome-brand span { color: var(--gold); font-weight: 700; }
+.welcome-brand span { color: var(--gold); font-weight: 700; letter-spacing: 0.16em; }
 .welcome-pdf {
-  font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase;
   font-weight: 800; color: var(--blue); text-decoration: none;
   border-bottom: 1.5px solid #C9D4E8; padding-bottom: 3px;
 }
 .welcome-pdf:hover { border-color: var(--blue); }
 .welcome-hero {
   flex: 1; min-height: 0;
-  display: grid; grid-template-columns: minmax(320px, 480px) minmax(0, 1fr);
-  align-items: center; gap: 24px; padding: 20px 34px;
+  display: grid; grid-template-columns: minmax(320px, 460px) minmax(0, 1fr);
+  align-items: center; gap: 28px; padding: 20px 40px 28px;
 }
 .welcome-intro { display: flex; flex-direction: column; gap: 18px; padding: 0 12px 20px 30px; }
 .welcome-eyebrow {
@@ -815,35 +815,49 @@ a { color: var(--red); }
 .welcome-fine { margin: 0; font-size: 13px; color: var(--ink-faint); }
 .welcome-aside {
   position: relative;
-  display: flex; flex-direction: column; min-height: 0; height: min(62vh, 560px);
-  background: var(--card);
-  border-radius: 16px; border: 1px solid var(--card-border);
-  overflow: hidden;
-  box-shadow: 0 24px 48px -36px rgba(60, 50, 30, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  min-height: 0; height: min(64vh, 580px);
+  padding: 8px 4px 8px 8px;
 }
-.welcome-aside #scene-root,
-.welcome-aside .scene-preview { position: absolute; inset: 0; }
+.welcome-stage {
+  position: relative;
+  width: 100%; height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 78%, rgba(96, 84, 60, 0.12), transparent 55%),
+    linear-gradient(165deg, #FBF6EA 0%, #EDE4D0 100%);
+  border: 1px solid rgba(228, 218, 197, 0.95);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 28px 56px -28px rgba(60, 50, 30, 0.42),
+    0 10px 24px -16px rgba(60, 50, 30, 0.28);
+  transform: translateY(-4px);
+}
+.welcome-stage #scene-root,
+.welcome-stage .scene-preview { position: absolute; inset: 0; }
 .welcome-hint {
-  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
   margin: 0; z-index: 2; pointer-events: none;
   font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
   font-weight: 700; color: var(--gold); white-space: nowrap;
 }
 .welcome-foot {
-  flex: none; display: flex; justify-content: space-between; align-items: baseline;
-  gap: 16px; padding: 0 34px 20px 64px;
-  font-size: 14px; color: var(--ink-soft);
+  flex: none; display: flex; align-items: baseline;
+  gap: 16px; padding: 0 40px 22px 64px;
+  font-size: 15px; color: var(--ink-soft);
 }
-.welcome-foot strong { color: var(--red); font-weight: 400; font-family: 'Instrument Serif', serif; }
-.welcome-foot span {
-  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
-  font-weight: 700; color: var(--gold);
+.welcome-foot a {
+  color: var(--red); font-weight: 400; font-family: 'Instrument Serif', serif;
+  text-decoration: none; border-bottom: 1px solid rgba(186, 12, 47, 0.35);
 }
+.welcome-foot a:hover { border-bottom-color: var(--red); }
 @media (max-width: 900px) {
-  .welcome-hero { grid-template-columns: 1fr; }
-  .welcome-aside { order: -1; height: 42vh; min-height: 220px; }
-  .welcome-intro { padding: 8px 8px 24px; }
-  .welcome-foot { padding: 0 28px 20px; flex-wrap: wrap; }
+  .welcome-hero { grid-template-columns: 1fr; gap: 16px; padding: 12px 20px 20px; }
+  .welcome-aside { order: -1; height: 44vh; min-height: 240px; padding: 0; }
+  .welcome-stage { transform: none; border-radius: 14px; }
+  .welcome-intro { padding: 8px 4px 16px; }
+  .welcome-foot { padding: 0 24px 18px; }
 }
 
 /* ---------- AI chat demo (bottom-left) ---------- */
