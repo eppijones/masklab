@@ -1,6 +1,8 @@
 import { useApp, getModel } from '../store';
 import HatScene from './HatScene';
+import LanguageSwitcher from './LanguageSwitcher';
 import { useDeviceClass } from '../hooks/useDeviceClass';
+import { t } from '../i18n/ui';
 
 const PDF_URL =
   'https://helenespilling.com/wp-content/uploads/2026/06/RO-DET-I-LAND-HATTEN.pdf';
@@ -12,6 +14,8 @@ const HELENE_URL = 'https://helenespilling.com';
  */
 export default function WelcomeScreen() {
   const device = useDeviceClass();
+  const locale = useApp((s) => s.locale);
+  const ui = t(locale);
   const setWelcomeDone = useApp((s) => s.setWelcomeDone);
   const setStep = useApp((s) => s.setStep);
   const setShowFinished = useApp((s) => s.setShowFinished);
@@ -48,43 +52,42 @@ export default function WelcomeScreen() {
             <span style={{ background: '#00205B' }} />
           </div>
           <span className="welcome-brand">
-            Ro det i land hatten <span>av Helene Spilling</span>
+            {ui.brandWelcome} <span>{ui.brandBy}</span>
           </span>
         </div>
-        <a className="welcome-pdf" href={PDF_URL} target="_blank" rel="noreferrer">
-          Last ned original oppskrift
-        </a>
+        <div className="welcome-top-right">
+          <LanguageSwitcher />
+          <a className="welcome-pdf" href={PDF_URL} target="_blank" rel="noreferrer">
+            {ui.welcomePdf}
+          </a>
+        </div>
       </header>
 
       <main className="welcome-hero">
         <section className="welcome-intro">
-          <p className="welcome-eyebrow">Interaktiv 3D-oppskrift</p>
+          <p className="welcome-eyebrow">{ui.welcomeEyebrow}</p>
           <h1>
-            Velkommen!
+            {ui.welcomeTitle1}
             <br />
-            La oss <em>ro det i land</em>.
+            {ui.welcomeTitle2Before}
+            <em>{ui.welcomeTitle2Em}</em>
+            {ui.welcomeTitle2After}
           </h1>
-          <p className="welcome-lede">
-            Hekle «Ro det i land»-hatten av Helene Spilling — én runde av gangen.
-            Passer både deg som kan hekle, og deg som aldri har rørt en heklepinne.
-            Hatten i 3D vokser mens du hekler.
-          </p>
+          <p className="welcome-lede">{ui.welcomeLede}</p>
           <div className="welcome-cta">
             <button type="button" className="welcome-start" onClick={() => enter(false)}>
-              Start oppskriften →
+              {ui.welcomeStart}
             </button>
             {hasProgress && (
               <button type="button" className="welcome-resume" onClick={() => enter(true)}>
-                Fortsett der du slapp
+                {ui.welcomeResume}
               </button>
             )}
           </div>
-          <p className="welcome-fine">
-            {stepCount} små steg · Maskeskole med animasjoner · for nybegynnere og øvede
-          </p>
+          <p className="welcome-fine">{ui.welcomeFine(stepCount)}</p>
         </section>
 
-        <aside className="welcome-aside" aria-label="Ferdig hatt i 3D">
+        <aside className="welcome-aside" aria-label={locale === 'en' ? 'Finished hat in 3D' : 'Ferdig hatt i 3D'}>
           <div className="welcome-stage">
             <HatScene preview device={device} />
           </div>
@@ -93,7 +96,7 @@ export default function WelcomeScreen() {
 
       <footer className="welcome-foot">
         <p>
-          Oppskrift av{' '}
+          {ui.welcomeFoot}{' '}
           <a href={HELENE_URL} target="_blank" rel="noreferrer">
             Helene Spilling
           </a>

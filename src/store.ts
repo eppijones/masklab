@@ -2,8 +2,10 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { buildRounds, buildStitches } from './data/pattern';
 import { buildSteps, type StepDef } from './data/steps';
+import { buildStepsEn } from './data/stepsEn';
 import type { Round, Stitch } from './data/types';
 import { progressStorageKey } from './lib/entry';
+import type { Locale } from './i18n/locale';
 
 export interface PatternModel {
   rounds: Round[];
@@ -13,22 +15,25 @@ export interface PatternModel {
   cumCounts: number[];
 }
 
-let model: PatternModel | null = null;
+const models: Partial<Record<Locale, PatternModel>> = {};
+/** Mirrors store.locale so getModel works before/without React. */
+let activeLocale: Locale = 'no';
 
-export function getModel(): PatternModel {
-  if (!model) {
+export function getModel(locale?: Locale): PatternModel {
+  const loc = locale ?? activeLocale;
+  if (!models[loc]) {
     const rounds = buildRounds();
     const stitches = buildStitches(rounds);
-    const steps = buildSteps(rounds);
+    const steps = loc === 'en' ? buildStepsEn(rounds) : buildSteps(rounds);
     const cumCounts: number[] = [];
     let acc = 0;
     for (const r of rounds) {
       acc += r.count;
       cumCounts.push(acc);
     }
-    model = { rounds, stitches, steps, cumCounts };
+    models[loc] = { rounds, stitches, steps, cumCounts };
   }
-  return model;
+  return models[loc]!;
 }
 
 interface AppState {
@@ -64,6 +69,8 @@ interface AppState {
   stitchPanelOpen: boolean;
   /** False until the user leaves the welcome screen. */
   welcomeDone: boolean;
+  /** UI + recipe language. */
+  locale: Locale;
 
   /** `remember` = quick jump: remembers where you came from so you can hop back. */
   setStep: (i: number, remember?: boolean) => void;
@@ -84,6 +91,7 @@ interface AppState {
   setJumpOpen: (v: boolean) => void;
   setStitchPanelOpen: (v: boolean) => void;
   setWelcomeDone: (v: boolean) => void;
+  setLocale: (v: Locale) => void;
 }
 
 export const useApp = create<AppState>()(
@@ -108,6 +116,7 @@ export const useApp = create<AppState>()(
       jumpOpen: false,
       stitchPanelOpen: true,
       welcomeDone: false,
+      locale: 'no',
 
       setStep: (i, remember = false) => {
         const { steps } = getModel();
@@ -174,6 +183,10 @@ export const useApp = create<AppState>()(
       setJumpOpen: (v) => set({ jumpOpen: v }),
       setStitchPanelOpen: (v) => set({ stitchPanelOpen: v }),
       setWelcomeDone: (v) => set({ welcomeDone: v }),
+      setLocale: (v) => {
+        activeLocale = v;
+        set({ locale: v });
+      },
     }),
     {
       name: progressStorageKey(),
@@ -191,7 +204,11 @@ export const useApp = create<AppState>()(
         schoolOpen: s.schoolOpen,
         stitchPanelOpen: s.stitchPanelOpen,
         welcomeDone: s.welcomeDone,
+        locale: s.locale,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state?.locale) activeLocale = state.locale;
+      },
     },
   ),
 );

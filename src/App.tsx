@@ -11,9 +11,11 @@ import WelcomeScreen from './components/WelcomeScreen';
 import AiChatDemo from './components/AiChatDemo';
 import ConfettiBurst from './components/ConfettiBurst';
 import MobileDock from './components/MobileDock';
+import LanguageSwitcher from './components/LanguageSwitcher';
 import { useApp, getModel } from './store';
 import { useDeviceClass, useNeedsMobileDock } from './hooks/useDeviceClass';
 import { hasSavedProgress, isHeleneEntry } from './lib/entry';
+import { t } from './i18n/ui';
 
 function HomeIcon() {
   return (
@@ -44,6 +46,8 @@ function MenuIcon() {
 }
 
 function TopBar() {
+  const locale = useApp((s) => s.locale);
+  const ui = t(locale);
   const chartOpen = useApp((s) => s.chartOpen);
   const setChartOpen = useApp((s) => s.setChartOpen);
   const setCheatOpen = useApp((s) => s.setCheatOpen);
@@ -84,16 +88,17 @@ function TopBar() {
           <span style={{ background: '#FDFAF3', border: '1px solid #D8CFBC' }} />
           <span style={{ background: '#00205B' }} />
         </div>
-        <span className="kicker">Ro det i land hatten</span>
+        <span className="kicker">{ui.brandWelcome}</span>
       </div>
 
       <div className="topbar-tools" ref={toolsRef}>
+        <LanguageSwitcher />
         <button
           type="button"
           className="icon-btn"
           onClick={() => setWelcomeDone(false)}
-          title="Tilbake til start"
-          aria-label="Tilbake til start"
+          title={ui.homeTitle}
+          aria-label={ui.homeTitle}
         >
           <HomeIcon />
         </button>
@@ -103,28 +108,25 @@ function TopBar() {
             type="button"
             className={`tool-btn ${autoRotate ? 'active' : ''}`}
             onClick={() => setAutoRotate(!autoRotate)}
-            title="Snurr hatten 360° i ett endeløst loop"
             tabIndex={toolsOpen ? 0 : -1}
           >
-            {autoRotate ? '◉ Snurring PÅ' : '◎ Snurring'}
+            {autoRotate ? ui.toolSpinOn : ui.toolSpin}
           </button>
           <button
             type="button"
             className={`tool-btn ${showNumbers ? 'active' : ''}`}
             onClick={() => setShowNumbers(!showNumbers)}
-            title="Vis eller skjul nummer på maskene rundt innstikkspunktet i 3D"
             tabIndex={toolsOpen ? 0 : -1}
           >
-            123 Maskenummer
+            {ui.toolNumbers}
           </button>
           <button
             type="button"
             className={`tool-btn ${showMarkers ? 'active' : ''}`}
             onClick={() => setShowMarkers(!showMarkers)}
-            title="Vis eller skjul markørene (klipsene) i 3D"
             tabIndex={toolsOpen ? 0 : -1}
           >
-            Markører
+            {ui.toolMarkers}
           </button>
           <button
             type="button"
@@ -135,7 +137,7 @@ function TopBar() {
             }}
             tabIndex={toolsOpen ? 0 : -1}
           >
-            Diagram
+            {ui.toolChart}
           </button>
           <button
             type="button"
@@ -146,7 +148,7 @@ function TopBar() {
             }}
             tabIndex={toolsOpen ? 0 : -1}
           >
-            Huskelapp
+            {ui.toolCheat}
           </button>
           <button
             type="button"
@@ -157,7 +159,7 @@ function TopBar() {
             }}
             tabIndex={toolsOpen ? 0 : -1}
           >
-            Hjelp
+            {ui.toolHelp}
           </button>
         </div>
 
@@ -165,8 +167,8 @@ function TopBar() {
           type="button"
           className={`icon-btn settings-btn ${toolsOpen ? 'open' : ''} ${activeCount ? 'has-active' : ''}`}
           onClick={() => setToolsOpen((v) => !v)}
-          title="Meny — snurring, markører og hjelp"
-          aria-label="Meny"
+          title={ui.settingsTitle}
+          aria-label={ui.settingsAria}
           aria-expanded={toolsOpen}
         >
           <MenuIcon />
@@ -178,6 +180,8 @@ function TopBar() {
 }
 
 function ViewToggle() {
+  const locale = useApp((s) => s.locale);
+  const ui = t(locale);
   const showFinished = useApp((s) => s.showFinished);
   const setShowFinished = useApp((s) => s.setShowFinished);
   const viewMode = useApp((s) => s.viewMode);
@@ -194,31 +198,28 @@ function ViewToggle() {
     if (done) setAutoRotate(true);
   };
   return (
-    <div className="viewtoggle" role="group" aria-label="Visning av hatten">
+    <div className="viewtoggle" role="group" aria-label={locale === 'en' ? 'Hat view' : 'Visning av hatten'}>
       <button
         className={finished ? '' : 'on'}
         onClick={() => setView(false)}
-        title={
-          onFinale
-            ? 'Avslutningen viser ferdig hatt'
-            : 'Slik arbeidet ligger i hendene dine'
-        }
+        title={onFinale ? ui.viewFinaleTitle : ui.viewWorkingTitle}
         disabled={onFinale}
       >
-        Sy-visning
+        {ui.viewWorking}
       </button>
       <button
         className={finished ? 'on' : ''}
         onClick={() => setView(true)}
-        title="Hele den ferdige hatten, med teksten riktig vei"
+        title={ui.viewFinishedTitle}
       >
-        Ferdig hatt
+        {ui.viewFinished}
       </button>
     </div>
   );
 }
 
 function FlipHint() {
+  const locale = useApp((s) => s.locale);
   const viewMode = useApp((s) => s.viewMode);
   const showFinished = useApp((s) => s.showFinished);
   const stepIndex = useApp((s) => s.stepIndex);
@@ -227,15 +228,12 @@ function FlipHint() {
   const step = model.steps[stepIndex];
   const round = step?.roundIdx !== null && step ? model.rounds[step.roundIdx!] : null;
   if (round?.phase !== 'text') return null;
-  return (
-    <div className="flip-hint">
-      Bokstavene er opp ned her — det er riktig! Arbeidet ligger opp ned i hendene dine.
-      Trykk «Ferdig hatt» for å lese dem rett vei.
-    </div>
-  );
+  return <div className="flip-hint">{t(locale).flipHint}</div>;
 }
 
 function ReturnPill() {
+  const locale = useApp((s) => s.locale);
+  const ui = t(locale);
   const returnTo = useApp((s) => s.returnTo);
   const cursors = useApp((s) => s.cursors);
   const setStep = useApp((s) => s.setStep);
@@ -245,11 +243,20 @@ function ReturnPill() {
   if (!step) return null;
   const round = step.roundIdx !== null ? model.rounds[step.roundIdx] : null;
   const savedCursor = cursors[step.id];
-  const label = round ? `Runde ${round.num}` : step.title;
+  const label =
+    round
+      ? locale === 'en'
+        ? `Round ${round.num}`
+        : `Runde ${round.num}`
+      : step.title;
   return (
     <button className="return-pill" onClick={() => setStep(returnTo)}>
-      ↩ Tilbake til {label}
-      {savedCursor != null && round ? ` · maske ${savedCursor}/${round.count}` : ''}
+      {ui.returnTo(label)}
+      {savedCursor != null && round
+        ? locale === 'en'
+          ? ` · stitch ${savedCursor}/${round.count}`
+          : ` · maske ${savedCursor}/${round.count}`
+        : ''}
     </button>
   );
 }
@@ -257,12 +264,18 @@ function ReturnPill() {
 export default function App() {
   const device = useDeviceClass();
   const needsDock = useNeedsMobileDock(device);
+  const locale = useApp((s) => s.locale);
+  const ui = t(locale);
   const next = useApp((s) => s.next);
   const prev = useApp((s) => s.prev);
   const schoolOpen = useApp((s) => s.schoolOpen);
   const setSchoolOpen = useApp((s) => s.setSchoolOpen);
   const welcomeDone = useApp((s) => s.welcomeDone);
   const setJumpOpen = useApp((s) => s.setJumpOpen);
+
+  useEffect(() => {
+    document.documentElement.lang = locale === 'en' ? 'en' : 'no';
+  }, [locale]);
 
   useEffect(() => {
     const boot = () => {
@@ -434,22 +447,20 @@ export default function App() {
                 type="button"
                 className={`schoolbtn ${schoolOpen ? 'open' : ''}`}
                 onClick={() => setSchoolOpen(!schoolOpen)}
-                title="Vis eller skjul Maskeskolen"
+                title={ui.school}
               >
-                Maskeskolen
+                {ui.school}
               </button>
             </div>
           </div>
           <div className="scene-wrap">
-            <HatScene />
+            <HatScene device={device} />
             <StitchOverlay />
             <FlipHint />
             <ConfettiBurst active={celebrateDone} />
             <AiChatDemo docked />
             <div className="hint">
-              {onFinale
-                ? 'Dra for å rotere · Rull for å zoome'
-                : 'Dra for å rotere · Rull for å zoome · Space/+1 · Backspace/−1'}
+              {onFinale ? ui.hintRotate : ui.hintCount}
             </div>
           </div>
           <StageFoot hideControls={needsDock} />

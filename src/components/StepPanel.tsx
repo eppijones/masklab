@@ -1,10 +1,11 @@
 import { useApp, getModel } from '../store';
-import { YARN_HEX, YARN_NAME } from '../data/types';
+import { YARN_HEX } from '../data/types';
 import { WAVE_CHART_DISPLAY } from '../data/waves';
 import StartChapterArt from './StartChapterArt';
+import { t } from '../i18n/ui';
 
 /** Mini wave chart shown in the panel during the wave rounds. */
-function WaveMiniChart({ activeRow }: { activeRow: number }) {
+function WaveMiniChart({ activeRow, locale }: { activeRow: number; locale: 'no' | 'en' }) {
   const CELL = 22;
   const rows = WAVE_CHART_DISPLAY.length;
   const cols = WAVE_CHART_DISPLAY[0].length;
@@ -44,14 +45,17 @@ function WaveMiniChart({ activeRow }: { activeRow: number }) {
         ))}
       </svg>
       <p style={{ margin: '4px 0 0', fontSize: 11.5, color: 'var(--ink-faint)', fontWeight: 700 }}>
-        Én bølgeblokk utenfra (gjentas 10 ganger). Rad 1 øverst — du jobber nedover. Rød rute =
-        to blå fm i samme maske.
+        {locale === 'en'
+          ? 'One wave block from the outside (repeat 10 times). Row 1 at the top — you work downwards. Red square = two blue sc in the same stitch.'
+          : 'Én bølgeblokk utenfra (gjentas 10 ganger). Rad 1 øverst — du jobber nedover. Rød rute = to blå fm i samme maske.'}
       </p>
     </div>
   );
 }
 
 export default function StepPanel({ hideFoot = false }: { hideFoot?: boolean }) {
+  const locale = useApp((s) => s.locale);
+  const ui = t(locale);
   const stepIndex = useApp((s) => s.stepIndex);
   const confirmed = useApp((s) => s.confirmed);
   const toggleConfirm = useApp((s) => s.toggleConfirm);
@@ -68,25 +72,32 @@ export default function StepPanel({ hideFoot = false }: { hideFoot?: boolean }) 
   const isText = round?.phase === 'text';
   const isWave = round?.phase === 'wave';
   const isLast = stepIndex === steps.length - 1;
+  const startChapter = step.eyebrow === 'Startkapittel' || step.eyebrow === 'Getting started';
+
+  const yarnLabel = isText
+    ? ui.yarnWhiteRed
+    : isWave
+      ? ui.yarnWhiteBlue
+      : step.yarn === 'white'
+        ? ui.yarnWhite
+        : step.yarn === 'red'
+          ? ui.yarnRed
+          : step.yarn === 'blue'
+            ? ui.yarnBlue
+            : null;
 
   return (
     <section className="card panel">
       <div className="card-head">
-        <span className="label">Oppskriften</span>
-        <span className="sub">
-          Steg {stepIndex + 1} av {steps.length}
-        </span>
+        <span className="label">{ui.patternLabel}</span>
+        <span className="sub">{ui.stepOf(stepIndex + 1, steps.length)}</span>
       </div>
 
       <div className="panel-body">
         <div className="step-eyebrow">
           <span
             className={`step-num ${
-              step.eyebrow === 'Startkapittel'
-                ? 'start'
-                : step.kind === 'done'
-                  ? 'finale'
-                  : ''
+              startChapter ? 'start' : step.kind === 'done' ? 'finale' : ''
             }`}
           >
             {step.eyebrow}
@@ -126,7 +137,9 @@ export default function StepPanel({ hideFoot = false }: { hideFoot?: boolean }) 
           </div>
         )}
 
-        {isWave && round?.waveRow != null && <WaveMiniChart activeRow={round.waveRow} />}
+        {isWave && round?.waveRow != null && (
+          <WaveMiniChart activeRow={round.waveRow} locale={locale} />
+        )}
 
         {step.confirm && (
           <label className={`confirm-box ${confirmed[step.id] ? 'ok' : ''}`}>
@@ -140,32 +153,32 @@ export default function StepPanel({ hideFoot = false }: { hideFoot?: boolean }) 
         )}
 
         <div className="step-meta">
-          {step.yarn && (
+          {step.yarn && yarnLabel && (
             <span className="chip">
               <span className="swatch" style={{ background: YARN_HEX[step.yarn] }} />
-              {isText ? 'Hvit + rød' : isWave ? 'Hvit + blå' : YARN_NAME[step.yarn]}
+              {yarnLabel}
             </span>
           )}
           {step.countChip && <span className="chip">{step.countChip}</span>}
-          <span className="chip">4,0 mm nål</span>
+          <span className="chip">{ui.needleChip}</span>
         </div>
       </div>
 
       {!hideFoot && (
         <div className="panel-foot">
           <button type="button" className="btn prev" onClick={prev} disabled={stepIndex === 0}>
-            ← Forrige
+            {ui.prev}
           </button>
           <button
             type="button"
             className="btn jump-open"
             onClick={() => setJumpOpen(true)}
-            title="Vis hele oppskriften og hopp til et steg"
+            title={ui.jumpOpen}
           >
-            Oppskrift
+            {ui.jumpOpen}
           </button>
           <button type="button" className="btn next" onClick={next} disabled={isLast}>
-            {isLast ? 'Ferdig!' : 'Neste steg →'}
+            {isLast ? ui.done : ui.next}
           </button>
         </div>
       )}

@@ -398,68 +398,51 @@ a { color: var(--red); }
 /* ---------- work HUD, docked in the stage foot ---------- */
 .workhud {
   background: var(--chip); border-radius: 10px;
-  padding: 8px 10px;
+  padding: 8px 10px 8px;
+  display: flex; flex-direction: column; gap: 8px;
   height: auto; min-height: 0;
 }
-.workhud-rail {
+.stage-foot.dock-mode { padding-bottom: 6px; }
+
+.workhud-top {
   display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
+  grid-template-columns: 72px minmax(0, 1fr);
   gap: 10px;
   align-items: stretch;
-  min-height: 88px;
 }
-.workhud-rail.with-jump {
-  grid-template-columns: 92px minmax(0, 1fr) 118px;
-}
-.workhud.msgs-only .workhud-rail {
+.workhud.msgs-only .workhud-top {
   grid-template-columns: minmax(0, 1fr);
-  min-height: 0;
 }
-.stage-foot.dock-mode {
-  padding-bottom: 6px;
-}
-.workhud-count-col {
-  display: flex; flex-direction: column; gap: 6px; align-items: stretch;
-}
+
 .workhud-count {
   text-align: center;
   font-family: 'Instrument Serif', serif; line-height: 1;
+  display: flex; flex-direction: column; justify-content: center;
 }
 .workhud-count strong {
-  font-size: 32px; color: var(--ink); font-weight: 400; display: block;
-  background: var(--card); border-radius: 8px; padding: 4px 0 1px;
+  font-size: 34px; color: var(--ink); font-weight: 400; display: block;
+  background: var(--card); border-radius: 8px; padding: 6px 0 2px;
   border: 1px solid var(--card-border);
 }
 .workhud-count span {
-  font-size: 11.5px; color: var(--ink-faint); margin-top: 3px; display: block;
+  font-size: 12px; color: var(--ink-faint); margin-top: 4px; display: block;
 }
-.workhud-stepper {
-  display: grid; grid-template-columns: 1fr 1.35fr; gap: 5px;
+
+/* Instruction panel: msgs left, marker fills the empty right when needed */
+.workhud-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-height: 64px;
 }
-.workhud-pm {
-  font-family: 'Karla', sans-serif; font-weight: 800;
-  border: none; border-radius: 8px; cursor: pointer;
-  transition: background 0.12s, transform 0.1s;
-  height: 36px;
+.workhud-panel.has-marker {
+  grid-template-columns: minmax(0, 1.2fr) minmax(160px, 0.9fr);
 }
-.workhud-pm:active { transform: scale(0.97); }
-.workhud-pm.minus {
-  background: var(--card); color: var(--ink-soft);
-  border: 1.5px solid #D8CFBC; font-size: 16px;
-}
-.workhud-pm.minus:hover { background: #fff; }
-.workhud-pm.plus {
-  background: var(--go); color: #F7FBF8; font-size: 15px;
-  box-shadow: 0 8px 16px -12px rgba(47, 107, 79, 0.55);
-}
-.workhud-pm.plus:hover { background: var(--go-dark); }
-.workhud-pm.jump {
-  width: 100%; height: 100%; min-height: 88px; padding: 8px 10px;
-  font-size: 11.5px; letter-spacing: 0.04em; line-height: 1.25;
-  background: var(--action-soft); color: var(--action);
-  border: 1.5px solid #D8CFBC; text-transform: uppercase;
-}
-.workhud-pm.jump:hover { background: var(--chip-hover); }
 
 .workhud-msgs {
   min-width: 0;
@@ -467,29 +450,65 @@ a { color: var(--red); }
   justify-content: center;
   text-align: left;
 }
-.workhud-actions {
-  display: flex; align-items: stretch;
+
+.workhud-marker-aside {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: var(--go-soft);
+  border: 1px solid #8FBE9A;
+  border-radius: 7px;
+  padding: 7px 9px;
+  align-self: stretch;
 }
-.workhud-actions-spacer {
-  display: block; width: 100%;
-  border-radius: 8px; border: 1.5px dashed transparent;
+.workhud-marker-text {
+  font-size: 12px; line-height: 1.3; color: #14622C;
+  display: flex; flex-direction: column; gap: 2px;
 }
+.workhud-marker-text strong { letter-spacing: 0.02em; }
+.workhud-marker-sub { font-size: 11px; opacity: 0.8; font-weight: 700; }
+.hud-marker-icon { flex-shrink: 0; margin-top: 1px; }
+
+/* −1 / +1 sit under the instruction row — always same place */
+.workhud-controls {
+  display: flex; justify-content: center; align-items: stretch; gap: 8px;
+  min-height: 40px;
+}
+.workhud-pm {
+  font-family: 'Karla', sans-serif; font-weight: 800;
+  border: none; border-radius: 8px; cursor: pointer;
+  transition: background 0.12s, transform 0.1s;
+  height: 40px;
+}
+.workhud-pm:active { transform: scale(0.97); }
+.workhud-pm.minus {
+  width: 72px; background: var(--card); color: var(--ink-soft);
+  border: 1.5px solid #D8CFBC; font-size: 17px;
+}
+.workhud-pm.minus:hover { background: #fff; }
+.workhud-pm.plus {
+  min-width: 148px; padding: 0 20px;
+  background: var(--go); color: #F7FBF8; font-size: 15px;
+  box-shadow: 0 8px 16px -12px rgba(47, 107, 79, 0.55);
+}
+.workhud-pm.plus:hover { background: var(--go-dark); }
+.workhud-pm.jump {
+  min-width: 0; padding: 0 12px;
+  font-size: 11.5px; letter-spacing: 0.03em;
+  background: var(--action-soft); color: var(--action);
+  border: 1.5px solid #D8CFBC; text-transform: uppercase;
+}
+.workhud-pm.jump:hover { background: #E8DFCC; }
 
 .workhud-now { font-size: 13.5px; line-height: 1.3; color: var(--ink-soft); }
 .workhud-now strong { color: var(--ink); }
 .workhud-line { display: block; }
-.workhud-now.change {
-  background: var(--go-soft); border: 1.5px solid var(--go); border-radius: 7px;
-  padding: 5px 8px;
-}
-.workhud-now.inc {
-  background: #EDF0F7; border: 1.5px solid var(--blue); border-radius: 7px;
-  padding: 5px 8px;
-}
+.workhud-now.change,
+.workhud-now.inc,
 .workhud-now.pair {
-  background: #F5F1E6; border: 1.5px solid #C4B89A; border-radius: 7px;
-  padding: 5px 8px;
+  border-radius: 7px; padding: 5px 8px;
 }
+.workhud-now.change { background: var(--go-soft); border: 1.5px solid var(--go); }
+.workhud-now.inc { background: #EDF0F7; border: 1.5px solid var(--blue); }
+.workhud-now.pair { background: #F5F1E6; border: 1.5px solid #C4B89A; }
 .workhud-alert {
   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
   font-size: 10.5px; letter-spacing: 0.08em; font-weight: 800;
@@ -518,7 +537,7 @@ a { color: var(--red); }
 .rhythm-cells { display: flex; gap: 3px; flex-wrap: wrap; }
 .rhythm-cell {
   min-width: 22px; height: 22px; padding: 0 5px;
-  border-radius: 4px; background: var(--card);
+  border-radius: 4px; background: #F7F0DF;
   border: 1.5px solid var(--card-border);
   display: inline-flex; align-items: center; justify-content: center;
   font-size: 10.5px; font-weight: 800; color: var(--ink-soft); white-space: nowrap;
@@ -538,25 +557,6 @@ a { color: var(--red); }
   border: 1px solid rgba(0, 0, 0, 0.18); vertical-align: -1px; margin: 0 2px;
 }
 .hud-dot.big { width: 13px; height: 13px; }
-
-.workhud-marker-strip {
-  min-height: 28px;
-  display: flex; align-items: stretch;
-}
-.workhud-marker-strip:not(.on) { opacity: 0; pointer-events: none; }
-.workhud-marker {
-  display: flex; align-items: center; gap: 7px;
-  width: 100%;
-  background: var(--go-soft); border: 1px solid #8FBE9A; border-radius: 6px;
-  padding: 4px 8px;
-}
-.workhud-marker-text {
-  font-size: 11.5px; line-height: 1.25; color: #14622C;
-  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px;
-}
-.workhud-marker-text strong { letter-spacing: 0.03em; }
-.workhud-marker-sub { font-size: 11px; opacity: 0.75; font-weight: 700; }
-.hud-marker-icon { flex-shrink: 0; }
 
 .workhud-verify { font-size: 11.5px; line-height: 1.3; color: var(--ink-soft); }
 .workhud-verify .hud-dot { width: 9px; height: 9px; vertical-align: -1px; }
@@ -789,7 +789,10 @@ a { color: var(--red); }
 }
 .welcome-top {
   flex: none; display: flex; align-items: center; justify-content: space-between;
-  padding: 22px 34px 0;
+  gap: 16px; padding: 22px 34px 0;
+}
+.welcome-top-right {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: flex-end;
 }
 .welcome-brand {
   font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
@@ -802,6 +805,31 @@ a { color: var(--red); }
   border-bottom: 1.5px solid #C9D4E8; padding-bottom: 3px;
 }
 .welcome-pdf:hover { border-color: var(--blue); }
+
+/* ---------- language switcher ---------- */
+.lang-switch {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--chip); border: 1px solid var(--card-border);
+  border-radius: 999px; padding: 3px;
+}
+.lang-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: none; background: transparent; cursor: pointer;
+  font-family: 'Karla', sans-serif; font-weight: 800; font-size: 11px;
+  letter-spacing: 0.08em; color: var(--ink-faint);
+  border-radius: 999px; padding: 5px 9px 5px 7px;
+  transition: background 0.12s, color 0.12s;
+}
+.lang-btn:hover { color: var(--ink); }
+.lang-btn.on {
+  background: var(--card); color: var(--ink);
+  box-shadow: 0 2px 6px rgba(60, 50, 30, 0.12);
+}
+.lang-flag {
+  display: block; border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(32, 29, 24, 0.12);
+}
+.topbar-tools .lang-switch { margin-right: 2px; }
 .welcome-hero {
   flex: 1; min-height: 0;
   display: grid; grid-template-columns: minmax(320px, 460px) minmax(0, 1fr);
@@ -1124,11 +1152,13 @@ a { color: var(--red); }
 }
 
 /* ---------- msgs-only WorkHUD when MobileDock owns buttons ---------- */
-.workhud.msgs-only .workhud-rail {
+.workhud.msgs-only { padding: 8px 10px; gap: 0; }
+.workhud.msgs-only .workhud-panel.has-marker {
   grid-template-columns: minmax(0, 1fr);
-  min-height: 0;
 }
-.workhud.msgs-only { padding: 8px 10px; }
+.workhud.msgs-only .workhud-marker-aside {
+  margin-top: 4px;
+}
 
 /* ---------- fixed MobileDock ---------- */
 .mobile-dock {
@@ -1413,6 +1443,6 @@ html[data-device="tablet"][data-orientation="portrait"] .app {
 [data-device="tablet"][data-orientation="landscape"] .layout {
   grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
 }
-[data-device="tablet"][data-orientation="landscape"] .workhud-rail {
-  grid-template-columns: 92px minmax(0, 1fr) 120px;
+[data-device="tablet"][data-orientation="landscape"] .workhud-panel.has-marker {
+  grid-template-columns: minmax(0, 1.1fr) minmax(180px, 1fr);
 }
