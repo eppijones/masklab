@@ -135,19 +135,19 @@ export default function MobileDock() {
       <div className="mobile-dock-nav">
         <button
           type="button"
-          className="mobile-dock-nav-btn prev"
-          onClick={prev}
-          disabled={stepIndex === 0}
-        >
-          {ui.prev}
-        </button>
-        <button
-          type="button"
           className="mobile-dock-nav-btn jump"
           onClick={() => setJumpOpen(true)}
           title={ui.jumpOpen}
         >
           {ui.jumpOpen}
+        </button>
+        <button
+          type="button"
+          className="mobile-dock-nav-btn prev"
+          onClick={prev}
+          disabled={stepIndex === 0}
+        >
+          {ui.prev}
         </button>
         <button
           type="button"

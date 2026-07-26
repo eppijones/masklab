@@ -166,9 +166,6 @@ export default function StepPanel({ hideFoot = false }: { hideFoot?: boolean }) 
 
       {!hideFoot && (
         <div className="panel-foot">
-          <button type="button" className="btn prev" onClick={prev} disabled={stepIndex === 0}>
-            {ui.prev}
-          </button>
           <button
             type="button"
             className="btn jump-open"
@@ -176,6 +173,9 @@ export default function StepPanel({ hideFoot = false }: { hideFoot?: boolean }) 
             title={ui.jumpOpen}
           >
             {ui.jumpOpen}
+          </button>
+          <button type="button" className="btn prev" onClick={prev} disabled={stepIndex === 0}>
+            {ui.prev}
           </button>
           <button type="button" className="btn next" onClick={next} disabled={isLast}>
             {isLast ? ui.done : ui.next}

@@ -1219,7 +1219,7 @@ a { color: var(--red); }
 }
 .mobile-dock-nav {
   display: grid;
-  grid-template-columns: 1fr auto 1.25fr;
+  grid-template-columns: auto 1fr 1.25fr;
   gap: 8px;
 }
 .mobile-dock-nav-btn {
