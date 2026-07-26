@@ -1,10 +1,13 @@
 import { useApp, getModel, isPatterned } from '../store';
+import { t } from '../i18n/ui';
 
 /**
  * Fixed bottom control bar for phone (and portrait tablet).
  * −1 / +1 and step prev/next stay thumb-reachable while the recipe scrolls.
  */
 export default function MobileDock() {
+  const locale = useApp((s) => s.locale);
+  const ui = t(locale);
   const stepIndex = useApp((s) => s.stepIndex);
   const cursor = useApp((s) => s.stitchCursor);
   const setCursor = useApp((s) => s.setStitchCursor);
@@ -52,7 +55,7 @@ export default function MobileDock() {
       if (changeIdx !== null) {
         if (!changeIsNow) {
           jumpTo = changeIdx - before;
-          jumpLabel = 'Til fargebytte';
+          jumpLabel = ui.toColorChange;
         } else {
           for (let i = before + c + 1; i < before + round.count; i++) {
             if (model.stitches[i].changeColorAfter) {
@@ -61,32 +64,38 @@ export default function MobileDock() {
             }
           }
           if (jumpTo === null) jumpTo = round.count;
-          jumpLabel = 'Neste fargebytte';
+          jumpLabel = ui.nextColorChange;
         }
       }
     }
   }
 
   return (
-    <div className="mobile-dock" role="toolbar" aria-label="Arbeidsknapper">
+    <div
+      className="mobile-dock"
+      role="toolbar"
+      aria-label={locale === 'en' ? 'Work controls' : 'Arbeidsknapper'}
+    >
       {counting && (
         <div className="mobile-dock-count-row">
           <button
             type="button"
             className="mobile-dock-pm minus"
             onClick={() => setCursor(Math.max(0, c - 1))}
-            title="−1 maske"
-            aria-label="Minus én maske"
+            title={ui.minusOne}
+            aria-label={ui.minusOne}
           >
-            −1
+            {ui.minusOne}
           </button>
           <div className="mobile-dock-count" aria-live="polite">
             {done ? (
-              <strong>Ferdig!</strong>
+              <strong>{ui.roundDone}</strong>
             ) : (
               <>
                 <strong>{c}</strong>
-                <span>av {roundCount}</span>
+                <span>
+                  {ui.of} {roundCount}
+                </span>
               </>
             )}
           </div>
@@ -97,17 +106,17 @@ export default function MobileDock() {
               onClick={next}
               disabled={isLast}
             >
-              Neste steg →
+              {ui.next}
             </button>
           ) : (
             <button
               type="button"
               className="mobile-dock-pm plus"
               onClick={() => setCursor(Math.min(roundCount, c + 1))}
-              title="+1 maske"
-              aria-label="Pluss én maske"
+              title={ui.plusOne}
+              aria-label={ui.plusOne}
             >
-              +1
+              {ui.plusOne}
             </button>
           )}
         </div>
@@ -130,15 +139,15 @@ export default function MobileDock() {
           onClick={prev}
           disabled={stepIndex === 0}
         >
-          ← Forrige
+          {ui.prev}
         </button>
         <button
           type="button"
           className="mobile-dock-nav-btn jump"
           onClick={() => setJumpOpen(true)}
-          title="Vis hele oppskriften og hopp til et steg"
+          title={ui.jumpOpen}
         >
-          Oppskrift
+          {ui.jumpOpen}
         </button>
         <button
           type="button"
@@ -146,7 +155,7 @@ export default function MobileDock() {
           onClick={next}
           disabled={isLast}
         >
-          {isLast ? 'Ferdig!' : 'Neste →'}
+          {isLast ? ui.done : ui.nextShort}
         </button>
       </div>
     </div>

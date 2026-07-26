@@ -148,6 +148,16 @@ export function rhythmText(round: Round): string {
   return `Lag én fastmaske i ${k - 1 === 1 ? 'én maske' : `${k - 1} forskjellige masker`}, deretter to fastmasker i neste maske. Gjenta hele veien rundt: ${ones}, to i samme maske.`;
 }
 
+/** English version of {@link rhythmText} (US crochet terms: single crochet). */
+export function rhythmTextEn(round: Round): string {
+  const k = round.increaseEvery;
+  if (round.num === 1) return 'Make 10 single crochets into the same chain stitch (chain 1).';
+  if (k === null) return 'Make one single crochet in every stitch, all the way around.';
+  if (k === 1) return 'Make two single crochets in every stitch of the previous round, all the way around.';
+  const ones = Array.from({ length: k - 1 }, () => 'one').join(', ');
+  return `Make one single crochet in ${k - 1 === 1 ? 'one stitch' : `${k - 1} different stitches`}, then two single crochets in the next stitch. Repeat all the way around: ${ones}, two in the same stitch.`;
+}
+
 /**
  * Where the next stitch sits in the increase rhythm.
  *

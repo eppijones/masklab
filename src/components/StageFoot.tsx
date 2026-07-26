@@ -1,14 +1,17 @@
 import { useApp, getModel } from '../store';
 import WorkHUD from './WorkHUD';
+import { t } from '../i18n/ui';
 
 function RoundCount() {
+  const locale = useApp((s) => s.locale);
+  const ui = t(locale);
   const stepIndex = useApp((s) => s.stepIndex);
   const model = getModel();
   const step = model.steps[stepIndex];
   if (!step || step.roundIdx === null) {
     return (
       <span className="roundcount">
-        Interaktiv 3D-oppskrift · <strong>for helt ferske nybegynnere</strong>
+        {ui.stageIntro}
       </span>
     );
   }
@@ -16,8 +19,7 @@ function RoundCount() {
   const totalRounds = model.rounds.length;
   return (
     <span className="roundcount">
-      Runde <strong>{round.num}</strong> av {model.rounds[totalRounds - 1].num} · {round.count}{' '}
-      masker
+      {ui.roundOf(round.num, model.rounds[totalRounds - 1].num, round.count)}
     </span>
   );
 }
@@ -28,6 +30,7 @@ function RoundCount() {
  * no matter how much text the current step has.
  */
 export default function StageFoot({ hideControls = false }: { hideControls?: boolean }) {
+  const locale = useApp((s) => s.locale);
   const stepIndex = useApp((s) => s.stepIndex);
   const setStep = useApp((s) => s.setStep);
 
@@ -35,7 +38,7 @@ export default function StageFoot({ hideControls = false }: { hideControls?: boo
 
   return (
     <div className={`stage-foot ${hideControls ? 'dock-mode' : ''}`}>
-      <WorkHUD hideControls={hideControls} />
+      <WorkHUD hideControls={hideControls} key={locale} />
       <div className="progress">
         {steps.map((s, i) => (
           <button
