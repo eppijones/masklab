@@ -1387,6 +1387,51 @@ html[data-device="phone"] .app {
   flex: 1 1 auto;
   min-height: 180px;
 }
+[data-device="phone"] .layout.mobile-work.recipe-first {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  gap: 8px;
+  padding-top: 4px;
+}
+[data-device="phone"] .layout.mobile-work.recipe-first .panel {
+  flex: none;
+}
+[data-device="phone"] .mobile-recipe-hint {
+  margin: 0 4px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--go-soft);
+  border: 1px solid #C5D9CC;
+  color: var(--go-dark);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+[data-device="phone"] .stage-head .viewtoggle {
+  flex: 1;
+  min-width: 0;
+}
+[data-device="phone"] .stage-head .viewtoggle button {
+  flex: 1;
+  padding: 8px 6px;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+}
+.workhud-recipe-hint {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--blue);
+  letter-spacing: 0.02em;
+}
+@keyframes opskrift-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 32, 91, 0); transform: scale(1); }
+  50% { box-shadow: 0 0 0 6px rgba(0, 32, 91, 0.12); transform: scale(1.02); }
+}
+.mobile-dock-nav-btn.jump.pulse {
+  animation: opskrift-pulse 2.6s ease-in-out infinite;
+  border-color: #A8B8D4;
+}
 [data-device="phone"] .stage-foot {
   padding: 6px 10px 8px;
   gap: 6px;
@@ -1567,6 +1612,11 @@ html[data-device="tablet"][data-orientation="portrait"] .app {
 [data-device="tablet"][data-orientation="portrait"] .layout.mobile-work .scene-wrap {
   flex: 1 1 auto;
   min-height: 280px;
+}
+[data-device="tablet"][data-orientation="portrait"] .layout.mobile-work.recipe-first {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  gap: 10px;
 }
 [data-device="tablet"][data-orientation="portrait"] .hint { display: none; }
 [data-device="tablet"][data-orientation="portrait"] .recipe-sheet {

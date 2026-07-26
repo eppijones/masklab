@@ -15,6 +15,7 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import { useApp, getModel } from './store';
 import { useDeviceClass, useNeedsMobileDock } from './hooks/useDeviceClass';
 import { hasSavedProgress, isHeleneEntry } from './lib/entry';
+import { isPreHatStep } from './lib/guideMode';
 import { t } from './i18n/ui';
 
 function HomeIcon() {
@@ -53,6 +54,8 @@ function TopBar() {
   const setCheatOpen = useApp((s) => s.setCheatOpen);
   const setTroubleOpen = useApp((s) => s.setTroubleOpen);
   const setWelcomeDone = useApp((s) => s.setWelcomeDone);
+  const setSchoolOpen = useApp((s) => s.setSchoolOpen);
+  const schoolOpen = useApp((s) => s.schoolOpen);
   const showNumbers = useApp((s) => s.showNumbers);
   const setShowNumbers = useApp((s) => s.setShowNumbers);
   const showMarkers = useApp((s) => s.showMarkers);
@@ -107,6 +110,17 @@ function TopBar() {
         </button>
 
         <div className={`tools-tray ${toolsOpen ? 'open' : ''}`} aria-hidden={!toolsOpen}>
+          <button
+            type="button"
+            className={`tool-btn ${schoolOpen ? 'active' : ''}`}
+            onClick={() => {
+              setSchoolOpen(true);
+              setToolsOpen(false);
+            }}
+            tabIndex={toolsOpen ? 0 : -1}
+          >
+            {ui.school}
+          </button>
           <button
             type="button"
             className={`tool-btn ${autoRotate ? 'active' : ''}`}
@@ -182,7 +196,7 @@ function TopBar() {
   );
 }
 
-function ViewToggle() {
+function ViewToggle({ showRecipe = false }: { showRecipe?: boolean }) {
   const locale = useApp((s) => s.locale);
   const ui = t(locale);
   const showFinished = useApp((s) => s.showFinished);
@@ -190,6 +204,8 @@ function ViewToggle() {
   const viewMode = useApp((s) => s.viewMode);
   const setViewMode = useApp((s) => s.setViewMode);
   const setAutoRotate = useApp((s) => s.setAutoRotate);
+  const recipeOpen = useApp((s) => s.recipeOpen);
+  const setRecipeOpen = useApp((s) => s.setRecipeOpen);
   const stepIndex = useApp((s) => s.stepIndex);
   const step = getModel().steps[stepIndex];
   const onFinale = step?.kind === 'finish' || step?.kind === 'done';
@@ -217,6 +233,16 @@ function ViewToggle() {
       >
         {ui.viewFinished}
       </button>
+      {showRecipe && (
+        <button
+          type="button"
+          className={recipeOpen ? 'on' : ''}
+          onClick={() => setRecipeOpen(true)}
+          title={ui.jumpOpen}
+        >
+          {ui.jumpOpen}
+        </button>
+      )}
     </div>
   );
 }
@@ -428,7 +454,12 @@ export default function App() {
   }, [next, prev, setSchoolOpen, setJumpOpen]);
 
   const stepIndex = useApp((s) => s.stepIndex);
-  const finaleKind = getModel().steps[stepIndex]?.kind;
+  const setStitchPanelOpen = useApp((s) => s.setStitchPanelOpen);
+  const setRecipeOpen = useApp((s) => s.setRecipeOpen);
+  const currentStep = getModel().steps[stepIndex];
+  const preHat = isPreHatStep(currentStep);
+  const recipeFirst = needsDock && preHat;
+  const finaleKind = currentStep?.kind;
   const celebrateDone = finaleKind === 'done';
   const onFinale = finaleKind === 'finish' || finaleKind === 'done';
 
@@ -445,6 +476,15 @@ export default function App() {
     }
   }, [welcomeDone, stepIndex, onFinale]);
 
+  // Phone: keep Maske-for-maske collapsed; close recipe sheet when leaving intro → 3D.
+  const wasPreHat = useRef(preHat);
+  useEffect(() => {
+    if (!needsDock || !welcomeDone) return;
+    setStitchPanelOpen(false);
+    if (wasPreHat.current && !preHat) setRecipeOpen(false);
+    wasPreHat.current = preHat;
+  }, [needsDock, welcomeDone, stepIndex, preHat, setStitchPanelOpen, setRecipeOpen]);
+
   if (!welcomeDone) {
     return <WelcomeScreen />;
   }
@@ -453,35 +493,47 @@ export default function App() {
     <div className={`app ${needsDock ? 'has-mobile-dock' : ''}`}>
       <TopBar />
       <ReturnPill />
-      <div className={`layout ${needsDock ? 'mobile-work' : ''}`}>
+      <div
+        className={`layout ${needsDock ? 'mobile-work' : ''} ${recipeFirst ? 'recipe-first' : ''}`}
+      >
         {!needsDock && <StepPanel />}
-        <section className="card stage">
-          <div className="card-head stage-head">
-            <ViewToggle />
-            <div className="stage-tools">
-              <button
-                type="button"
-                className={`schoolbtn ${schoolOpen ? 'open' : ''}`}
-                onClick={() => setSchoolOpen(!schoolOpen)}
-                title={ui.school}
-              >
-                {ui.school}
-              </button>
+        {recipeFirst && (
+          <>
+            <p className="mobile-recipe-hint">{ui.recipeFirstHint}</p>
+            <StepPanel hideFoot />
+          </>
+        )}
+        {!recipeFirst && (
+          <section className="card stage">
+            <div className="card-head stage-head">
+              <ViewToggle showRecipe={needsDock} />
+              {!needsDock && (
+                <div className="stage-tools">
+                  <button
+                    type="button"
+                    className={`schoolbtn ${schoolOpen ? 'open' : ''}`}
+                    onClick={() => setSchoolOpen(!schoolOpen)}
+                    title={ui.school}
+                  >
+                    {ui.school}
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
-          <div className="scene-wrap">
-            <HatScene device={device} />
-            <StitchOverlay />
-            <FlipHint />
-            <ConfettiBurst active={celebrateDone} />
-            <div className="hint">
-              {onFinale ? ui.hintRotate : ui.hintCount}
+            <div className="scene-wrap">
+              <HatScene device={device} />
+              <StitchOverlay />
+              <FlipHint />
+              <ConfettiBurst active={celebrateDone} />
+              <div className="hint">
+                {onFinale ? ui.hintRotate : ui.hintCount}
+              </div>
             </div>
-          </div>
-          <StageFoot hideControls={needsDock} />
-        </section>
+            <StageFoot hideControls={needsDock} />
+          </section>
+        )}
       </div>
-      {needsDock && <MobileDock />}
+      {needsDock && <MobileDock pulseRecipe={!preHat} recipeOpensJump={preHat} />}
       {needsDock && <RecipeSheet />}
       <Maskeskolen />
       <JumpDrawer />

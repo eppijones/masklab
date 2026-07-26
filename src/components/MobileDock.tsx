@@ -5,7 +5,14 @@ import { t } from '../i18n/ui';
  * Fixed bottom control bar for phone (and portrait tablet).
  * −1 / +1 and step prev/next stay thumb-reachable while the recipe scrolls.
  */
-export default function MobileDock() {
+export default function MobileDock({
+  pulseRecipe = false,
+  /** Before round 1, Oppskrift jumps the step list (text is already on screen). */
+  recipeOpensJump = false,
+}: {
+  pulseRecipe?: boolean;
+  recipeOpensJump?: boolean;
+}) {
   const locale = useApp((s) => s.locale);
   const ui = t(locale);
   const stepIndex = useApp((s) => s.stepIndex);
@@ -15,6 +22,7 @@ export default function MobileDock() {
   const next = useApp((s) => s.next);
   const prev = useApp((s) => s.prev);
   const setRecipeOpen = useApp((s) => s.setRecipeOpen);
+  const setJumpOpen = useApp((s) => s.setJumpOpen);
 
   const model = getModel();
   const steps = model.steps;
@@ -135,11 +143,11 @@ export default function MobileDock() {
       <div className="mobile-dock-nav">
         <button
           type="button"
-          className="mobile-dock-nav-btn jump"
-          onClick={() => setRecipeOpen(true)}
-          title={ui.jumpOpen}
+          className={`mobile-dock-nav-btn jump ${pulseRecipe ? 'pulse' : ''}`}
+          onClick={() => (recipeOpensJump ? setJumpOpen(true) : setRecipeOpen(true))}
+          title={recipeOpensJump ? ui.jumpList : ui.tapRecipeHint}
         >
-          {ui.jumpOpen}
+          {recipeOpensJump ? ui.jumpList : ui.jumpOpen}
         </button>
         <button
           type="button"

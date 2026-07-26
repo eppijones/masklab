@@ -231,18 +231,18 @@ async function runPersonaFlow(page: Page, profile: Profile): Promise<string[]> {
 
   if (profile.expectDock) {
     const phoneShell = await page.evaluate(() => {
-      const layout = document.querySelector('.layout');
       const stage = document.querySelector('.layout.mobile-work .stage') as HTMLElement | null;
       return {
+        recipeFirst: !!document.querySelector('.layout.recipe-first'),
         hasInlinePanel: !!document.querySelector('.layout > .panel'),
         mobileWork: !!document.querySelector('.layout.mobile-work'),
         stageFlex: stage ? getComputedStyle(stage).flexGrow : null,
-        layoutOverflow: layout ? getComputedStyle(layout).overflowY || getComputedStyle(layout).overflow : null,
       };
     });
-    if (phoneShell.hasInlinePanel) fails.push('recipe panel still inline under 3D (should be sheet)');
     if (!phoneShell.mobileWork) fails.push('missing layout.mobile-work');
-    if (phoneShell.stageFlex === '0') fails.push('stage is not flex-growing on phone');
+    // Fresh start lands on intro → recipe-first (text, not 3D).
+    if (!phoneShell.recipeFirst) fails.push('expected recipe-first before round 1');
+    if (!phoneShell.hasInlinePanel) fails.push('recipe-first should show inline pattern text');
   }
 
   // Round counting: +1/−1 reachable
@@ -300,7 +300,7 @@ async function runPersonaFlow(page: Page, profile: Profile): Promise<string[]> {
   });
   await wait(300);
 
-  // Dock Oppskrift → recipe sheet; desktop foot → step list
+  // After jumping into a round: Oppskrift opens recipe sheet on phone
   await page.evaluate(() => {
     const btn = document.querySelector(
       '.mobile-dock-nav-btn.jump, .panel-foot .btn.jump-open',
@@ -311,9 +311,13 @@ async function runPersonaFlow(page: Page, profile: Profile): Promise<string[]> {
   const opened = await page.evaluate(() => ({
     recipe: !!document.querySelector('.recipe-sheet'),
     jump: !!document.querySelector('.jump-drawer'),
+    stageVisible: !!document.querySelector('.layout.mobile-work .stage'),
+    stitchCollapsed: !!document.querySelector('.stitch-overlay.collapsed'),
   }));
   if (profile.expectDock) {
-    if (!opened.recipe) fails.push('Oppskrift did not open recipe sheet');
+    if (!opened.recipe) fails.push('Oppskrift did not open recipe sheet in 3D work');
+    if (!opened.stageVisible) fails.push('3D stage missing after round jump');
+    if (!opened.stitchCollapsed) fails.push('Maske for maske should start collapsed');
   } else if (!opened.jump) {
     fails.push('Alle steg / jump drawer did not open');
   }

@@ -716,8 +716,11 @@ function CameraDirector({
   const goalTarget = useRef(new THREE.Vector3(0, 9, 0));
   const active = useRef(false);
   const lastPresetKey = useRef('');
-  /** Phone/tablet: pull camera closer so stitches fill the portrait stage. */
-  const close = device === 'phone' ? 0.58 : device === 'tablet' ? 0.78 : 1;
+  /**
+   * Phone: pull back so surrounding stitches stay readable (IMG_5282 framing).
+   * Values scale camera distance — higher = further away.
+   */
+  const close = device === 'phone' ? 1.18 : device === 'tablet' ? 0.95 : 1;
 
   useEffect(() => {
     const model = getModel();
@@ -777,19 +780,20 @@ function CameraDirector({
         if (isBrimPhase(round.phase)) {
           // Brim flares flat in sy-visning: look from BELOW up at the
           // working edge so the stitch faces point at the camera.
-          goal.current.set(tx + 2.8 * close * cx, sy - 8.5 * close, tz + 2.8 * close * cz);
+          goal.current.set(tx + 3.6 * close * cx, sy - 9.2 * close, tz + 3.6 * close * cz);
           goalTarget.current.set(tx, sy - 0.15, tz);
         } else if (round.phase === 'top') {
           // Flat crown: after the sy-flip, stitch faces point downward.
           // Sit under the working stitch and look up — same clear "face-on"
           // read as runde 22, while azimuth follows the work right → left.
-          goal.current.set(tx + 4.8 * close * cx, sy - 6.4 * close, tz + 4.8 * close * cz);
+          goal.current.set(tx + 6.2 * close * cx, sy - 7.4 * close, tz + 6.2 * close * cz);
           goalTarget.current.set(tx, sy - 0.12, tz);
         } else {
-          // Text / vertical side: close-up, straight-on (runde 22 framing).
-          const dist = (ring.r + 7.5) * close;
-          goal.current.set(dist * cx, sy + 1.9, dist * cz);
-          goalTarget.current.set(tx * 0.98, sy + 0.3, tz * 0.98);
+          // Text / vertical side: ALSO look from below the working edge.
+          // A high side-on camera made +1 appear left→right on phone; the
+          // under-edge framing keeps right→left like the crown rounds.
+          goal.current.set(tx + 7.4 * close * cx, sy - 5.6 * close, tz + 7.4 * close * cz);
+          goalTarget.current.set(tx, sy + 0.15, tz);
         }
         active.current = true;
         return;
@@ -958,12 +962,12 @@ export default function HatScene({
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const autoRotateStore = useApp((s) => s.autoRotate);
   const spinning = preview || autoRotateStore;
-  const fov = device === 'phone' ? 38 : device === 'tablet' ? 40 : 36;
+  const fov = device === 'phone' ? 42 : device === 'tablet' ? 40 : 36;
   const dpr: [number, number] = device === 'phone' ? [1, 1.5] : [1, 2];
   const startPos: [number, number, number] = preview
     ? [44, 26, 52]
     : device === 'phone'
-      ? [14, 22, 18]
+      ? [24, 28, 28]
       : [20, 30, 26];
   return (
     <div id="scene-root" className={preview ? 'scene-preview' : undefined}>
@@ -993,7 +997,7 @@ export default function HatScene({
           dampingFactor={0.06}
           autoRotate={spinning}
           autoRotateSpeed={1.2}
-          minDistance={device === 'phone' ? 3.2 : 5}
+          minDistance={device === 'phone' ? 6 : 5}
           maxDistance={90}
           // Allow near-overhead (brim in sy-visning) and slightly under-horizon
           // (brim in ferdig-visning) so stitches can face the camera.
