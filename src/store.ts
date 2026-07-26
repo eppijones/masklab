@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { buildRounds, buildStitches } from './data/pattern';
 import { buildSteps, type StepDef } from './data/steps';
 import type { Round, Stitch } from './data/types';
+import { progressStorageKey } from './lib/entry';
 
 export interface PatternModel {
   rounds: Round[];
@@ -175,7 +176,7 @@ export const useApp = create<AppState>()(
       setWelcomeDone: (v) => set({ welcomeDone: v }),
     }),
     {
-      name: 'robo-hatt-progress-4mm',
+      name: progressStorageKey(),
       partialize: (s) => ({
         stepIndex: s.stepIndex,
         recipeVersion: s.recipeVersion,
