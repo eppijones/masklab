@@ -1,0 +1,9 @@
+design
+pdf
+references
+verify-shots
+scripts
+*.tar.gz
+.backup-*
+.git
+node_modules
