@@ -789,11 +789,20 @@ a { color: var(--red); }
 
 /* ---------- welcome / landing ---------- */
 .welcome {
-  height: 100%; min-height: 100vh; display: flex; flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
   background:
     radial-gradient(1200px 600px at 50% -200px, #F4EEDF 0%, rgba(244, 238, 223, 0) 70%),
     var(--bg);
 }
+.welcome-mobile-bar { display: none; }
 .welcome-top {
   flex: none; display: flex; align-items: center; justify-content: space-between;
   gap: 16px; padding: 22px 34px 0;
@@ -907,19 +916,57 @@ a { color: var(--red); }
 /* Welcome stacking only on real phone/tablet — not narrow desktop windows */
 [data-device="phone"] .welcome-hero,
 [data-device="tablet"][data-orientation="portrait"] .welcome-hero {
-  grid-template-columns: 1fr; gap: 16px; padding: 12px 20px 20px;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 12px 20px 20px;
+  flex: 0 0 auto;
+  min-height: auto;
+  align-items: stretch;
 }
 [data-device="phone"] .welcome-aside,
 [data-device="tablet"][data-orientation="portrait"] .welcome-aside {
-  order: -1; height: 38vh; min-height: 220px; padding: 0;
+  order: -1;
+  height: 28vh;
+  min-height: 160px;
+  max-height: 220px;
+  padding: 0;
 }
 [data-device="phone"] .welcome-stage,
 [data-device="tablet"][data-orientation="portrait"] .welcome-stage {
-  transform: none; border-radius: 14px;
+  transform: none;
+  border-radius: 14px;
+  /* Preview must not steal scroll / taps on the landing page */
+  pointer-events: none;
 }
 [data-device="phone"] .welcome-intro,
 [data-device="tablet"][data-orientation="portrait"] .welcome-intro {
-  padding: 8px 4px 16px;
+  padding: 4px 4px 12px;
+  gap: 14px;
+}
+[data-device="phone"] .welcome-intro .welcome-cta,
+[data-device="tablet"][data-orientation="portrait"] .welcome-intro .welcome-cta {
+  /* Replaced by fixed mobile bar so Start is always tappable */
+  display: none;
+}
+[data-device="phone"] .welcome-mobile-bar,
+[data-device="tablet"][data-orientation="portrait"] .welcome-mobile-bar {
+  display: block;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  padding:
+    12px 16px
+    calc(12px + env(safe-area-inset-bottom, 0px));
+  background: rgba(253, 250, 243, 0.97);
+  border-top: 1px solid var(--card-border);
+  box-shadow: 0 -12px 28px -20px rgba(60, 50, 30, 0.45);
+  backdrop-filter: blur(10px);
+}
+[data-device="phone"] .welcome,
+[data-device="tablet"][data-orientation="portrait"] .welcome {
+  padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px));
 }
 [data-device="phone"] .welcome-cta,
 [data-device="tablet"] .welcome-cta {
@@ -933,13 +980,29 @@ a { color: var(--red); }
 }
 [data-device="phone"] .welcome-foot,
 [data-device="tablet"][data-orientation="portrait"] .welcome-foot {
-  padding: 0 24px calc(18px + env(safe-area-inset-bottom, 0px));
+  padding: 0 24px 12px;
 }
 [data-device="phone"] .welcome-top,
 [data-device="tablet"][data-orientation="portrait"] .welcome-top {
+  flex: none;
   padding-left: max(16px, env(safe-area-inset-left));
   padding-right: max(16px, env(safe-area-inset-right));
   padding-top: max(12px, env(safe-area-inset-top));
+}
+
+/* Welcome must scroll inside the locked phone shell */
+html[data-screen="welcome"][data-device="phone"] #root,
+html[data-screen="welcome"][data-device="tablet"][data-orientation="portrait"] #root {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+html[data-screen="welcome"][data-device="phone"] .welcome,
+html[data-screen="welcome"][data-device="tablet"][data-orientation="portrait"] .welcome {
+  height: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ---------- AI assistant (in stage foot, right of progress) ---------- */
