@@ -3,6 +3,7 @@ import HatScene from './HatScene';
 
 const PDF_URL =
   'https://helenespilling.com/wp-content/uploads/2026/06/RO-DET-I-LAND-HATTEN.pdf';
+const HELENE_URL = 'https://helenespilling.com';
 
 /**
  * Stilrent velkomstskjerm før oppskriften.
@@ -37,11 +38,11 @@ export default function WelcomeScreen() {
             <span style={{ background: '#00205B' }} />
           </div>
           <span className="welcome-brand">
-            Ro det i land <span>· Helene Spilling</span>
+            Ro det i land <span>av Helene Spilling</span>
           </span>
         </div>
         <a className="welcome-pdf" href={PDF_URL} target="_blank" rel="noreferrer">
-          Last ned PDF
+          Last ned original oppskrift
         </a>
       </header>
 
@@ -54,8 +55,9 @@ export default function WelcomeScreen() {
             La oss <em>ro det i land</em>.
           </h1>
           <p className="welcome-lede">
-            Hekle Helene Spillings «Ro det i land»-hatt — RO RO RO — én runde av gangen.
-            Laget for deg som aldri har holdt en heklenål før. Hatten i 3D vokser mens du hekler.
+            Hekle «Ro det i land»-hatten av Helene Spilling — én runde av gangen.
+            Passer både deg som kan hekle, og deg som aldri har rørt en heklepinne.
+            Hatten i 3D vokser mens du hekler.
           </p>
           <div className="welcome-cta">
             <button type="button" className="welcome-start" onClick={() => enter(false)}>
@@ -68,21 +70,25 @@ export default function WelcomeScreen() {
             )}
           </div>
           <p className="welcome-fine">
-            {stepCount} små steg · Maskeskole med animasjoner · ingen forkunnskaper
+            {stepCount} små steg · Maskeskole med animasjoner · for nybegynnere og øvede
           </p>
         </section>
 
         <aside className="welcome-aside" aria-label="Ferdig hatt i 3D">
-          <HatScene preview />
-          <p className="welcome-hint">Dra for å rotere · snurring er på</p>
+          <div className="welcome-stage">
+            <HatScene preview />
+            <p className="welcome-hint">Dra for å rotere · snurring er på</p>
+          </div>
         </aside>
       </main>
 
       <footer className="welcome-foot">
         <p>
-          Oppskrift av <strong>Helene Spilling</strong> · for helt ferske nybegynnere
+          Oppskrift av{' '}
+          <a href={HELENE_URL} target="_blank" rel="noreferrer">
+            Helene Spilling
+          </a>
         </p>
-        <span>Norge · VM 2026</span>
       </footer>
     </div>
   );
