@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useApp } from '../store';
 
 /**
- * Demo AI assistant docked in the 3D stage (bottom-right).
+ * Demo AI assistant in the stage foot (right of the progress bar).
  * Upload UI is local-only — nothing is sent anywhere yet.
  */
 export default function AiChatDemo({ docked = false }: { docked?: boolean }) {
@@ -12,7 +12,7 @@ export default function AiChatDemo({ docked = false }: { docked?: boolean }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className={`ai-dock ${docked ? 'in-stage' : 'floating'} ${open ? 'open' : ''}`}>
+    <div className={`ai-dock ${docked ? 'in-foot' : 'floating'} ${open ? 'open' : ''}`}>
       <button
         type="button"
         className={`ai-fab ${open ? 'open' : ''}`}

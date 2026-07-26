@@ -360,11 +360,18 @@ a { color: var(--red); }
 /* ---------- stage foot: progress + counters + nav (fixed position) ---------- */
 .stage-foot {
   flex: none;
+  position: relative;
+  z-index: 8;
+  overflow: visible;
   border-top: 1px solid var(--head-line);
   padding: 8px 16px 10px 16px;
   display: flex; flex-direction: column; gap: 7px;
 }
-.progress { display: flex; gap: 4px; }
+.progress-row {
+  display: flex; align-items: center; gap: 10px;
+  min-width: 0;
+}
+.progress { display: flex; gap: 4px; flex: 1; min-width: 0; }
 .progress button {
   flex: 1 1 6px; min-width: 4px; height: 5px; border-radius: 99px; border: none;
   cursor: pointer; background: #E7DDC6; padding: 0; transition: background 0.2s;
@@ -935,46 +942,46 @@ a { color: var(--red); }
   padding-top: max(12px, env(safe-area-inset-top));
 }
 
-/* ---------- AI assistant (docked bottom-right of 3D stage) ---------- */
+/* ---------- AI assistant (in stage foot, right of progress) ---------- */
 .confetti-canvas {
   position: absolute; inset: 0; z-index: 7;
   width: 100%; height: 100%;
   pointer-events: none;
 }
 
-.ai-dock.in-stage {
-  position: absolute; right: 12px; bottom: 40px; z-index: 6;
-  display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 8px;
-  pointer-events: none;
-  /* Keep clear of the centered rotate/zoom hint and stage foot */
-  max-width: min(340px, calc(100% - 24px));
+.ai-dock.in-foot {
+  position: relative;
+  flex: none;
+  z-index: 8;
+  display: flex; flex-direction: column; align-items: flex-end;
 }
-.ai-dock.in-stage > * { pointer-events: auto; }
 .ai-fab {
   display: flex; align-items: center; gap: 8px;
   border: none; border-radius: 999px; cursor: pointer;
   background: var(--action); color: var(--card);
-  padding: 11px 15px 11px 12px;
-  font-family: 'Karla', sans-serif; font-weight: 800; font-size: 11.5px;
+  padding: 8px 12px 8px 10px;
+  font-family: 'Karla', sans-serif; font-weight: 800; font-size: 11px;
   letter-spacing: 0.08em; text-transform: uppercase;
-  box-shadow: 0 14px 28px -14px rgba(32, 29, 24, 0.55);
+  box-shadow: 0 8px 18px -12px rgba(32, 29, 24, 0.5);
   transition: background 0.12s, transform 0.12s;
   white-space: nowrap;
 }
 .ai-fab:hover, .ai-fab.open { background: #2A2620; }
 .ai-fab-icon {
-  width: 24px; height: 24px; border-radius: 50%;
+  width: 22px; height: 22px; border-radius: 50%;
   background: rgba(253,250,243,0.16);
   display: flex; align-items: center; justify-content: center;
-  font-size: 13px;
+  font-size: 12px;
 }
 .ai-panel {
+  position: absolute; right: 0; bottom: calc(100% + 8px);
   width: min(320px, calc(100vw - 48px));
   background: var(--card); border: 1px solid var(--card-border);
   border-radius: 14px;
   box-shadow: 0 28px 64px -28px rgba(60, 50, 30, 0.55);
   display: flex; flex-direction: column; max-height: min(52vh, 440px);
   animation: school-in 0.18s ease;
+  z-index: 9;
 }
 .ai-panel-head {
   flex: none; display: flex; align-items: center; justify-content: space-between;
@@ -1327,11 +1334,8 @@ html[data-device="phone"] .app {
   padding: 10px 12px; font-size: 11px; min-height: 40px;
 }
 [data-device="phone"] #scene-root canvas { touch-action: none; }
-[data-device="phone"] .ai-dock.in-stage {
-  right: 8px; bottom: 8px;
-}
 [data-device="phone"] .ai-fab-label { max-width: 0; padding: 0; overflow: hidden; }
-[data-device="phone"] .ai-fab { padding: 12px; border-radius: 50%; }
+[data-device="phone"] .ai-fab { padding: 10px; border-radius: 50%; }
 [data-device="phone"] .stitch-overlay {
   max-height: 38%;
   width: min(280px, calc(100% - 16px));
@@ -1425,19 +1429,11 @@ html[data-device="tablet"][data-orientation="portrait"] .app {
   overflow-y: visible;
 }
 [data-device="tablet"][data-orientation="portrait"] .hint { display: none; }
-[data-device="tablet"][data-orientation="portrait"] .ai-dock.in-stage {
-  right: 10px; bottom: 10px;
-}
 [data-device="tablet"][data-orientation="portrait"] .ai-fab-label {
   max-width: 0; padding: 0; overflow: hidden;
 }
 [data-device="tablet"][data-orientation="portrait"] .ai-fab {
-  padding: 12px; border-radius: 50%;
-}
-[data-device="phone"] .app.has-mobile-dock .ai-dock.in-stage,
-[data-device="tablet"][data-orientation="portrait"] .app.has-mobile-dock .ai-dock.in-stage {
-  /* Stay above the 3D stage, clear of the fixed dock */
-  bottom: 8px;
+  padding: 10px; border-radius: 50%;
 }
 [data-device="tablet"][data-orientation="portrait"] .school,
 [data-device="tablet"][data-orientation="portrait"] .jump-drawer,
