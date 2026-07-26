@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bøttehatt NOR 2026 — 3D Tutorial + Maskeskole</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #EDE7DA; overflow: hidden; }
+  body { font-family: 'Karla', sans-serif; color: #201D18; }
+  a { color: #BA0C2F; }
+  ::selection { background: #BA0C2F; color: #F7F2E8; }
+  #scene { position: fixed; inset: 0; }
+  #scene canvas { display: block; cursor: grab; }
+  #scene canvas:active { cursor: grabbing; }
+
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; padding: 24px 36px;
+    display: flex; align-items: center; justify-content: space-between; pointer-events: none; z-index: 5;
+  }
+  .brand { display: flex; align-items: center; gap: 13px; }
+  .dots { display: flex; gap: 5px; }
+  .dots span { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .kicker { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: #8A8070; font-weight: 700; }
+
+  .panel {
+    position: fixed; left: 32px; top: 50%; transform: translateY(-50%);
+    width: 330px; background: #FDFAF3; border-radius: 10px;
+    box-shadow: 0 30px 60px -36px rgba(60,50,30,0.55);
+    padding: 26px 26px 22px 26px; z-index: 5;
+    display: flex; flex-direction: column; gap: 13px;
+  }
+  .step-eyebrow { display: flex; align-items: baseline; justify-content: space-between; }
+  .step-num { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 800; color: #BA0C2F; }
+  .step-rounds { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: #A89A7E; }
+  .step-title { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 30px; line-height: 1.05; margin: 0; }
+  .step-body { font-size: 14px; line-height: 1.6; color: #55503F; margin: 0; text-wrap: pretty; }
+  .step-meta { display: flex; gap: 8px; border-top: 1px solid #EDE4D0; padding-top: 13px; margin-top: 2px; }
+  .chip { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: #55503F; background: #F3ECDC; border-radius: 4px; padding: 5px 10px; }
+  .chip.yarn { display: flex; align-items: center; gap: 7px; }
+  .chip .swatch { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,0.12); }
+
+  .nav { display: flex; gap: 10px; margin-top: 2px; }
+  .btn {
+    font-family: 'Karla', sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.06em;
+    border-radius: 6px; padding: 12px 0; cursor: pointer; border: none; transition: transform 0.12s ease, opacity 0.12s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.prev { flex: 1; background: #F3ECDC; color: #55503F; }
+  .btn.prev:hover { background: #EDE3CC; }
+  .btn.next { flex: 2; background: #BA0C2F; color: #FDFAF3; box-shadow: 0 12px 22px -12px rgba(186,12,47,0.7); }
+  .btn.next:hover { background: #A50A29; }
+  .btn:disabled { opacity: 0.35; cursor: default; }
+
+  .progress { display: flex; gap: 6px; }
+  .progress button { flex: 1; height: 5px; border-radius: 99px; border: none; cursor: pointer; background: #E7DDC6; padding: 0; transition: background 0.2s; }
+  .progress button.done { background: #00205B; }
+  .progress button.active { background: #BA0C2F; }
+
+  /* ---------- Maskeskolen (stitch school) ---------- */
+  .school {
+    position: fixed; right: 32px; top: 50%; transform: translateY(-50%);
+    width: 400px; background: #FDFAF3; border-radius: 10px;
+    box-shadow: 0 30px 60px -36px rgba(60,50,30,0.55);
+    padding: 22px 22px 18px 22px; z-index: 5;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .school-head { display: flex; align-items: baseline; justify-content: space-between; }
+  .school-title { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 800; color: #00205B; }
+  .school-count { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; color: #A89A7E; }
+  .school-art {
+    background: linear-gradient(165deg, #FBF3E4 0%, #EFE3CD 100%);
+    border-radius: 8px; overflow: hidden; position: relative;
+  }
+  .school-art svg { display: block; width: 100%; height: auto; }
+  .frame-badge {
+    position: absolute; top: 12px; left: 12px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: #FDFAF3; border: 2px solid #2A2620;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Instrument Serif', serif; font-size: 17px;
+  }
+  .school-frame-title { font-family: 'Instrument Serif', serif; font-size: 22px; margin: 0; font-weight: 400; }
+  .school-caption { font-size: 13.5px; line-height: 1.6; color: #55503F; margin: 0; text-wrap: pretty; min-height: 64px; }
+  .school-nav { display: flex; align-items: center; gap: 12px; }
+  .fbtn {
+    width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #D8CFBC; background: #FDFAF3;
+    font-size: 17px; color: #55503F; cursor: pointer; transition: background 0.12s;
+  }
+  .fbtn:hover { background: #F3ECDC; }
+  .fbtn:disabled { opacity: 0.3; cursor: default; }
+  .fdots { display: flex; gap: 7px; flex: 1; justify-content: center; }
+  .fdots button { width: 8px; height: 8px; border-radius: 50%; border: none; padding: 0; cursor: pointer; background: #E7DDC6; }
+  .fdots button.active { background: #00205B; transform: scale(1.25); }
+  .school-foot { border-top: 1px solid #EDE4D0; padding-top: 13px; display: flex; }
+  .btn.ghosthat { flex: 1; background: #00205B; color: #FDFAF3; font-size: 13px; padding: 11px 0; }
+  .btn.ghosthat:hover { background: #001A4A; }
+  .btn.ghosthat.on { background: #BA0C2F; }
+
+  .roundcount {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 5;
+    font-family: 'Instrument Serif', serif; font-size: 17px; color: #55503F; font-style: italic; pointer-events: none;
+  }
+  .roundcount strong { font-style: normal; color: #BA0C2F; }
+  .hint {
+    position: fixed; bottom: 26px; left: 36px; z-index: 5;
+    font-size: 11.5px; color: #8A8070; letter-spacing: 0.06em; font-weight: 700; pointer-events: none;
+  }
+
+  @media (max-width: 1180px) { .school { display: none; } }
+  @media (max-width: 760px) {
+    .panel { left: 16px; right: 16px; width: auto; top: auto; bottom: 16px; transform: none; padding: 20px; }
+    .hint, .roundcount { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scene"></div>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="dots">
+      <span style="background:#BA0C2F"></span>
+      <span style="background:#FDFAF3; border:1px solid #D8CFBC"></span>
+      <span style="background:#00205B"></span>
+    </div>
+    <span class="kicker">Bøttehatt · Norge · VM 2026</span>
+  </div>
+  <span class="kicker">Interaktiv 3D-oppskrift · For nybegynnere</span>
+</div>
+
+<div class="panel">
+  <div class="progress" id="progress"></div>
+  <div class="step-eyebrow">
+    <span class="step-num" id="stepNum"></span>
+    <span class="step-rounds" id="stepRounds"></span>
+  </div>
+  <h2 class="step-title" id="stepTitle"></h2>
+  <p class="step-body" id="stepBody"></p>
+  <div class="step-meta" id="stepMeta"></div>
+  <div class="nav">
+    <button class="btn prev" id="btnPrev">← Forrige</button>
+    <button class="btn next" id="btnNext">Neste steg →</button>
+  </div>
+</div>
+
+<div class="school">
+  <div class="school-head">
+    <span class="school-title">Maskeskolen</span>
+    <span class="school-count" id="frameCount"></span>
+  </div>
+  <div class="school-art" id="frameArt"><span class="frame-badge" id="frameBadge">1</span></div>
+  <h3 class="school-frame-title" id="frameTitle"></h3>
+  <p class="school-caption" id="frameCaption"></p>
+  <div class="school-nav">
+    <button class="fbtn" id="framePrev">‹</button>
+    <div class="fdots" id="frameDots"></div>
+    <button class="fbtn" id="frameNext">›</button>
+  </div>
+  <div class="school-foot">
+    <button class="btn ghosthat" id="btnGhost">Vis ferdig hatt</button>
+  </div>
+</div>
+
+<div class="roundcount" id="roundCount"></div>
+<div class="hint">DRA FOR Å ROTERE · PILTASTER FOR STEG</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ================= colours ================= */
+const CREAM_BG = 0xEDE7DA;
+const WHITE_Y  = 0xF6F0E1;
+const RED_Y    = 0xBA0C2F;
+const BLUE_Y   = 0x00205B;
+const GHOST_C  = 0x9A8F79;
+
+/* ================= MASKESKOLEN — line-art diagrams ================= */
+/* Style: bold dark outline, white yarn, RED = the yarn you act on, BLUE arrow = the motion. */
+const OUT = '#2A2620', YARN = '#FDFAF3', RED = '#BA0C2F', BLUE = '#00205B', HOOK = '#9A917E', SKIN = '#EFDFC9';
+
+const svgOpen = `<svg viewBox="0 0 360 250"><defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse">
+    <path d="M0 0 L10 5 L0 10 Z" fill="${BLUE}"></path></marker></defs>`;
+const svgClose = `</svg>`;
+const arrow = (d) => `<path d="${d}" fill="none" stroke="${BLUE}" stroke-width="5" stroke-linecap="round" marker-end="url(#ah)"></path>`;
+const hookShaft = (x1, y1, x2, y2, w = 9) => {
+  // shaft + a J-shaped head at (x2,y2)
+  const a = Math.atan2(y2 - y1, x2 - x1);
+  const hx = x2 + Math.cos(a) * 16, hy = y2 + Math.sin(a) * 16;
+  const px = -Math.sin(a), py = Math.cos(a);
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${HOOK}" stroke-width="${w}" stroke-linecap="round"></line>
+    <path d="M ${x2} ${y2} Q ${hx} ${hy} ${x2 + px * 13} ${y2 + py * 13}" fill="none" stroke="${HOOK}" stroke-width="${w * 0.85}" stroke-linecap="round"></path>
+    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(255,255,255,0.35)" stroke-width="2.5" stroke-linecap="round"></line>`;
+};
+/* a braid row of crochet stitches (chain look) */
+const braid = (cx, cy, n, s = 1, color = YARN) => {
+  let out = '';
+  for (let i = 0; i < n; i++) {
+    const x = cx + (i - (n - 1) / 2) * 33 * s;
+    out += `<g transform="translate(${x},${cy}) scale(${s})">
+      <ellipse rx="16" ry="6.8" transform="rotate(-24) translate(-7,-2)" fill="${color}" stroke="${OUT}" stroke-width="2.6"></ellipse>
+      <ellipse rx="16" ry="6.8" transform="rotate(24) translate(7,-2)" fill="${color}" stroke="${OUT}" stroke-width="2.6"></ellipse>
+    </g>`;
+  }
+  return out;
+};
+
+const ART = {};
+
+/* --- hold the yarn: left-hand silhouette, red yarn woven through fingers --- */
+ART.hold = svgOpen + `
+  <!-- yarn behind hand -->
+  <path d="M 30 78 C 80 48 120 52 132 70 L 158 92 L 186 74 L 214 96 C 240 116 286 150 302 188" fill="none" stroke="${RED}" stroke-width="7" stroke-linecap="round"></path>
+  <!-- hand -->
+  <g fill="${SKIN}" stroke="${OUT}" stroke-width="3" stroke-linejoin="round">
+    <rect x="122" y="52" width="25" height="86" rx="12.5"></rect>
+    <rect x="150" y="40" width="25" height="98" rx="12.5"></rect>
+    <rect x="178" y="46" width="25" height="92" rx="12.5"></rect>
+    <rect x="206" y="64" width="23" height="74" rx="11.5"></rect>
+    <path d="M 118 130 C 104 138 96 152 98 168 C 100 190 118 204 148 208 L 196 210 C 222 210 234 196 234 176 L 232 126 C 232 116 224 110 214 112 L 122 124 C 118 126 118 128 118 130 Z"></path>
+    <rect x="86" y="118" width="26" height="58" rx="13" transform="rotate(38 99 147)"></rect>
+  </g>
+  <!-- yarn in front: over index, over ring -->
+  <path d="M 132 70 Q 136 60 145 62" fill="none" stroke="${RED}" stroke-width="7" stroke-linecap="round"></path>
+  <path d="M 186 74 Q 190 62 200 66" fill="none" stroke="${RED}" stroke-width="7" stroke-linecap="round"></path>
+  <!-- yarn ball -->
+  <circle cx="312" cy="204" r="26" fill="${RED}" stroke="${OUT}" stroke-width="3"></circle>
+  <path d="M 292 196 Q 312 186 330 198 M 294 212 Q 312 202 330 212" stroke="rgba(255,255,255,0.55)" stroke-width="2.5" fill="none"></path>
+  ${arrow('M 60 120 Q 44 96 58 76')}
+` + svgClose;
+
+/* --- slip knot: loop + hook entering --- */
+ART.slipLoop = svgOpen + `
+  <path d="M 48 196 C 60 130 118 84 172 88 C 232 92 258 132 244 164 C 230 196 168 200 152 164 C 138 132 172 104 210 116"
+    fill="none" stroke="${RED}" stroke-width="8" stroke-linecap="round"></path>
+  ${hookShaft(330, 52, 196, 148)}
+  ${arrow('M 262 196 Q 216 208 186 178')}
+` + svgClose;
+
+/* --- slip knot: tighten --- */
+ART.slipTight = svgOpen + `
+  ${hookShaft(320, 92, 96, 92)}
+  <!-- snug loop around shaft -->
+  <ellipse cx="190" cy="92" rx="15" ry="26" fill="none" stroke="${RED}" stroke-width="8"></ellipse>
+  <path d="M 182 114 C 160 138 130 160 96 176 M 198 114 C 220 140 252 162 288 178" fill="none" stroke="${RED}" stroke-width="7" stroke-linecap="round"></path>
+  ${arrow('M 118 158 L 76 186')}
+  ${arrow('M 266 160 L 308 188')}
+` + svgClose;
+
+/* --- yarn over --- */
+ART.yo = svgOpen + `
+  ${hookShaft(324, 130, 110, 130)}
+  <ellipse cx="230" cy="130" rx="13" ry="24" fill="none" stroke="${OUT}" stroke-width="7"></ellipse>
+  <path d="M 40 196 C 90 186 140 170 158 148 Q 168 134 158 122" fill="none" stroke="${RED}" stroke-width="8" stroke-linecap="round"></path>
+  ${arrow('M 158 110 Q 178 84 206 96')}
+` + svgClose;
+
+/* --- single crochet: insert hook --- */
+ART.insert = svgOpen + `
+  ${braid(180, 190, 8)}
+  ${hookShaft(316, 56, 196, 150)}
+  <path d="M 30 210 C 60 206 84 200 104 192" fill="none" stroke="${RED}" stroke-width="7" stroke-linecap="round"></path>
+  ${arrow('M 224 108 L 200 156')}
+  <ellipse cx="196" cy="184" rx="22" ry="12" fill="none" stroke="${BLUE}" stroke-width="3" stroke-dasharray="6 5"></ellipse>
+` + svgClose;
+
+/* --- single crochet: pull through --- */
+ART.pull = svgOpen + `
+  ${braid(180, 196, 8)}
+  <path d="M 196 190 C 196 160 208 140 232 128" fill="none" stroke="${RED}" stroke-width="8" stroke-linecap="round"></path>
+  <ellipse cx="244" cy="118" rx="14" ry="22" transform="rotate(30 244 118)" fill="none" stroke="${RED}" stroke-width="8"></ellipse>
+  ${hookShaft(330, 54, 244, 112)}
+  ${arrow('M 210 168 Q 226 140 258 140')}
+` + svgClose;
+
+/* --- back loop only --- */
+ART.blo = svgOpen + `
+  <!-- one stitch, huge: front + back loop -->
+  <ellipse cx="150" cy="150" rx="64" ry="26" transform="rotate(-12 150 150)" fill="${YARN}" stroke="${OUT}" stroke-width="4" opacity="0.4"></ellipse>
+  <ellipse cx="212" cy="120" rx="64" ry="26" transform="rotate(-12 212 120)" fill="${YARN}" stroke="${RED}" stroke-width="5"></ellipse>
+  ${braid(180, 216, 6)}
+  ${hookShaft(330, 40, 236, 106)}
+  ${arrow('M 258 78 L 230 102')}
+  <text x="70" y="196" font-size="15" font-weight="700" fill="#8A8070">foran</text>
+  <text x="286" y="150" font-size="15" font-weight="700" fill="${RED}">bak</text>
+` + svgClose;
+
+/* --- colour change: catch the new (red) yarn --- */
+ART.colorChange = svgOpen + `
+  ${braid(170, 196, 8)}
+  <ellipse cx="196" cy="146" rx="13" ry="24" fill="none" stroke="${OUT}" stroke-width="7"></ellipse>
+  ${hookShaft(322, 74, 216, 128)}
+  <path d="M 34 90 C 100 96 170 106 224 122" fill="none" stroke="${RED}" stroke-width="8" stroke-linecap="round"></path>
+  <path d="M 224 122 Q 244 130 236 144" fill="none" stroke="${RED}" stroke-width="8" stroke-linecap="round"></path>
+  ${arrow('M 252 156 Q 232 182 202 172')}
+` + svgClose;
+
+/* --- increase: two stitches in one --- */
+ART.increase = svgOpen + `
+  ${braid(180, 206, 7)}
+  <g transform="translate(158,146) rotate(-14)">
+    <ellipse rx="15" ry="6.5" transform="rotate(-24) translate(-6,-2)" fill="${RED}" stroke="${OUT}" stroke-width="2.6"></ellipse>
+    <ellipse rx="15" ry="6.5" transform="rotate(24) translate(6,-2)" fill="${RED}" stroke="${OUT}" stroke-width="2.6"></ellipse>
+  </g>
+  <g transform="translate(202,146) rotate(14)">
+    <ellipse rx="15" ry="6.5" transform="rotate(-24) translate(-6,-2)" fill="${RED}" stroke="${OUT}" stroke-width="2.6"></ellipse>
+    <ellipse rx="15" ry="6.5" transform="rotate(24) translate(6,-2)" fill="${RED}" stroke="${OUT}" stroke-width="2.6"></ellipse>
+  </g>
+  ${arrow('M 150 108 L 170 174')}
+  ${arrow('M 210 108 L 190 174')}
+  <ellipse cx="180" cy="200" rx="24" ry="13" fill="none" stroke="${BLUE}" stroke-width="3" stroke-dasharray="6 5"></ellipse>
+  <text x="118" y="62" font-size="16" font-weight="800" fill="${OUT}">2 masker i samme maske</text>
+` + svgClose;
+
+/* --- magic ring: work into the ring --- */
+ART.magicRing = svgOpen + `
+  <circle cx="180" cy="140" r="52" fill="none" stroke="${RED}" stroke-width="9"></circle>
+  <g transform="translate(180,84)">
+    <ellipse rx="14" ry="6" transform="rotate(-24) translate(-6,-2)" fill="${YARN}" stroke="${OUT}" stroke-width="2.4"></ellipse>
+    <ellipse rx="14" ry="6" transform="rotate(24) translate(6,-2)" fill="${YARN}" stroke="${OUT}" stroke-width="2.4"></ellipse>
+  </g>
+  ${hookShaft(322, 216, 216, 160)}
+  <path d="M 128 200 L 62 228" stroke="${RED}" stroke-width="7" stroke-linecap="round" fill="none"></path>
+  ${arrow('M 96 96 A 62 62 0 0 0 118 196')}
+  ${arrow('M 96 226 L 58 236')}
+` + svgClose;
+
+/* --- crab stitch: work backwards --- */
+ART.crab = svgOpen + `
+  ${braid(180, 180, 8)}
+  <!-- twisted edge already made, on the left -->
+  <path d="M 48 156 q 12 -18 24 0 q 12 -18 24 0 q 12 -18 24 0" fill="none" stroke="${RED}" stroke-width="8" stroke-linecap="round"></path>
+  ${hookShaft(300, 70, 172, 140)}
+  ${arrow('M 160 108 L 232 108')}
+  <text x="130" y="86" font-size="15" font-weight="800" fill="${BLUE}">baklengs →</text>
+` + svgClose;
+
+/* --- fasten off --- */
+ART.fasten = svgOpen + `
+  ${braid(150, 196, 7)}
+  <ellipse cx="196" cy="140" rx="16" ry="28" fill="none" stroke="${OUT}" stroke-width="7"></ellipse>
+  <path d="M 196 116 C 220 84 268 72 316 78" fill="none" stroke="${RED}" stroke-width="8" stroke-linecap="round"></path>
+  <path d="M 316 78 L 336 70 M 316 78 L 338 88" stroke="${OUT}" stroke-width="3.5" stroke-linecap="round"></path>
+  ${arrow('M 246 128 Q 224 152 200 148')}
+` + svgClose;
+
+/* ================= steps + micro-frames ================= */
+const steps = [
+  { title: 'Magisk ring', roundsLabel: 'Omgang 1',
+    body: 'Lag en magisk ring med dobbel Bomull. Hekle 8 fastmasker inn i ringen og stram godt til — dette blir toppen av hatten.',
+    yarn: ['Hvit', WHITE_Y], count: '8 fm',
+    micro: [
+      { t: 'Slik ligger garnet i hånden', c: 'Garnet over pekefingeren, under langfingeren og rundt lillefingeren. Lillefingeren styrer stramheten — hold hånden avslappet, aldri knyttet.', art: ART.hold },
+      { t: 'Lag en løkke', c: 'Legg garnet i en løkke slik at trådenden ligger bakerst. Stikk kroken inn gjennom midten og fang tråden på andre siden.', art: ART.slipLoop },
+      { t: 'Stram knuten', c: 'Dra forsiktig i begge endene til løkka ligger inntil kroken. Den skal gli lett langs skaftet — klemmer den, er den for stram.', art: ART.slipTight },
+      { t: 'Hekle inn i ringen', c: 'Hekle 8 fastmasker rundt selve ringen — ikke i knuten. Dra så i trådenden til hullet i midten lukker seg helt.', art: ART.magicRing },
+    ] },
+  { title: 'Økning i pullen', roundsLabel: 'Omgang 2–7',
+    body: 'Øk 8 masker jevnt fordelt hver omgang, slik at pullen ligger helt flat. Sjekk mot bordet: bobler den har du økt for lite, bølger den for mye.',
+    yarn: ['Hvit', WHITE_Y], count: '16 → 56 fm',
+    micro: [
+      { t: 'Stikk kroken inn', c: 'Fastmasken starter alltid slik: stikk kroken inn under begge de to øverste leddene på masken fra forrige omgang.', art: ART.insert },
+      { t: 'Hent garnet', c: 'Legg garnet over kroken bakfra og frem («kast»), og dra det gjennom masken. Nå har du to løkker på kroken — kast igjen og dra gjennom begge.', art: ART.yo },
+      { t: 'Øk: to i samme maske', c: 'En økning er bare to vanlige fastmasker heklet ned i samme maske. Det er alt — slik vokser sirkelen.', art: ART.increase },
+    ] },
+  { title: 'Knekk kanten', roundsLabel: 'Omgang 8',
+    body: 'Én omgang uten økninger, kun i bakre maskeledd (BLO). Dette gir den skarpe knekken der pullen slutter og siden begynner.',
+    yarn: ['Hvit', WHITE_Y], count: '56 fm · BLO',
+    micro: [
+      { t: 'Kun bakre maskeledd', c: 'Se på toppen av masken: den har et ledd foran og et bak. Stikk kroken kun inn i det bakre. Det fremre leddet blir liggende som en fin kant.', art: ART.blo },
+    ] },
+  { title: 'Rette sider', roundsLabel: 'Omgang 9–11',
+    body: 'Hekle rett opp og ned uten økninger. Prøv hatten underveis — den skal sitte tett, garnet gir seg litt med bruk.',
+    yarn: ['Hvit', WHITE_Y], count: '56 fm × 3',
+    micro: [
+      { t: 'Finn rytmen', c: 'Inn under begge ledd, kast, dra gjennom, kast, dra gjennom to. Samme bevegelse 56 ganger — her setter tensjonen seg i hendene.', art: ART.insert },
+      { t: 'Jevn stramming', c: 'Løkkene på kroken skal være like store hver gang. Blir det tungt å stikke inn kroken, hekler du for stramt — slipp litt med lillefingeren.', art: ART.pull },
+    ] },
+  { title: 'Rød stripe', roundsLabel: 'Omgang 12–13',
+    body: 'Bytt til rød Smart på siste kjedemaske. To hele omganger rød — flaggbåndet begynner. Ikke klipp den hvite tråden.',
+    yarn: ['Rød', RED_Y], count: '56 fm × 2',
+    micro: [
+      { t: 'Fargebytte', c: 'Hekle siste maske i hvitt nesten ferdig — stopp når to løkker står igjen på kroken. Fang den røde tråden og dra den gjennom begge. Ferdig byttet.', art: ART.colorChange },
+    ] },
+  { title: 'Hvit + blå stripe', roundsLabel: 'Omgang 14–15',
+    body: 'Én omgang hvit, så én omgang kobolt Petunia. Nå leser båndet rødt-hvitt-blått hele veien rundt.',
+    yarn: ['Blå', BLUE_Y], count: '56 fm × 2',
+    micro: [
+      { t: 'Samme bytte, ny farge', c: 'Nøyaktig samme grep som i sted: bytt farge på siste gjennomtrekk. La trådene som hviler følge med på innsiden av hatten.', art: ART.colorChange },
+    ] },
+  { title: 'Bremmen', roundsLabel: 'Omgang 16–18',
+    body: 'Tilbake til hvit. Øk 7 masker jevnt per omgang så bremmen flarer utover. Hekle løst — en stram brem bretter seg oppover.',
+    yarn: ['Hvit', WHITE_Y], count: '63 → 77 fm',
+    micro: [
+      { t: 'Økning, som i pullen', c: 'Samme økning som du kan fra toppen: to fastmasker i samme maske, jevnt fordelt rundt. Bremmen legger seg utover av seg selv.', art: ART.increase },
+    ] },
+  { title: 'Krepsekant', roundsLabel: 'Omgang 19',
+    body: 'Avslutt med én omgang krepsemasker i rødt. Kanten blir stødig med en fin snodd rand. Fest trådene — heia Norge!',
+    yarn: ['Rød', RED_Y], count: '77 krm',
+    micro: [
+      { t: 'Krepsemaske: baklengs', c: 'Fastmasker — men du hekler mot høyre i stedet for venstre. Det kjennes helt feil de første fem maskene. Det er meningen. Resultatet er en snodd, stødig kant.', art: ART.crab },
+      { t: 'Fest tråden', c: 'Klipp av med 15 cm hale, kast og dra halen helt gjennom siste løkke, stram til. Trekk halen inn og ut av maskene på innsiden med en stoppenål.', art: ART.fasten },
+    ] },
+];
+
+/* ================= the hat: rounds data ================= */
+const rounds = [];
+const TUBE = 0.055, SP = 0.105;
+const topY = 1.38;
+rounds.push({ r: 0.10, y: topY, c: WHITE_Y, step: 0 });
+for (let i = 1; i <= 6; i++) rounds.push({ r: 0.10 + i * 0.145, y: topY - i * 0.010, c: WHITE_Y, step: 1 });
+rounds.push({ r: 1.00, y: topY - 0.115, c: WHITE_Y, step: 2 });
+for (let i = 0; i < 3; i++) rounds.push({ r: 1.02, y: topY - 0.24 - i * SP, c: WHITE_Y, step: 3 });
+for (let i = 0; i < 2; i++) rounds.push({ r: 1.02, y: topY - 0.24 - (3 + i) * SP, c: RED_Y, step: 4 });
+rounds.push({ r: 1.02, y: topY - 0.24 - 5 * SP, c: WHITE_Y, step: 5 });
+rounds.push({ r: 1.02, y: topY - 0.24 - 6 * SP, c: BLUE_Y, step: 5 });
+rounds.push({ r: 1.13, y: topY - 0.24 - 6.9 * SP, c: WHITE_Y, step: 6 });
+rounds.push({ r: 1.25, y: topY - 0.24 - 7.7 * SP, c: WHITE_Y, step: 6 });
+rounds.push({ r: 1.37, y: topY - 0.24 - 8.5 * SP, c: WHITE_Y, step: 6 });
+rounds.push({ r: 1.45, y: topY - 0.24 - 9.1 * SP, c: RED_Y, step: 7 });
+
+/* ================= scene ================= */
+const container = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+container.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(CREAM_BG);
+scene.fog = new THREE.Fog(CREAM_BG, 9, 16);
+
+const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 50);
+camera.position.set(3.2, 3.4, 4.6);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.55, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.9;
+controls.minDistance = 2.4;
+controls.maxDistance = 10;
+controls.maxPolarAngle = Math.PI * 0.62;
+
+scene.add(new THREE.HemisphereLight(0xfff6e6, 0xcbbfa4, 1.15));
+const key = new THREE.DirectionalLight(0xffffff, 1.5);
+key.position.set(4, 6, 3);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0xdfe8ff, 0.5);
+rim.position.set(-5, 3, -4);
+scene.add(rim);
+
+const groundTex = (() => {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 256;
+  const g = cv.getContext('2d');
+  const grad = g.createRadialGradient(128, 128, 10, 128, 128, 128);
+  grad.addColorStop(0, 'rgba(96,84,60,0.30)');
+  grad.addColorStop(1, 'rgba(96,84,60,0)');
+  g.fillStyle = grad; g.fillRect(0, 0, 256, 256);
+  return new THREE.CanvasTexture(cv);
+})();
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(3.4, 48),
+  new THREE.MeshBasicMaterial({ map: groundTex, transparent: true, depthWrite: false })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.02;
+scene.add(ground);
+
+const matCache = new Map();
+const yarnMat = c => {
+  if (!matCache.has(c)) matCache.set(c, new THREE.MeshStandardMaterial({ color: c, roughness: 0.92, metalness: 0 }));
+  return matCache.get(c);
+};
+const ghostMat = new THREE.MeshBasicMaterial({ color: GHOST_C, transparent: true, opacity: 0.13, depthWrite: false });
+
+const hat = new THREE.Group();
+scene.add(hat);
+
+const roundMeshes = rounds.map(rd => {
+  const geo = new THREE.TorusGeometry(rd.r, TUBE, 14, Math.max(24, Math.round(rd.r * 60)));
+  const solid = new THREE.Mesh(geo, yarnMat(rd.c));
+  solid.rotation.x = Math.PI / 2;
+  solid.position.y = rd.y;
+  const ghost = new THREE.Mesh(geo, ghostMat);
+  ghost.rotation.x = Math.PI / 2;
+  ghost.position.y = rd.y;
+  hat.add(ghost, solid);
+  return { rd, solid, ghost, born: -1 };
+});
+
+const hiMats = new Map();
+const hiMat = c => {
+  if (!hiMats.has(c)) hiMats.set(c, new THREE.MeshStandardMaterial({ color: c, roughness: 0.85, emissive: new THREE.Color(c), emissiveIntensity: 0 }));
+  return hiMats.get(c);
+};
+
+/* ================= state ================= */
+let step = parseInt(localStorage.getItem('nor-hat-step') || '0', 10);
+if (isNaN(step) || step < 0 || step >= steps.length) step = 0;
+let frame = 0;
+let previewAll = false;
+
+const el = id => document.getElementById(id);
+const progress = el('progress');
+steps.forEach((s, i) => {
+  const b = document.createElement('button');
+  b.title = s.title;
+  b.addEventListener('click', () => setStep(i));
+  progress.appendChild(b);
+});
+
+const camPresets = [
+  new THREE.Vector3(1.6, 5.2, 2.6),
+  new THREE.Vector3(2.4, 4.6, 3.4),
+  new THREE.Vector3(3.4, 3.2, 4.2),
+  new THREE.Vector3(3.8, 2.4, 4.4),
+  new THREE.Vector3(3.8, 2.0, 4.4),
+  new THREE.Vector3(3.8, 2.0, 4.4),
+  new THREE.Vector3(3.6, 1.6, 4.8),
+  new THREE.Vector3(3.2, 2.6, 4.8),
+];
+let camTween = 0;
+const camGoal = new THREE.Vector3();
+
+function setFrame(i) {
+  const micro = steps[step].micro;
+  frame = Math.max(0, Math.min(micro.length - 1, i));
+  const f = micro[frame];
+  el('frameArt').innerHTML = f.art + `<span class="frame-badge">${frame + 1}</span>`;
+  el('frameTitle').textContent = f.t;
+  el('frameCaption').textContent = f.c;
+  el('frameCount').textContent = `Del ${frame + 1} av ${micro.length}`;
+  el('framePrev').disabled = frame === 0;
+  el('frameNext').disabled = frame === micro.length - 1;
+  const dots = el('frameDots');
+  dots.innerHTML = '';
+  micro.forEach((_, j) => {
+    const d = document.createElement('button');
+    if (j === frame) d.className = 'active';
+    d.addEventListener('click', () => setFrame(j));
+    dots.appendChild(d);
+  });
+}
+
+function setStep(i, animateCam = true) {
+  step = Math.max(0, Math.min(steps.length - 1, i));
+  localStorage.setItem('nor-hat-step', String(step));
+  const s = steps[step];
+  el('stepNum').textContent = `Steg ${step + 1} / ${steps.length}`;
+  el('stepRounds').textContent = s.roundsLabel;
+  el('stepTitle').textContent = s.title;
+  el('stepBody').textContent = s.body;
+  el('stepMeta').innerHTML =
+    `<span class="chip yarn"><span class="swatch" style="background:#${s.yarn[1].toString(16).padStart(6, '0')}"></span>${s.yarn[0]}</span>` +
+    `<span class="chip">${s.count}</span><span class="chip">6 mm</span>`;
+  el('btnPrev').disabled = step === 0;
+  el('btnNext').textContent = step === steps.length - 1 ? 'Ferdig!' : 'Neste steg →';
+  el('btnNext').disabled = step === steps.length - 1;
+  const built = rounds.filter(r => r.step <= step).length;
+  el('roundCount').innerHTML = `Omgang <strong>${built}</strong> av ${rounds.length}`;
+  [...progress.children].forEach((b, j) => {
+    b.className = j < step ? 'done' : j === step ? 'active' : '';
+  });
+  const now = performance.now();
+  roundMeshes.forEach(m => {
+    const visible = m.rd.step <= step;
+    if (visible && m.born < 0) m.born = now;
+    if (!visible) m.born = -1;
+  });
+  setFrame(0);
+  if (animateCam) { camGoal.copy(camPresets[step]); camTween = 1; }
+}
+
+el('btnPrev').addEventListener('click', () => setStep(step - 1));
+el('btnNext').addEventListener('click', () => setStep(step + 1));
+el('framePrev').addEventListener('click', () => setFrame(frame - 1));
+el('frameNext').addEventListener('click', () => setFrame(frame + 1));
+el('btnGhost').addEventListener('click', () => {
+  previewAll = !previewAll;
+  const b = el('btnGhost');
+  b.textContent = previewAll ? 'Tilbake til steget' : 'Vis ferdig hatt';
+  b.classList.toggle('on', previewAll);
+});
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); setStep(step + 1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); setStep(step - 1); }
+  if (e.key === 'ArrowDown') { e.preventDefault(); setFrame(frame + 1); }
+  if (e.key === 'ArrowUp') { e.preventDefault(); setFrame(frame - 1); }
+});
+controls.addEventListener('start', () => { camTween = 0; });
+
+setStep(step, false);
+
+/* ================= loop ================= */
+function tick() {
+  requestAnimationFrame(tick);
+  const t = performance.now();
+  const pulse = 0.5 + 0.5 * Math.sin(t * 0.004);
+
+  roundMeshes.forEach(m => {
+    const isBuilt = previewAll || m.rd.step <= step;
+    const isCurrent = !previewAll && m.rd.step === step;
+    m.solid.visible = isBuilt;
+    m.ghost.visible = !isBuilt;
+    if (isBuilt) {
+      const age = (previewAll || m.born < 0) ? 1 : (t - m.born) / 450;
+      const k = Math.min(1, age);
+      const e = 1 - Math.pow(1 - k, 3);
+      m.solid.scale.setScalar(0.4 + 0.6 * e);
+      if (isCurrent) {
+        m.solid.material = hiMat(m.rd.c);
+        m.solid.material.emissiveIntensity = 0.10 + 0.14 * pulse;
+      } else {
+        m.solid.material = yarnMat(m.rd.c);
+      }
+    }
+  });
+
+  if (camTween > 0) {
+    camera.position.lerp(camGoal, 0.045);
+    if (camera.position.distanceTo(camGoal) < 0.05) camTween = 0;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+tick();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#EDE7DA"/><g transform="translate(30,32)"><path d="M8 14 C8 4 14 0 20 0 C26 0 32 4 32 14 L32 22 L8 22 Z" fill="#F6F0E1" stroke="#BA0C2F" stroke-width="1.5"/><rect x="8" y="22" width="24" height="4" fill="#BA0C2F"/><rect x="8" y="26" width="24" height="3" fill="#FDFAF3"/><rect x="8" y="29" width="24" height="4" fill="#00205B"/><path d="M2 36 C10 33 30 33 38 36 L36 40 C28 38 12 38 4 40 Z" fill="#F6F0E1" stroke="#BA0C2F" stroke-width="1.5"/></g></svg>
+</template>
+
+</body>
+</html>

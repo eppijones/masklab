@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RO RO RO — Velkommen</title>
+<!--
+  LANDINGSSIDE / VELKOMSTSKJERM for RO RO RO-bøttehatten.
+  Handoff-notater til Cursor:
+  - Primær-CTA:   [data-action="start"]    → naviger til oppskriften på steg 1
+  - Fortsett-CTA: [data-action="resume"]   → naviger til lagret steg (leser localStorage 'nor-hat-step',
+                                             vises kun når det finnes lagret fremgang > 0)
+  - PDF-lenke:    [data-action="pdf"]      → Helene Spillings PDF «Ro det i land»
+  - 3D-hatten her er en frittstående, lettvekts «ferdig hatt» (instansierte masker).
+    Kan byttes ut med appens ekte ferdig-hatt-modell om ønskelig.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9"
+  }
+}
+</script>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: 'Karla', sans-serif; color: #201D18; background: #EDE7DA;
+    overflow: hidden;
+  }
+  a { color: #BA0C2F; }
+  a:hover { color: #A50A29; }
+  ::selection { background: #BA0C2F; color: #F7F2E8; }
+
+  .page { position: relative; height: 100vh; display: flex; flex-direction: column; }
+
+  /* ---------- topbar ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 34px 0 34px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .dots { display: flex; gap: 4px; }
+  .brand .dots i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+  .brand-name { font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase; font-weight: 800; color: #201D18; }
+  .brand-name span { color: #A89A7E; font-weight: 700; }
+  .top-link {
+    font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 800;
+    color: #00205B; text-decoration: none; border-bottom: 1.5px solid #C9D4E8; padding-bottom: 3px;
+  }
+  .top-link:hover { color: #00205B; border-color: #00205B; }
+
+  /* ---------- hero ---------- */
+  .hero { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(380px, 500px) minmax(0, 1fr); align-items: center; }
+  .intro { padding: 0 20px 40px 64px; display: flex; flex-direction: column; gap: 22px; }
+  .eyebrow { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 800; color: #BA0C2F; margin: 0; }
+  h1 {
+    font-family: 'Instrument Serif', serif; font-weight: 400; margin: 0;
+    font-size: clamp(44px, 4.6vw, 64px); line-height: 1.04; text-wrap: balance;
+  }
+  h1 em { font-style: italic; color: #00205B; }
+  .lede { font-size: 16px; line-height: 1.65; color: #55503F; margin: 0; max-width: 42ch; text-wrap: pretty; }
+  .cta-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 6px; }
+  .btn-start {
+    font-family: 'Karla', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: 0.06em;
+    background: #BA0C2F; color: #FDFAF3; border: none; border-radius: 6px; padding: 15px 28px;
+    cursor: pointer; text-decoration: none; display: inline-block;
+    box-shadow: 0 14px 26px -12px rgba(186,12,47,0.7);
+    transition: background 0.12s, transform 0.12s;
+  }
+  .btn-start:hover { background: #A50A29; color: #FDFAF3; }
+  .btn-start:active { transform: scale(0.97); }
+  .btn-resume {
+    font-family: 'Karla', sans-serif; font-weight: 800; font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #00205B; background: none; border: 1.5px solid #C9D4E8; border-radius: 99px;
+    padding: 11px 20px; cursor: pointer; text-decoration: none; display: none;
+    transition: border-color 0.12s;
+  }
+  .btn-resume:hover { border-color: #00205B; color: #00205B; }
+  .fineprint { font-size: 13px; color: #8A8070; margin: 0; }
+  .fineprint a { color: #8A8070; text-decoration-color: #D8CFBC; }
+  .fineprint a:hover { color: #55503F; }
+
+  /* ---------- stage ---------- */
+  .stage { position: relative; height: 100%; min-height: 0; }
+  #scene { position: absolute; inset: 0; }
+  #scene canvas { display: block; }
+  .hint {
+    position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+    font-size: 10.5px; color: #A89A7E; letter-spacing: 0.16em; font-weight: 700;
+    text-transform: uppercase; pointer-events: none; white-space: nowrap;
+  }
+
+  /* ---------- footer ---------- */
+  .foot {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 0 34px 20px 64px;
+  }
+  .foot .sig { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 16px; color: #55503F; margin: 0; }
+  .foot .sig strong { font-style: normal; color: #BA0C2F; font-weight: 400; }
+  .foot .meta { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: #A89A7E; }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    .page { height: auto; min-height: 100vh; }
+    .hero { grid-template-columns: 1fr; }
+    .stage { order: -1; height: 46vh; }
+    .intro { padding: 8px 28px 34px 28px; }
+    .foot { padding: 0 28px 20px 28px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="dots" aria-hidden="true"><i style="background:#BA0C2F"></i><i style="background:#FDFAF3"></i><i style="background:#00205B"></i></span>
+      <span class="brand-name">RO RO RO <span>· Bøttehatt · 4,0 mm</span></span>
+    </div>
+    <a class="top-link" href="#" data-action="pdf">Last ned PDF</a>
+  </header>
+
+  <main class="hero">
+    <section class="intro">
+      <p class="eyebrow">Interaktiv 3D-oppskrift</p>
+      <h1>Velkommen!<br>La oss <em>ro det i land</em>.</h1>
+      <p class="lede">Hekle Helene Spillings «Ro det i land»-hatt, én runde av gangen — laget for deg som aldri har holdt en heklenål før. Hatten i 3D vokser mens du hekler.</p>
+      <div class="cta-row">
+        <a class="btn-start" href="#" data-action="start">Start oppskriften &nbsp;→</a>
+        <a class="btn-resume" href="#" data-action="resume" id="resumeBtn">Fortsett der du slapp</a>
+      </div>
+      <p class="fineprint">45 små steg · Maskeskole med animasjoner underveis · ingen forkunnskaper</p>
+    </section>
+
+    <section class="stage" aria-label="Ferdig hatt i 3D">
+      <div id="scene"></div>
+      <span class="hint">Dra for å rotere · rull for å zoome</span>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p class="sig">Oppskrift av <strong>Helene Spilling</strong> · for helt ferske nybegynnere</p>
+    <span class="meta">Norge · VM 2026</span>
+  </footer>
+
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const CREAM = 0xEDE7DA, WHITE_Y = 0xF3EDDE, RED_Y = 0xBA0C2F, NAVY_Y = 0x24356B;
+
+const container = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+container.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(CREAM);
+scene.fog = new THREE.Fog(CREAM, 10, 18);
+
+const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 60);
+camera.position.set(3.4, 2.6, 4.6);
+
+function sizeRenderer() {
+  const w = container.clientWidth, h = container.clientHeight;
+  if (!w || !h) return;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(sizeRenderer).observe(container);
+sizeRenderer();
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.62, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.7;
+controls.minDistance = 2.6;
+controls.maxDistance = 11;
+controls.maxPolarAngle = Math.PI * 0.6;
+
+scene.add(new THREE.HemisphereLight(0xfff6e6, 0xcbbfa4, 1.15));
+const key = new THREE.DirectionalLight(0xffffff, 1.5);
+key.position.set(4, 6, 3);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0xdfe8ff, 0.5);
+rim.position.set(-5, 3, -4);
+scene.add(rim);
+
+/* soft ground shadow */
+const groundTex = (() => {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 256;
+  const g = cv.getContext('2d');
+  const grad = g.createRadialGradient(128, 128, 10, 128, 128, 128);
+  grad.addColorStop(0, 'rgba(96,84,60,0.28)');
+  grad.addColorStop(1, 'rgba(96,84,60,0)');
+  g.fillStyle = grad; g.fillRect(0, 0, 256, 256);
+  return new THREE.CanvasTexture(cv);
+})();
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(3.6, 48),
+  new THREE.MeshBasicMaterial({ map: groundTex, transparent: true, depthWrite: false })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.02;
+scene.add(ground);
+
+/* ================= den ferdige hatten, maske for maske =================
+   Hver «maske» er en liten torus-løkke instansiert langs rundene.
+   Fargekart: hvitt garn, «RO» i rødt på siden, bølgebord i marineblått på bremmen. */
+
+const STITCH = 0.095;
+
+/* 5×7 pikselfont for R og O */
+const F_R = ['11110','10001','10001','11110','10100','10010','10001'];
+const F_O = ['01110','10001','10001','10001','10001','10001','01110'];
+const GRID = F_R.map((r, i) => r + '00' + F_O[i]); /* 12 kolonner, 7 rader */
+
+/* runder: { r, y, kind } — kind styrer normal + fargelogikk */
+const roundsDef = [];
+const topY = 1.30;
+for (let i = 0; i < 9; i++)  /* pull (flat topp) */
+  roundsDef.push({ r: 0.11 + i * 0.112, y: topY - i * 0.008, kind: 'crown' });
+for (let i = 0; i < 10; i++) /* rette sider */
+  roundsDef.push({ r: 1.06, y: 1.20 - i * 0.092, kind: 'wall', row: i });
+const brimY = 1.20 - 9 * 0.092;
+for (let i = 0; i < 4; i++)  /* brem */
+  roundsDef.push({ r: 1.18 + i * 0.115, y: brimY - 0.055 - i * 0.048, kind: 'brim', row: i });
+
+/* bygg alle maskene, gruppert per farge */
+const buckets = { [WHITE_Y]: [], [RED_Y]: [], [NAVY_Y]: [] };
+const up = new THREE.Vector3(0, 1, 0);
+
+roundsDef.forEach(rd => {
+  const n = Math.max(8, Math.round((2 * Math.PI * rd.r) / STITCH));
+  for (let j = 0; j < n; j++) {
+    const th = (j / n) * Math.PI * 2;
+    let color = WHITE_Y;
+
+    if (rd.kind === 'wall' && rd.row >= 1 && rd.row <= 7) {
+      /* «RO» sentrert rundt th=0, hver fontpiksel = 2 masker bred */
+      const cols = GRID[0].length * 2;
+      let rel = Math.round((th > Math.PI ? th - 2 * Math.PI : th) / (STITCH / rd.r));
+      const c = cols / 2 - rel;
+      if (c >= 0 && c < cols && GRID[rd.row - 1][Math.floor(c / 2)] === '1') color = RED_Y;
+    }
+    if (rd.kind === 'brim') {
+      const wave = 1.1 + 1.5 * (0.5 + 0.5 * Math.sin(th * 6 + 0.8));
+      if ((3 - rd.row) < wave) color = NAVY_Y;
+    }
+
+    buckets[color].push({ rd, th });
+  }
+});
+
+const loopGeo = new THREE.TorusGeometry(0.047, 0.021, 8, 14);
+const dummy = new THREE.Object3D();
+const hat = new THREE.Group();
+scene.add(hat);
+
+Object.entries(buckets).forEach(([hex, list]) => {
+  const mat = new THREE.MeshStandardMaterial({ color: Number(hex), roughness: 0.92, metalness: 0 });
+  const mesh = new THREE.InstancedMesh(loopGeo, mat, list.length);
+  list.forEach((s, i) => {
+    const { rd, th } = s;
+    const x = rd.r * Math.cos(th), z = rd.r * Math.sin(th);
+    dummy.position.set(x, rd.y, z);
+    /* normalretning: opp på pullen, utover på siden, skrått på bremmen */
+    const nrm = rd.kind === 'crown' ? up.clone()
+      : rd.kind === 'wall' ? new THREE.Vector3(Math.cos(th), 0.05, Math.sin(th))
+      : new THREE.Vector3(Math.cos(th) * 0.55, 1, Math.sin(th) * 0.55);
+    dummy.lookAt(dummy.position.clone().add(nrm));
+    dummy.rotation.z += (Math.sin(th * 13.7 + rd.y * 31) * 0.22); /* håndlaget ujevnhet */
+    dummy.scale.set(1, 1.24, 0.9);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i, dummy.matrix);
+  });
+  hat.add(mesh);
+});
+
+/* ================= gjenoppta fremgang ================= */
+const saved = parseInt(localStorage.getItem('nor-hat-step') || '0', 10);
+if (!isNaN(saved) && saved > 0) {
+  const b = document.getElementById('resumeBtn');
+  b.style.display = 'inline-block';
+  b.textContent = `Fortsett på steg ${saved + 1}`;
+}
+
+/* ================= loop ================= */
+let intro = 0; /* liten inn-animasjon: hatten «lander» */
+function tick() {
+  requestAnimationFrame(tick);
+  if (intro < 1) {
+    intro = Math.min(1, intro + 0.016);
+    const e = 1 - Math.pow(1 - intro, 3);
+    hat.position.y = (1 - e) * 0.5;
+    hat.scale.setScalar(0.9 + 0.1 * e);
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+tick();
+</script>
+
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#EDE7DA"/><g transform="translate(30,32)"><path d="M8 14 C8 4 14 0 20 0 C26 0 32 4 32 14 L32 22 L8 22 Z" fill="#F6F0E1" stroke="#BA0C2F" stroke-width="1.5"/><text x="20" y="19" text-anchor="middle" font-family="serif" font-size="11" fill="#BA0C2F">RO</text><path d="M2 30 C10 27 30 27 38 30 L36 36 C28 33 12 33 4 36 Z" fill="#00205B"/></g></svg>
+</template>
+
+</body>
+</html>
