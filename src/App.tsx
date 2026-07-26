@@ -227,7 +227,8 @@ function FlipHint() {
   const model = getModel();
   const step = model.steps[stepIndex];
   const round = step?.roundIdx !== null && step ? model.rounds[step.roundIdx!] : null;
-  if (round?.phase !== 'text') return null;
+  // Only the first text round — once you know letters are upside-down, hide it.
+  if (round?.phase !== 'text' || round.chartRow !== 1) return null;
   return <div className="flip-hint">{t(locale).flipHint}</div>;
 }
 
