@@ -1,5 +1,6 @@
 import { useApp, getModel } from '../store';
 import HatScene from './HatScene';
+import { useDeviceClass } from '../hooks/useDeviceClass';
 
 const PDF_URL =
   'https://helenespilling.com/wp-content/uploads/2026/06/RO-DET-I-LAND-HATTEN.pdf';
@@ -10,6 +11,7 @@ const HELENE_URL = 'https://helenespilling.com';
  * Resume leser samme zustand-persist (`robo-hatt-progress-4mm`).
  */
 export default function WelcomeScreen() {
+  const device = useDeviceClass();
   const setWelcomeDone = useApp((s) => s.setWelcomeDone);
   const setStep = useApp((s) => s.setStep);
   const setShowFinished = useApp((s) => s.setShowFinished);
@@ -84,7 +86,7 @@ export default function WelcomeScreen() {
 
         <aside className="welcome-aside" aria-label="Ferdig hatt i 3D">
           <div className="welcome-stage">
-            <HatScene preview />
+            <HatScene preview device={device} />
           </div>
         </aside>
       </main>

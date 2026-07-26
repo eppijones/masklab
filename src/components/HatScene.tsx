@@ -13,6 +13,7 @@ import {
 } from '../lib/hatGeometry';
 import { targetHole } from '../data/pattern';
 import { YARN_HEX, YARN_NAME } from '../data/types';
+import type { DeviceClass } from '../lib/device';
 
 const BG = '#EDE7DA';
 
@@ -699,9 +700,11 @@ function isBrimPhase(phase: string): boolean {
 function CameraDirector({
   controls,
   preview,
+  device = 'desktop',
 }: {
   controls: React.RefObject<OrbitControlsImpl | null>;
   preview?: boolean;
+  device?: DeviceClass;
 }) {
   const stepIndex = useApp((s) => s.stepIndex);
   const viewMode = useApp((s) => s.viewMode);
@@ -713,6 +716,8 @@ function CameraDirector({
   const goalTarget = useRef(new THREE.Vector3(0, 9, 0));
   const active = useRef(false);
   const lastPresetKey = useRef('');
+  /** Phone/tablet: pull camera a bit closer so work stays readable in portrait. */
+  const close = device === 'phone' ? 0.82 : device === 'tablet' ? 0.9 : 1;
 
   useEffect(() => {
     const model = getModel();
@@ -724,7 +729,7 @@ function CameraDirector({
     // For the finale, snap once to a flattering finished-hat overview first.
     if (autoRotate || preview) {
       if (celebrate && !preview) {
-        camera.position.set(44, 26, 52);
+        camera.position.set(44 * close, 26 * close, 52 * close);
         const c = controls.current;
         if (c) {
           c.target.set(0, 9, 0);
@@ -739,12 +744,12 @@ function CameraDirector({
     if (!step) return;
     // Every +1 re-aims the camera to the standard front view of the next
     // stitch (manual drag still overrides until the next +1).
-    const presetKey = `${stepIndex}|${viewMode}|${stitchCursor ?? 'x'}|${showFinished}`;
+    const presetKey = `${stepIndex}|${viewMode}|${stitchCursor ?? 'x'}|${showFinished}|${device}`;
     if (viewMode !== 'working' && presetKey === lastPresetKey.current) return;
     lastPresetKey.current = presetKey;
     if (showFinished) {
       // "Ferdig hatt": overview of the whole finished hat.
-      goal.current.set(44, 26, 52);
+      goal.current.set(44 * close, 26 * close, 52 * close);
       goalTarget.current.set(0, 9, 0);
       active.current = true;
       return;
@@ -772,17 +777,17 @@ function CameraDirector({
         if (isBrimPhase(round.phase)) {
           // Brim flares flat in sy-visning: look from BELOW up at the
           // working edge so the stitch faces point at the camera.
-          goal.current.set(tx + 2.8 * cx, sy - 8.5, tz + 2.8 * cz);
+          goal.current.set(tx + 2.8 * close * cx, sy - 8.5 * close, tz + 2.8 * close * cz);
           goalTarget.current.set(tx, sy - 0.15, tz);
         } else if (round.phase === 'top') {
           // Flat crown: after the sy-flip, stitch faces point downward.
           // Sit under the working stitch and look up — same clear "face-on"
           // read as runde 22, while azimuth follows the work right → left.
-          goal.current.set(tx + 4.8 * cx, sy - 6.4, tz + 4.8 * cz);
+          goal.current.set(tx + 4.8 * close * cx, sy - 6.4 * close, tz + 4.8 * close * cz);
           goalTarget.current.set(tx, sy - 0.12, tz);
         } else {
           // Text / vertical side: close-up, straight-on (runde 22 framing).
-          const dist = ring.r + 7.5;
+          const dist = (ring.r + 7.5) * close;
           goal.current.set(dist * cx, sy + 1.9, dist * cz);
           goalTarget.current.set(tx * 0.98, sy + 0.3, tz * 0.98);
         }
@@ -867,11 +872,13 @@ function CameraDirector({
         target = [0, 5, 0];
       }
     }
-    if (step.kind === 'finish' || step.kind === 'done') pos = [44, 26, 52];
+    if (step.kind === 'finish' || step.kind === 'done') {
+      pos = [44 * close, 26 * close, 52 * close];
+    }
     goal.current.set(...pos);
     goalTarget.current.set(...target);
     active.current = true;
-  }, [stepIndex, viewMode, stitchCursor, showFinished, autoRotate, preview]);
+  }, [stepIndex, viewMode, stitchCursor, showFinished, autoRotate, preview, device, close, controls, camera]);
 
   useEffect(() => {
     const c = controls.current;
@@ -941,16 +948,24 @@ function CameraDevHook({ controls }: { controls: React.RefObject<OrbitControlsIm
   return null;
 }
 
-export default function HatScene({ preview = false }: { preview?: boolean }) {
+export default function HatScene({
+  preview = false,
+  device = 'desktop',
+}: {
+  preview?: boolean;
+  device?: DeviceClass;
+}) {
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const autoRotateStore = useApp((s) => s.autoRotate);
   const spinning = preview || autoRotateStore;
+  const fov = device === 'phone' ? 44 : device === 'tablet' ? 40 : 36;
+  const dpr: [number, number] = device === 'phone' ? [1, 1.5] : [1, 2];
   return (
     <div id="scene-root" className={preview ? 'scene-preview' : undefined}>
       <Canvas
-        dpr={[1, 2]}
+        dpr={dpr}
         camera={{
-          fov: 36,
+          fov,
           near: 0.5,
           far: 300,
           position: preview ? [44, 26, 52] : [20, 30, 26],
@@ -964,7 +979,7 @@ export default function HatScene({ preview = false }: { preview?: boolean }) {
         <directionalLight position={[-38, 22, -30]} intensity={0.5} color="#dfe8ff" />
         <Hat preview={preview} />
         <GroundShadow />
-        <CameraDirector controls={controlsRef} preview={preview} />
+        <CameraDirector controls={controlsRef} preview={preview} device={device} />
         {!preview && <CameraDevHook controls={controlsRef} />}
         <OrbitControls
           ref={controlsRef}

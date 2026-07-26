@@ -27,15 +27,15 @@ function RoundCount() {
  * the step progress and the round counter. Nothing here ever moves,
  * no matter how much text the current step has.
  */
-export default function StageFoot() {
+export default function StageFoot({ hideControls = false }: { hideControls?: boolean }) {
   const stepIndex = useApp((s) => s.stepIndex);
   const setStep = useApp((s) => s.setStep);
 
   const steps = getModel().steps;
 
   return (
-    <div className="stage-foot">
-      <WorkHUD />
+    <div className={`stage-foot ${hideControls ? 'dock-mode' : ''}`}>
+      <WorkHUD hideControls={hideControls} />
       <div className="progress">
         {steps.map((s, i) => (
           <button

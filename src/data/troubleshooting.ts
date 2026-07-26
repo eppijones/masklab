@@ -63,8 +63,7 @@ export const TROUBLESHOOTING: TroubleItem[] = [
     steps: [
       'Ikke dra ut noe — dette fikses nesten alltid med en justeringsrunde.',
       'Tell én gang nøyaktig: legg en garnbit gjennom V-en for hver 10. maske, så teller du aldri mer enn 10 om gangen.',
-      'Gå til sjekkpunktet nederst i steget, trykk «Nei, feil antall» og skriv inn tallet ditt.',
-      'Appen regner ut nøyaktig hvor mange fellinger («to sammen») eller økninger du trenger, jevnt fordelt — og hvilken runde du gjør det i.',
+      'For mange: fordel «to sammen» jevnt i neste vanlige runde. For få: fordel «to i samme» jevnt.',
       'Viktig: tekstrundene (20–29) må ha nøyaktig 100 masker. Juster alltid ferdig FØR du begynner på bokstavene.',
     ],
   },
