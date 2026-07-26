@@ -1,5 +1,6 @@
 import { useApp, getModel } from '../store';
 import WorkHUD from './WorkHUD';
+import AiChatDemo from './AiChatDemo';
 import { t } from '../i18n/ui';
 
 function RoundCount() {
@@ -39,15 +40,18 @@ export default function StageFoot({ hideControls = false }: { hideControls?: boo
   return (
     <div className={`stage-foot ${hideControls ? 'dock-mode' : ''}`}>
       <WorkHUD hideControls={hideControls} key={locale} />
-      <div className="progress">
-        {steps.map((s, i) => (
-          <button
-            key={s.id}
-            title={s.title}
-            className={i < stepIndex ? 'done' : i === stepIndex ? 'active' : ''}
-            onClick={() => setStep(i, true)}
-          />
-        ))}
+      <div className="progress-row">
+        <div className="progress">
+          {steps.map((s, i) => (
+            <button
+              key={s.id}
+              title={s.title}
+              className={i < stepIndex ? 'done' : i === stepIndex ? 'active' : ''}
+              onClick={() => setStep(i, true)}
+            />
+          ))}
+        </div>
+        <AiChatDemo docked />
       </div>
       <div className="foot-row">
         <RoundCount />

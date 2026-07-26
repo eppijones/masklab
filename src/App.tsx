@@ -8,7 +8,6 @@ import { CheatSheet, TroubleDrawer } from './components/Overlays';
 import StitchOverlay from './components/StitchOverlay';
 import JumpDrawer from './components/JumpDrawer';
 import WelcomeScreen from './components/WelcomeScreen';
-import AiChatDemo from './components/AiChatDemo';
 import ConfettiBurst from './components/ConfettiBurst';
 import MobileDock from './components/MobileDock';
 import LanguageSwitcher from './components/LanguageSwitcher';
@@ -462,7 +461,6 @@ export default function App() {
             <StitchOverlay />
             <FlipHint />
             <ConfettiBurst active={celebrateDone} />
-            <AiChatDemo docked />
             <div className="hint">
               {onFinale ? ui.hintRotate : ui.hintCount}
             </div>
