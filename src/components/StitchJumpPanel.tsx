@@ -108,7 +108,7 @@ export default function StitchJumpPanel({ onPicked }: { onPicked?: () => void })
               title={`${locale === 'en' ? 'Stitch' : 'Maske'} ${r.from}–${r.to}`}
               onClick={() => pick(r.from - 1)}
             >
-              {runText(r)}
+              {runText(r, locale)}
               <span className="run-range">
                 {r.from === r.to ? r.from : `${r.from}–${r.to}`}
               </span>
