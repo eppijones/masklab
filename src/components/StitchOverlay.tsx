@@ -18,6 +18,7 @@ function rhythmChip(round: { increaseEvery: number | null; count: number; num: n
  * On phone (hiddenOnMobile) the jump grid lives in Oppskrift instead.
  */
 export default function StitchOverlay({ hiddenOnMobile = false }: { hiddenOnMobile?: boolean }) {
+  const locale = useApp((s) => s.locale);
   const stepIndex = useApp((s) => s.stepIndex);
   const cursor = useApp((s) => s.stitchCursor);
   const setCursor = useApp((s) => s.setStitchCursor);
@@ -176,7 +177,7 @@ export default function StitchOverlay({ hiddenOnMobile = false }: { hiddenOnMobi
                   title={`Maske ${r.from}–${r.to}`}
                   onClick={() => setCursor(r.from - 1)}
                 >
-                  {runText(r)}
+                  {runText(r, locale)}
                   <span className="run-range">
                     {r.from === r.to ? r.from : `${r.from}–${r.to}`}
                   </span>

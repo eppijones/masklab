@@ -241,11 +241,56 @@ export function roundRuns(stitches: Stitch[], roundIdx: number): StitchRun[] {
   return runs;
 }
 
-export function runText(run: StitchRun): string {
-  const names: Record<YarnColor, [string, string]> = {
-    white: ['hvit', 'hvite'],
-    red: ['rød', 'røde'],
-    blue: ['blå', 'blå'],
-  };
+export function runText(run: StitchRun, locale: 'no' | 'en' = 'no'): string {
+  const names: Record<YarnColor, [string, string]> =
+    locale === 'en'
+      ? {
+          white: ['white', 'white'],
+          red: ['red', 'red'],
+          blue: ['blue', 'blue'],
+        }
+      : {
+          white: ['hvit', 'hvite'],
+          red: ['rød', 'røde'],
+          blue: ['blå', 'blå'],
+        };
   return `${run.count} ${names[run.color][run.count === 1 ? 0 : 1]}`;
+}
+
+/**
+ * Advance to the end of the current colour/pattern block (Maske-for-maske chip).
+ * `cursor` = stitches already done; next stitch number is cursor + 1.
+ */
+export function nextRunStep(
+  cursor: number,
+  runs: StitchRun[],
+  roundCount: number,
+): { delta: number; run: StitchRun; runIndex: number; runsDone: number; runsTotal: number } | null {
+  if (cursor >= roundCount || runs.length === 0) return null;
+  const nextNum = cursor + 1;
+  const runIndex = runs.findIndex((r) => nextNum >= r.from && nextNum <= r.to);
+  if (runIndex < 0) return null;
+  const run = runs[runIndex];
+  const delta = Math.max(1, run.to - cursor);
+  return {
+    delta,
+    run,
+    runIndex,
+    runsDone: runs.filter((r) => r.to <= cursor).length,
+    runsTotal: runs.length,
+  };
+}
+
+/** Step back one colour/pattern block (or to the start of the current partial block). */
+export function prevRunCursor(cursor: number, runs: StitchRun[]): number {
+  if (cursor <= 0 || runs.length === 0) return 0;
+  const idx = runs.findIndex((r) => cursor >= r.from && cursor <= r.to);
+  if (idx < 0) return Math.max(0, cursor - 1);
+  const run = runs[idx];
+  // Mid-block: rewind to start of this block.
+  if (cursor > run.from - 1 && cursor < run.to) return run.from - 1;
+  // Just finished a block (cursor === run.to): rewind that whole block.
+  if (cursor === run.to) return run.from - 1;
+  if (idx === 0) return 0;
+  return runs[idx - 1].from - 1;
 }

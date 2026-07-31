@@ -1,7 +1,17 @@
 import { useApp, getModel, isPatterned } from '../store';
 import { YARN_HEX } from '../data/types';
 import type { YarnColor } from '../data/types';
-import { roundRuns, targetHole, increaseRole, rhythmCells } from '../data/pattern';
+import {
+  roundRuns,
+  targetHole,
+  increaseRole,
+  rhythmCells,
+  nextRhythmStep,
+  nextRunStep,
+  prevRunCursor,
+  runText,
+  rhythmProgress,
+} from '../data/pattern';
 import { t } from '../i18n/ui';
 
 function MarkerIcon() {
@@ -120,6 +130,45 @@ export default function WorkHUD({ hideControls = false }: { hideControls?: boole
       : role === 'first-of-two'
         ? 'pair'
         : '';
+
+  const useBlocks = patterned && runs.length > 1 && !done;
+  const runStep = useBlocks ? nextRunStep(c, runs, round.count) : null;
+  const useRhythm =
+    !done && !patterned && round.increaseEvery !== null && round.num !== 1;
+  const rhythm = useRhythm ? nextRhythmStep(c, round) : null;
+  const rProgress = useRhythm ? rhythmProgress(c, round) : null;
+  const unitMode = useBlocks || useRhythm;
+
+  const primaryLabel = useBlocks && runStep
+    ? runText(runStep.run, locale)
+    : rhythm?.kind === 'two-in-same'
+      ? ui.rhythmTwoSame
+      : rhythm?.kind === 'finish-two'
+        ? ui.rhythmFinishTwo
+        : rhythm?.kind === 'plain'
+          ? ui.rhythmPlain
+          : ui.plusOneStitch;
+
+  const advance = () => {
+    if (done) return;
+    if (useBlocks && runStep) {
+      setCursor(Math.min(round.count, c + runStep.delta));
+      return;
+    }
+    if (useRhythm && rhythm) {
+      setCursor(Math.min(round.count, c + rhythm.delta));
+      return;
+    }
+    setCursor(Math.min(round.count, c + 1));
+  };
+
+  const rewind = () => {
+    if (useBlocks) {
+      setCursor(prevRunCursor(c, runs));
+      return;
+    }
+    setCursor(Math.max(0, c - 1));
+  };
 
   return (
     <div className={`workhud ${hideControls ? 'msgs-only' : ''}`}>
@@ -253,10 +302,10 @@ export default function WorkHUD({ hideControls = false }: { hideControls?: boole
           <button
             type="button"
             className="workhud-pm minus"
-            onClick={() => setCursor(Math.max(0, c - 1))}
-            title={ui.minusOne}
+            onClick={rewind}
+            title={useBlocks ? ui.minusBlock : ui.minusOne}
           >
-            {ui.minusOne}
+            {useBlocks ? ui.minusBlock : ui.minusOne}
           </button>
           {done ? (
             <button type="button" className="workhud-pm plus" onClick={next}>
@@ -265,14 +314,41 @@ export default function WorkHUD({ hideControls = false }: { hideControls?: boole
           ) : (
             <button
               type="button"
-              className="workhud-pm plus"
-              onClick={() => setCursor(Math.min(round.count, c + 1))}
-              title={ui.plusOneStitch}
+              className={`workhud-pm plus ${unitMode ? 'unit' : ''} ${
+                useBlocks && runStep ? `yarn-${runStep.run.color}` : ''
+              } ${
+                !useBlocks &&
+                (rhythm?.kind === 'two-in-same' || rhythm?.kind === 'finish-two')
+                  ? 'inc'
+                  : ''
+              }`}
+              onClick={advance}
+              title={primaryLabel}
             >
-              {ui.plusOneStitch}
+              {primaryLabel}
+              {useBlocks && runStep && (
+                <span className="workhud-unit-meta">
+                  {ui.fieldOf(runStep.runIndex + 1, runStep.runsTotal)}
+                </span>
+              )}
+              {useRhythm && rProgress && (
+                <span className="workhud-unit-meta">
+                  {ui.rhythmOf(rProgress.done, rProgress.total)}
+                </span>
+              )}
             </button>
           )}
-          {showJump && (
+          {unitMode && !done && (
+            <button
+              type="button"
+              className="workhud-pm fine"
+              onClick={() => setCursor(Math.min(round.count, c + 1))}
+              title={ui.plusOneStitchShort}
+            >
+              {ui.plusOneStitchShort}
+            </button>
+          )}
+          {showJump && !useBlocks && (
             <button
               type="button"
               className="workhud-pm jump"

@@ -1,15 +1,21 @@
 import { useApp, getModel, isPatterned } from '../store';
-import { nextRhythmStep, rhythmProgress } from '../data/pattern';
+import {
+  nextRhythmStep,
+  nextRunStep,
+  prevRunCursor,
+  rhythmProgress,
+  roundRuns,
+  runText,
+} from '../data/pattern';
 import { t } from '../i18n/ui';
 
 /**
  * Fixed bottom control bar for phone (and portrait tablet).
- * On increase rounds the green button advances by rhythm unit
- * (1 plain / 2 in same) so you can stay in flow without +1×N.
+ * Increase rounds → rhythm units (1 / 2 i samme).
+ * Patterned rounds → colour-block units (2 hvite / 2 røde …).
  */
 export default function MobileDock({
   pulseRecipe = false,
-  /** Before round 1, Oppskrift jumps the step list (text is already on screen). */
   recipeOpensJump = false,
 }: {
   pulseRecipe?: boolean;
@@ -41,25 +47,43 @@ export default function MobileDock({
   let done = false;
   let c = 0;
   let roundCount = 0;
-  let rhythm: ReturnType<typeof nextRhythmStep> = null;
-  let progress: ReturnType<typeof rhythmProgress> = null;
   let useRhythm = false;
+  let useBlocks = false;
+  let rhythm: ReturnType<typeof nextRhythmStep> = null;
+  let runStep: ReturnType<typeof nextRunStep> = null;
+  let progressLabel: string | null = null;
+  let blockColor: 'white' | 'red' | 'blue' | null = null;
 
   if (counting && step.roundIdx !== null) {
     const round = model.rounds[step.roundIdx];
     roundCount = round.count;
     c = Math.min(cursor!, round.count);
     done = c >= round.count;
-    // Colour/text rounds stay stitch-by-stitch; increase rounds use rhythm units.
-    useRhythm = !done && !isPatterned(round) && round.increaseEvery !== null && round.num !== 1;
-    if (useRhythm) {
+    const patterned = isPatterned(round);
+
+    if (!done && patterned) {
+      const runs = roundRuns(model.stitches, step.roundIdx);
+      if (runs.length > 1) {
+        useBlocks = true;
+        runStep = nextRunStep(c, runs, roundCount);
+        if (runStep) {
+          progressLabel = ui.fieldOf(runStep.runIndex + 1, runStep.runsTotal);
+          blockColor = runStep.run.color;
+        }
+      }
+    } else if (!done && !patterned && round.increaseEvery !== null && round.num !== 1) {
+      useRhythm = true;
       rhythm = nextRhythmStep(c, round);
-      progress = rhythmProgress(c, round);
+      const progress = rhythmProgress(c, round);
+      if (progress) progressLabel = ui.rhythmOf(progress.done, progress.total);
     }
   }
 
-  const rhythmLabel =
-    rhythm?.kind === 'two-in-same'
+  const unitMode = useRhythm || useBlocks;
+
+  const primaryLabel = useBlocks && runStep
+    ? runText(runStep.run, locale)
+    : rhythm?.kind === 'two-in-same'
       ? ui.rhythmTwoSame
       : rhythm?.kind === 'finish-two'
         ? ui.rhythmFinishTwo
@@ -69,11 +93,25 @@ export default function MobileDock({
 
   const advance = () => {
     if (!counting || done) return;
+    if (useBlocks && runStep) {
+      setCursor(Math.min(roundCount, c + runStep.delta));
+      return;
+    }
     if (useRhythm && rhythm) {
       setCursor(Math.min(roundCount, c + rhythm.delta));
       return;
     }
     setCursor(Math.min(roundCount, c + 1));
+  };
+
+  const rewind = () => {
+    if (!counting) return;
+    if (useBlocks && step?.roundIdx != null) {
+      const runs = roundRuns(model.stitches, step.roundIdx);
+      setCursor(prevRunCursor(c, runs));
+      return;
+    }
+    setCursor(Math.max(0, c - 1));
   };
 
   return (
@@ -83,15 +121,15 @@ export default function MobileDock({
       aria-label={locale === 'en' ? 'Work controls' : 'Arbeidsknapper'}
     >
       {counting && (
-        <div className={`mobile-dock-count-row ${useRhythm ? 'rhythm-mode' : ''}`}>
+        <div className={`mobile-dock-count-row ${unitMode ? 'rhythm-mode' : ''}`}>
           <button
             type="button"
             className="mobile-dock-pm minus"
-            onClick={() => setCursor(Math.max(0, c - 1))}
-            title={ui.minusOne}
-            aria-label={ui.minusOne}
+            onClick={rewind}
+            title={useBlocks ? ui.minusBlock : ui.minusOne}
+            aria-label={useBlocks ? ui.minusBlock : ui.minusOne}
           >
-            {ui.minusOne}
+            {useBlocks ? ui.minusBlock : ui.minusOne}
           </button>
           <div className="mobile-dock-count" aria-live="polite">
             {done ? (
@@ -102,10 +140,8 @@ export default function MobileDock({
                 <span>
                   {ui.of} {roundCount}
                 </span>
-                {progress && (
-                  <em className="mobile-dock-rhythm-meta">
-                    {ui.rhythmOf(progress.done, progress.total)}
-                  </em>
+                {progressLabel && (
+                  <em className="mobile-dock-rhythm-meta">{progressLabel}</em>
                 )}
               </>
             )}
@@ -122,20 +158,25 @@ export default function MobileDock({
           ) : (
             <button
               type="button"
-              className={`mobile-dock-pm plus ${useRhythm ? 'rhythm' : ''} ${
-                rhythm?.kind === 'two-in-same' || rhythm?.kind === 'finish-two' ? 'inc' : ''
+              className={`mobile-dock-pm plus ${unitMode ? 'rhythm' : ''} ${
+                useBlocks && blockColor ? `yarn-${blockColor}` : ''
+              } ${
+                !useBlocks &&
+                (rhythm?.kind === 'two-in-same' || rhythm?.kind === 'finish-two')
+                  ? 'inc'
+                  : ''
               }`}
               onClick={advance}
-              title={useRhythm ? rhythmLabel : ui.plusOne}
-              aria-label={useRhythm ? rhythmLabel : ui.plusOne}
+              title={unitMode ? primaryLabel : ui.plusOne}
+              aria-label={unitMode ? primaryLabel : ui.plusOne}
             >
-              {useRhythm ? rhythmLabel : ui.plusOne}
+              {unitMode ? primaryLabel : ui.plusOne}
             </button>
           )}
         </div>
       )}
 
-      {counting && useRhythm && !done && (
+      {counting && unitMode && !done && (
         <button
           type="button"
           className="mobile-dock-fine"
