@@ -5,18 +5,20 @@ import { waveStitchColor, WAVE_COUNTS } from './waves';
 /**
  * The RO RO RO recipe (Helene Spilling 4.0 mm version) as data.
  *
- * increaseEvery = k means: "fm i k-1 masker, deretter 2 fm i neste maske",
- * repeated around. k = 1 means 2 fm in every stitch. null = plain round.
- * (For wave rounds the increases sit where the chart marks them; k is only
- * used for the count arithmetic there.)
+ * buildRounds() returns the canonical Helene schedule (registry default
+ * ro-ro-ro @ dame + 4.0 mm) and must remain count-identical.
  */
 
 export function buildRounds(): Round[] {
+  return buildRoundsLegacyRo();
+}
+
+/** Exact historical 38-round Helene schedule (parity source of truth). */
+export function buildRoundsLegacyRo(): Round[] {
   const rounds: Round[] = [];
   const add = (r: Omit<Round, 'label'>) =>
     rounds.push({ ...r, label: `Runde ${r.num}` });
 
-  // Hvit topp: runde 1-19 (øker til 100 før teksten)
   add({ num: 1, phase: 'top', count: 10, color: 'white', increaseEvery: null, chartRow: null });
   add({ num: 2, phase: 'top', count: 20, color: 'white', increaseEvery: 1, chartRow: null });
   add({ num: 3, phase: 'top', count: 30, color: 'white', increaseEvery: 2, chartRow: null });
@@ -37,7 +39,6 @@ export function buildRounds(): Round[] {
   add({ num: 18, phase: 'top', count: 90, color: 'white', increaseEvery: null, chartRow: null });
   add({ num: 19, phase: 'top', count: 100, color: 'white', increaseEvery: 9, chartRow: null });
 
-  // Tekstfeltet: runde 20-29 (chartrad 1-10) — 100 masker
   for (let i = 0; i < 10; i++) {
     add({
       num: 20 + i,
@@ -49,11 +50,9 @@ export function buildRounds(): Round[] {
     });
   }
 
-  // Bremøkninger: runde 30-31 (hvit) → 120 = 12 bølgeblokker
   add({ num: 30, phase: 'brim-inc', count: 110, color: 'white', increaseEvery: 10, chartRow: null });
   add({ num: 31, phase: 'brim-inc', count: 120, color: 'white', increaseEvery: 11, chartRow: null });
 
-  // Bølgebrem: runde 32-37 = bølgerad 1-6 (Helene Spillings mønster, 12 blokker)
   const waveK: (number | null)[] = [null, null, null, 10, 11, null];
   for (let i = 0; i < 6; i++) {
     add({
@@ -67,18 +66,26 @@ export function buildRounds(): Round[] {
     });
   }
 
-  // Siste runde: helblå kant
   add({ num: 38, phase: 'brim', count: 144, color: 'blue', increaseEvery: null, chartRow: null });
 
   return rounds;
 }
 
-function stitchColor(round: Round, i: number): YarnColor {
+export interface StitchColorResolvers {
+  textColor?: (row: number, stitchNum: number) => YarnColor;
+  waveColor?: (waveRow: number, i: number) => YarnColor;
+}
+
+function stitchColor(
+  round: Round,
+  i: number,
+  resolvers?: StitchColorResolvers,
+): YarnColor {
   if (round.phase === 'text' && round.chartRow !== null) {
-    return chartStitchColor(round.chartRow, i + 1);
+    return (resolvers?.textColor ?? chartStitchColor)(round.chartRow, i + 1);
   }
   if (round.phase === 'wave' && round.waveRow) {
-    return waveStitchColor(round.waveRow, i);
+    return (resolvers?.waveColor ?? waveStitchColor)(round.waveRow, i);
   }
   return round.color;
 }
@@ -87,24 +94,25 @@ function stitchColor(round: Round, i: number): YarnColor {
  * Generate every stitch of the hat, in working order.
  * The increase flag marks the SECOND stitch worked into the same stitch below.
  */
-export function buildStitches(rounds: Round[]): Stitch[] {
+export function buildStitches(
+  rounds: Round[],
+  resolvers?: StitchColorResolvers,
+): Stitch[] {
   const stitches: Stitch[] = [];
   rounds.forEach((round, roundIdx) => {
     const k = round.increaseEvery;
     for (let i = 0; i < round.count; i++) {
-      // With rhythm k, each repeat of k+1 new stitches ends with the increase.
       const isIncrease =
         round.num !== 1 && k !== null && i % (k + 1) === k;
       stitches.push({
         roundIdx,
         i,
-        color: stitchColor(round, i),
+        color: stitchColor(round, i, resolvers),
         isIncrease,
         changeColorAfter: null,
       });
     }
   });
-  // Color changes happen while finishing the stitch BEFORE the new color.
   for (let s = 0; s < stitches.length - 1; s++) {
     if (stitches[s + 1].color !== stitches[s].color) {
       stitches[s].changeColorAfter = stitches[s + 1].color;
@@ -113,23 +121,11 @@ export function buildStitches(rounds: Round[]): Stitch[] {
   return stitches;
 }
 
-/**
- * Expected count derived from the increase rhythm — used by validation.
- * Each repeat consumes k old stitches and produces k+1 new ones.
- */
 export function expectedCount(prevCount: number, k: number | null): number {
   if (k === null) return prevCount;
   return prevCount + Math.floor(prevCount / k);
 }
 
-/**
- * Which stitch of the PREVIOUS round a given stitch is worked into.
- * A stitch flagged isIncrease is the second stitch in the same hole as its
- * predecessor, so: hole index = stitch index minus doubles made so far.
- * @param before global index of the round's first stitch
- * @param globalIdx global index of the stitch being made
- * @returns 0-based index within the previous round
- */
 export function targetHole(stitches: Stitch[], before: number, globalIdx: number): number {
   let doubles = 0;
   for (let s = before; s <= globalIdx; s++) {
@@ -138,7 +134,6 @@ export function targetHole(stitches: Stitch[], before: number, globalIdx: number
   return globalIdx - before - doubles;
 }
 
-/** Human instruction for the increase rhythm of a round. */
 export function rhythmText(round: Round): string {
   const k = round.increaseEvery;
   if (round.num === 1) return 'Lag 10 fastmasker i den samme luftmasken (luftmaske 1).';
@@ -148,7 +143,6 @@ export function rhythmText(round: Round): string {
   return `Lag én fastmaske i ${k - 1 === 1 ? 'én maske' : `${k - 1} forskjellige masker`}, deretter to fastmasker i neste maske. Gjenta hele veien rundt: ${ones}, to i samme maske.`;
 }
 
-/** English version of {@link rhythmText} (US crochet terms: single crochet). */
 export function rhythmTextEn(round: Round): string {
   const k = round.increaseEvery;
   if (round.num === 1) return 'Make 10 single crochets into the same chain stitch (chain 1).';
@@ -158,17 +152,6 @@ export function rhythmTextEn(round: Round): string {
   return `Make one single crochet in ${k - 1 === 1 ? 'one stitch' : `${k - 1} different stitches`}, then two single crochets in the next stitch. Repeat all the way around: ${ones}, two in the same stitch.`;
 }
 
-/**
- * Where the next stitch sits in the increase rhythm.
- *
- * For increaseEvery = k the recipe repeats over k old holes:
- *   (k-1)× «én i en ny maske», then «to i samme maske».
- * That produces k+1 new stitches per repeat. The last of those is the
- * increase (second into the same hole); the one before it is the first
- * into that hole.
- *
- * Example k=2 («én, to i samme»): new stitches 1=plain, 2=first-of-two, 3=second-of-two, …
- */
 export type IncreaseRole = 'plain' | 'first-of-two' | 'second-of-two';
 
 export function increaseRole(
@@ -184,7 +167,6 @@ export function increaseRole(
   return 'plain';
 }
 
-/** Short label for the recipe strip: ["1","1","2 i samme"] for k=3. */
 export function rhythmCells(increaseEvery: number): string[] {
   if (increaseEvery === 1) return ['2 i samme'];
   return [
@@ -193,11 +175,54 @@ export function rhythmCells(increaseEvery: number): string[] {
   ];
 }
 
-/** Run-length description of a patterned round, in working order. */
+export type RhythmStepKind = 'plain' | 'two-in-same' | 'finish-two';
+
+/**
+ * Next crochet *unit* for increase rounds (not one stitch at a time).
+ * Round 3 (k=2): plain → +1 «1 vanlig», then first-of-two → +2 «2 i samme».
+ */
+export function nextRhythmStep(
+  cursor: number,
+  round: Pick<Round, 'count' | 'increaseEvery' | 'num'>,
+): { delta: number; kind: RhythmStepKind } | null {
+  const k = round.increaseEvery;
+  if (round.num === 1 || k === null) return null;
+  if (cursor >= round.count) return null;
+  const role = increaseRole(cursor, k, round.num);
+  if (role === 'first-of-two') {
+    const delta = Math.min(2, round.count - cursor);
+    return { delta, kind: delta === 2 ? 'two-in-same' : 'finish-two' };
+  }
+  if (role === 'second-of-two') {
+    return { delta: 1, kind: 'finish-two' };
+  }
+  return { delta: 1, kind: 'plain' };
+}
+
+/** How many full increase-rhythm repeats are done / total in this round. */
+export function rhythmProgress(
+  cursor: number,
+  round: Pick<Round, 'count' | 'increaseEvery' | 'num'>,
+): { done: number; total: number } | null {
+  const k = round.increaseEvery;
+  if (round.num === 1 || k === null) return null;
+  const cycle = k + 1;
+  if (cycle <= 0 || round.count % cycle !== 0) {
+    return {
+      done: Math.floor(cursor / cycle),
+      total: Math.ceil(round.count / cycle),
+    };
+  }
+  return {
+    done: Math.min(Math.floor(cursor / cycle), round.count / cycle),
+    total: round.count / cycle,
+  };
+}
+
 export interface StitchRun {
   color: YarnColor;
   count: number;
-  from: number; // 1-based stitch number
+  from: number;
   to: number;
 }
 

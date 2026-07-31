@@ -1,10 +1,11 @@
-import { useApp, getModel } from '../store';
+import { useApp, getModel, isPatterned } from '../store';
+import { nextRhythmStep, rhythmProgress } from '../data/pattern';
 import { t } from '../i18n/ui';
 
 /**
  * Fixed bottom control bar for phone (and portrait tablet).
- * −1 / +1 stay in a fixed thumb position — color-change jumps live in Oppskrift
- * so they cannot be hit by mistake while crocheting.
+ * On increase rounds the green button advances by rhythm unit
+ * (1 plain / 2 in same) so you can stay in flow without +1×N.
  */
 export default function MobileDock({
   pulseRecipe = false,
@@ -40,13 +41,40 @@ export default function MobileDock({
   let done = false;
   let c = 0;
   let roundCount = 0;
+  let rhythm: ReturnType<typeof nextRhythmStep> = null;
+  let progress: ReturnType<typeof rhythmProgress> = null;
+  let useRhythm = false;
 
   if (counting && step.roundIdx !== null) {
     const round = model.rounds[step.roundIdx];
     roundCount = round.count;
     c = Math.min(cursor!, round.count);
     done = c >= round.count;
+    // Colour/text rounds stay stitch-by-stitch; increase rounds use rhythm units.
+    useRhythm = !done && !isPatterned(round) && round.increaseEvery !== null && round.num !== 1;
+    if (useRhythm) {
+      rhythm = nextRhythmStep(c, round);
+      progress = rhythmProgress(c, round);
+    }
   }
+
+  const rhythmLabel =
+    rhythm?.kind === 'two-in-same'
+      ? ui.rhythmTwoSame
+      : rhythm?.kind === 'finish-two'
+        ? ui.rhythmFinishTwo
+        : rhythm?.kind === 'plain'
+          ? ui.rhythmPlain
+          : ui.plusOne;
+
+  const advance = () => {
+    if (!counting || done) return;
+    if (useRhythm && rhythm) {
+      setCursor(Math.min(roundCount, c + rhythm.delta));
+      return;
+    }
+    setCursor(Math.min(roundCount, c + 1));
+  };
 
   return (
     <div
@@ -55,7 +83,7 @@ export default function MobileDock({
       aria-label={locale === 'en' ? 'Work controls' : 'Arbeidsknapper'}
     >
       {counting && (
-        <div className="mobile-dock-count-row">
+        <div className={`mobile-dock-count-row ${useRhythm ? 'rhythm-mode' : ''}`}>
           <button
             type="button"
             className="mobile-dock-pm minus"
@@ -74,6 +102,11 @@ export default function MobileDock({
                 <span>
                   {ui.of} {roundCount}
                 </span>
+                {progress && (
+                  <em className="mobile-dock-rhythm-meta">
+                    {ui.rhythmOf(progress.done, progress.total)}
+                  </em>
+                )}
               </>
             )}
           </div>
@@ -89,15 +122,28 @@ export default function MobileDock({
           ) : (
             <button
               type="button"
-              className="mobile-dock-pm plus"
-              onClick={() => setCursor(Math.min(roundCount, c + 1))}
-              title={ui.plusOne}
-              aria-label={ui.plusOne}
+              className={`mobile-dock-pm plus ${useRhythm ? 'rhythm' : ''} ${
+                rhythm?.kind === 'two-in-same' || rhythm?.kind === 'finish-two' ? 'inc' : ''
+              }`}
+              onClick={advance}
+              title={useRhythm ? rhythmLabel : ui.plusOne}
+              aria-label={useRhythm ? rhythmLabel : ui.plusOne}
             >
-              {ui.plusOne}
+              {useRhythm ? rhythmLabel : ui.plusOne}
             </button>
           )}
         </div>
+      )}
+
+      {counting && useRhythm && !done && (
+        <button
+          type="button"
+          className="mobile-dock-fine"
+          onClick={() => setCursor(Math.min(roundCount, c + 1))}
+          title={ui.plusOneStitchShort}
+        >
+          {ui.plusOneStitchShort}
+        </button>
       )}
 
       <div className="mobile-dock-nav">
