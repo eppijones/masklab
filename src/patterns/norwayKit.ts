@@ -129,13 +129,13 @@ function fieldParams(
     // two rounds `brimFinish` works solid, so the fabric and the edge agree.
     edgeSolidRounds: EDGE_ROUNDS,
     /**
-     * The brim spends less than half a field row per round, so the strokes run
-     * OUT to the rim rather than round the hat. See `brimVStep` in
-     * `buildCrownResolver` for why the flare needs its own number: at 1 the
-     * higher-slope kits came out with concentric arcs on the brim, which is the
-     * banded look the ring stripes were removed to get rid of.
+     * On the brim a stroke keeps a third of its sideways travel, so it runs OUT
+     * to the rim rather than round the hat. See `brimSlopeGain` in
+     * `buildCrownResolver`: at 1 the higher-slope kits came out with concentric
+     * arcs across the flare, which is the banded look the ring stripes were
+     * removed to get rid of.
      */
-    brimVStep: 0.4,
+    brimSlopeGain: 0.35,
     /**
      * THE SPIRAL GOES ALL THE WAY IN.
      *
@@ -176,8 +176,12 @@ function fieldParams(
     // banding into one chevron.
     kinkRows: 8,
     kinkAmp: field.kinkAmp ?? 0.4,
-    // Full width from crown to rim; only the very tips come to a point.
+    // Pointed where it starts, at the crown centre; blunt where it leaves the
+    // hat. See `tipSharpEnd` — the brim is the last quarter of every stroke's
+    // length, so a symmetric taper empties it out exactly where the wordmark
+    // stops and the eye is looking for the pattern to continue.
     tipSharp: field.tipSharp ?? 0.45,
+    tipSharpEnd: 0.06,
     bundleCompanions: field.companions ?? 3,
     // Tight spread: the companions have to stay INSIDE the bundle, so it reads
     // as one wide travelling mark rather than four separate lines.
@@ -258,8 +262,8 @@ export function buildNorwayKit(spec: NorwayKitSpec): PatternDefinition {
          * passes behind the word the way it does on the shirt.
          */
         haloColorId: spec.ground,
-        haloWidth: 1,
-        haloDither: 0.15,
+        haloWidth: 2,
+        haloDither: 0,
       },
     ],
     chartOverride: emptyOverride(),
