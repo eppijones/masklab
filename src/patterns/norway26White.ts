@@ -29,12 +29,10 @@ export const NORWAY26_WHITE = buildNorwayKit({
   field: {
     seed: 2015,
     strokes: ['blue', 'lightblue', 'blue', 'lightblue'],
-    count: 4,
-    width: 2.0,
-    companions: 3,
+    count: 11,
     // Wide spread: navy and periwinkle read as one mass when they touch, so the
-    // bundle needs air inside it to stay two colours.
-    spread: 3.8,
+    // stripes need air between them to stay two colours.
+    spread: 5,
     // Thick, thin, thick — the alternating rhythm on the away shirt.
     thinEvery: 2,
     slope: 0.72,

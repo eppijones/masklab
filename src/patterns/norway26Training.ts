@@ -35,10 +35,10 @@ export const NORWAY26_TRAINING = buildNorwayKit({
     // is mostly red-on-red, and the navy and off-white are what flare through
     // it rather than the other way round.
     strokes: ['red', 'blue', 'white', 'red', 'lightblue'],
-    count: 9,
-    width: 2.4,
-    companions: 4,
-    spread: 1.9,
+    count: 15,
+    width: 1.0,
+    companions: 2,
+    spread: 3.6,
     lenMin: 0.55,
     slope: 1.7,
     kinkAmp: 0.9,

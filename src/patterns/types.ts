@@ -170,6 +170,19 @@ export interface PatternDefinition {
   background: YarnColor;
   /** Crown (top disc) yarn when it differs from the band background. */
   crownBase?: YarnColor;
+  /**
+   * Borrow another pattern's size pinning.
+   *
+   * RO and the NORWAY'26 kits are drafted on exactly 100 stitches at dame +
+   * 4.0 mm; the gauge on its own would put them at 110. The pin is keyed on
+   * `id`, so a studio design derived FROM one of them — whose id is 'custom' —
+   * came out 110 stitches wide and 41 rounds tall while its own recipe said
+   * 100 and 40. Same design, two different hats, which is the one thing «Åpne
+   * i studio» must never do. Setting this to the source pattern makes the
+   * studio inherit the pin, and only the pin: change size or hook and it falls
+   * through to the gauge exactly as the published pattern would.
+   */
+  sizePinId?: PatternId;
 }
 
 export interface DerivedPattern {

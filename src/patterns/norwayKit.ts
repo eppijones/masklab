@@ -28,14 +28,26 @@ import { emptyOverride } from '../data/chartLayers';
  * 100 → 110 → 120 → 132 → 144. Only the colourwork is ours. Her blue wave
  * chart is not: see `brimFinish` below.
  */
-export const NORWAY_BAND_ROWS = 12;
+export const NORWAY_BAND_ROWS = 14;
 /**
- * Baseline row of the word. «Norge26» is ten rows and stands FLAT — no climb —
- * so the ink runs rows 1–10 of the twelve-row wall and the one-stitch contour
- * lands exactly on rows 0 and 11. The wordmark fills the wall edge to edge,
- * which is the whole reason it can be this slim and still carry.
+ * Baseline row of the word — the row the FIRST letter stands on, since the rest
+ * climb above it.
+ *
+ * «Norge26» is ten rows and the climb adds two, so the block is twelve and the
+ * two-stitch contour needs a wall of fourteen. That is a taller hat than the
+ * flat cut, and it is the trade the climb costs: a rising baseline is the one
+ * thing that makes a sports wordmark look drawn rather than typed, and there
+ * is nowhere to put it but rows.
  */
-const TEXT_ROW = 1;
+const TEXT_ROW = 3;
+/**
+ * Rows the baseline climbs per stitch travelled right.
+ *
+ * The step is taken per GLYPH — a whole letter is what stands on a baseline —
+ * so over the 46-stitch run this spends its two rows as a staircase across the
+ * five letters rather than tilting them individually.
+ */
+const TEXT_RISE = 0.065;
 /**
  * The italic, and the one thing that has to travel with it.
  *
@@ -162,13 +174,25 @@ function fieldParams(
     // exception at nine, because the shirt it comes from has no ground showing
     // anywhere and the hat is meant to be the hard one. Every bundle runs the
     // whole height, crown centre → wall → rim, so the hat reads as one gesture.
-    count: field.count ?? 4,
+    count: field.count ?? 13,
     // ~51° off vertical at the default: a stitch is 1 wide and 0.85 tall, so
     // the drawn angle is atan(slope / 0.85). 2.4 used to give a near-horizontal
     // 70°. Per kit from here — five hats, five gestures.
     slope: field.slope ?? 1.05,
-    width: field.width ?? 2.5,
-    widthVary: 0.3,
+    /**
+     * MANY THIN STRIPES, NOT A FEW THICK BUNDLES.
+     *
+     * The first cut drew four positions round the hat, each a five-stitch core
+     * with three companions crowded against it at a spread of 2.4. That reads
+     * as four clusters with a lot of bare ground between them — the colour
+     * arrives in clumps, and on a hat you see one clump at a time. Thirteen
+     * positions of one- and two-stitch strokes at nearly double the spread put
+     * the same amount of ink on the hat as an even rhythm instead, so it reads
+     * as colourful from any angle rather than striped on one side and plain on
+     * the other.
+     */
+    width: field.width ?? 1.05,
+    widthVary: 0.15,
     thinEvery: field.thinEvery ?? 0,
     curve: field.curve ?? 0.22,
     // Controlled kinks on the same integer staircase the diagonal-stripe motif
@@ -182,12 +206,13 @@ function fieldParams(
     // stops and the eye is looking for the pattern to continue.
     tipSharp: field.tipSharp ?? 0.45,
     tipSharpEnd: 0.06,
-    bundleCompanions: field.companions ?? 3,
-    // Tight spread: the companions have to stay INSIDE the bundle, so it reads
-    // as one wide travelling mark rather than four separate lines.
-    bundleSpread: field.spread ?? 2.4,
-    bundleWidthMin: 0.2,
-    bundleWidthMax: 0.48,
+    bundleCompanions: field.companions ?? 2,
+    bundleSpread: field.spread ?? 4.2,
+    // Companions close to the core's own weight: a bundle of one thick and
+    // three hairlines reads as a cluster, three near-equal stripes read as
+    // stripes.
+    bundleWidthMin: 0.7,
+    bundleWidthMax: 1,
     bundleStagger: 4,
     bundleLenMin: field.lenMin ?? 0.68,
     echoGap: 3,
@@ -238,6 +263,7 @@ export function buildNorwayKit(spec: NorwayKitSpec): PatternDefinition {
         // One column between glyphs: several terminal rows are full-width, so
         // without it NORGE fuses into a slab.
         letterSpacing: 2,
+        rise: TEXT_RISE,
         /**
          * THE CONTOUR, AND WHY IT IS NOT A HALO ANY MORE.
          *

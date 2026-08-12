@@ -26,6 +26,7 @@ import {
   textPlacements,
 } from '../src/data/layerGeometry';
 import { listPatterns, getPattern } from '../src/patterns/registry';
+import { deriveDesign, designFromPattern } from '../src/studio/design';
 import { derivePattern, deriveRoDefault } from '../src/patterns/buildFromDefinition';
 import { expandRuns } from '../src/patterns/script';
 import { computeSpokeFracDeltas } from '../src/lib/hatGeometry';
@@ -530,14 +531,15 @@ const NORWAY_KITS: KitExpectation[] = [
     palette: ['red', 'blue', 'white', 'lightblue'],
     dominant: 'red',
     patterned: true,
-    maxFieldSingles: 0.38,
+    maxFieldSingles: 0.48,
   },
   {
     id: 'norway26-keeper',
-    palette: ['yellow', 'gold', 'orange', 'pink', 'stone', 'black'],
+    palette: ['yellow', 'gold', 'orange', 'pink', 'black'],
     dominant: 'yellow',
     patterned: true,
-    maxRoundColors: 6,
+    maxRoundColors: 5,
+    maxFieldSingles: 0.42,
   },
 ];
 
@@ -553,7 +555,7 @@ for (const kit of NORWAY_KITS) {
   // Helene's 19-round domed crown, a 12-round wall, and a brim flaring to the
   // same 1.44× the body RO reaches through its wave.
   check(d.bodyCount === 100, `${id}: dame/4,0 mm pinnet til 100 masker`);
-  check(d.bandRows === 12, `${id}: 12 diagramrader på veggen`);
+  check(d.bandRows === 14, `${id}: 14 diagramrader på veggen`);
   check(d.chart.cols === d.bodyCount, `${id}: chart.cols = bodyCount (${d.bodyCount})`);
   const roCrown = deriveRoDefault().rounds.filter((r) => r.phase === 'top');
   const crownRounds = d.rounds.filter((r) => r.phase === 'top');
@@ -566,8 +568,8 @@ for (const kit of NORWAY_KITS) {
     `${id}: samme pull som RO-hatten (${crownRounds.length} runder, runde for runde)`,
   );
   check(
-    d.rounds.filter((r) => r.phase === 'text').length === 12,
-    `${id}: 12 tekstrunder`,
+    d.rounds.filter((r) => r.phase === 'text').length === 14,
+    `${id}: 14 tekstrunder`,
   );
   // THE BREM IS HELENE'S, ROUND FOR ROUND — counts and increases both. The
   // kits used to approximate it with a plain bucket brim tuned to the same
@@ -646,14 +648,19 @@ for (const kit of NORWAY_KITS) {
       lean >= 3,
       `${id}: kursiven heller ordentlig (${lean} kolonner over ordet)`,
     );
-    // FLAT BASELINE. The old face was eight rows and spent two more climbing,
-    // which filled the wall and left the contour nowhere to go. Norge26 is ten
-    // rows of letter standing still, so the block is exactly the font height.
+    /**
+     * THE BASELINE CLIMBS — «stigende», the lift under a sports mark.
+     *
+     * Ten rows of letter plus two of climb is a twelve-row block, which is why
+     * the wall is fourteen: the contour still needs a free row above and below.
+     * The climb steps per GLYPH, so those two rows are spent as a staircase
+     * across the five letters rather than tilting any one of them.
+     */
     const piece = textPiece(wordmark).mask;
     const lift = piece.length - fontHeight(wordmark);
     check(
-      (wordmark.rise ?? 0) === 0 && lift === 0,
-      `${id}: ordet står flatt på grunnlinjen (${piece.length} rader, ingen stigning)`,
+      (wordmark.rise ?? 0) > 0 && lift === 2,
+      `${id}: grunnlinjen stiger mot høyre (${lift} rader over ordet)`,
     );
     check(
       fontHeight(wordmark) === 10,
@@ -928,7 +935,14 @@ for (const kit of NORWAY_KITS) {
       `${id}: aldri mer enn ${colorCap} farger i én runde (${maxColors})`,
     );
     check(
-      meanRun >= 2.5,
+      /**
+       * 2.5 was the number when the field was four thick bundles. The design
+       * is many thin stripes now — «rather have 2 after each other, or even
+       * one, to have more stripes» — so a two-stitch mean is the target, not a
+       * regression. Below 1.9 the stripes have started dissolving into
+       * single-stitch confetti, which is a different thing and not crochetable.
+       */
+      meanRun >= 1.9,
       `${id}: fargefeltene er brede nok å hekle (snitt ${meanRun.toFixed(2)} masker)`,
     );
     /**
@@ -990,6 +1004,39 @@ for (const kit of NORWAY_KITS) {
   }
 
   checkColorChangeInvariant(d.stitches, id);
+}
+
+/* ---- «Åpne i studio» has to open the same hat ---- */
+//
+// The studio builds its own PatternDefinition, so everything a published
+// pattern carries that the studio's controls cannot author has to be handed
+// over explicitly: the procedural field, the brim finish, and the size pin.
+// Miss any of them and the studio renders a different hat than the recipe it
+// was opened from — 110 stitches instead of 100, no spiral on the crown, and
+// Helene's blue wave chart back on the brim, all while the Oppskrift tab next
+// to it says otherwise.
+console.log('Studio ≡ oppskrift:');
+for (const def of listPatterns()) {
+  if (def.script) continue; // scripted patterns are fixed-size transcriptions
+  const want = derivePattern(def);
+  const got = deriveDesign(designFromPattern(def));
+  check(
+    got.bodyCount === want.bodyCount &&
+      got.bandRows === want.bandRows &&
+      got.rounds.length === want.rounds.length &&
+      got.rounds.every(
+        (r, i) =>
+          r.count === want.rounds[i].count &&
+          r.phase === want.rounds[i].phase &&
+          r.increaseEvery === want.rounds[i].increaseEvery,
+      ),
+    `${def.id}: studioet gir samme runder som oppskriften (${got.rounds.length} runder, ${got.bodyCount} masker)`,
+  );
+  check(
+    got.stitches.length === want.stitches.length &&
+      got.stitches.every((st, i) => st.color === want.stitches[i].color),
+    `${def.id}: studioet gir samme masker som oppskriften, farge for farge`,
+  );
 }
 
 /* ================= Størrelse x mønster x nål ================= */

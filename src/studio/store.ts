@@ -21,7 +21,12 @@ import type { ShapeLayer } from '../data/chartLayers';
 import { parseBrief, describeBrief } from './assist/brief';
 import { fitText, fourVariations, type LayoutId } from './assist/compose';
 import { remixDesign, type RemixId } from './assist/remix';
-import { blankDesign, deriveDesign, type StudioDesign } from './design';
+import {
+  blankDesign,
+  deriveDesign,
+  designFromPattern,
+  type StudioDesign,
+} from './design';
 import {
   applyLayerPatch,
   normalizeDesign,
@@ -657,21 +662,7 @@ export const useStudio = create<StudioState>()(
 
         loadTemplate: (id) => {
           const def = getPattern(id);
-          commit({
-            ...blankDesign(),
-            title: def.titleNo,
-            layers: structuredClone(def.chartLayers),
-            override: structuredClone(def.chartOverride ?? emptyOverride()),
-            bandRows: def.bandRows,
-            hookMm: def.defaults.hookMm,
-            sizeId: def.defaults.sizeId,
-            omkrets_cm:
-              SIZES.find((x) => x.id === def.defaults.sizeId)?.omkrets_cm ?? 56,
-            baseColor: def.background,
-            crownColor: def.crownBase ?? def.background,
-            brimColor: def.finalBrim.color,
-            brimStyle: def.includeWave ? 'wave' : 'bucket',
-          });
+          commit(designFromPattern(def));
           set({
             selectedLayerId: null,
             notice: `Åpnet «${def.titleNo}» — endre alt du vil.`,

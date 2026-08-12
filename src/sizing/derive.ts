@@ -183,7 +183,11 @@ export function resolveBodyCount(
   size: SizeSpec,
   hook: HookSpec,
 ): number {
-  if (BODY_100_PINNED.has(def.id) && size.id === 'dame' && hook.mm === 4.0) {
+  if (
+    BODY_100_PINNED.has(def.sizePinId ?? def.id) &&
+    size.id === 'dame' &&
+    hook.mm === 4.0
+  ) {
     return 100;
   }
   const raw = rawStitchCount(size.omkrets_cm, hook.gauge_fm_per_10cm);

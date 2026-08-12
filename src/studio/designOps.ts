@@ -134,6 +134,10 @@ export function normalizeDesign(d: StudioDesign): StudioDesign {
     bandRows: clampInt(d.bandRows, ...LIMITS.bandRows, 10),
     omkrets_cm: clampInt(d.omkrets_cm, ...LIMITS.omkrets, 56),
     brimStyle: d.brimStyle === 'wave' ? 'wave' : 'bucket',
+    // Pass-through: the studio cannot author these, only inherit them.
+    crown: d.crown,
+    brimFinish: d.brimFinish,
+    sourceId: d.sourceId,
     layers: (Array.isArray(d.layers) ? d.layers : []).map(normalizeLayer),
     override:
       d.override && typeof d.override === 'object' && d.override.cells
