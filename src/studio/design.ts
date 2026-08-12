@@ -7,10 +7,16 @@ import type { MotifKind } from '../data/motifs';
 import { YARN_HEX, YARN_NAME, type YarnColor } from '../data/types';
 import type { HookMm } from '../sizing/hooks';
 import type { SizeId } from '../sizing/sizes';
-import type { PatternDefinition } from '../patterns/types';
+import type {
+  BrimFinishSpec,
+  CrownColorSpec,
+  PatternDefinition,
+  PatternId,
+} from '../patterns/types';
 import { derivePattern } from '../patterns/buildFromDefinition';
 import { modelFromParts, type PatternModel } from '../store';
 import type { Locale } from '../i18n/locale';
+import { SIZES } from '../sizing/sizes';
 
 /**
  * A studio design: everything the user can change, and nothing else.
@@ -36,6 +42,25 @@ export interface StudioDesign {
   omkrets_cm: number;
   layers: ChartLayer[];
   override: OverrideLayer;
+  /**
+   * The procedural crown/brim field, and how the brim finishes, carried
+   * VERBATIM from a published pattern.
+   *
+   * These are not things the studio's controls can build — they are the
+   * NORWAY'26 slash field and its two-round edge, and before they were carried
+   * here «Åpne i studio» quietly showed a different hat than the recipe: no
+   * field on the crown or brim, and Helene's blue-and-white wave chart back on
+   * the flare, because `includeWave` was true and nothing was left to suppress
+   * it. What the studio shows has to be the thing you are going to crochet.
+   */
+  crown?: CrownColorSpec;
+  brimFinish?: BrimFinishSpec;
+  /**
+   * Which published pattern this design was opened from, for sizing only —
+   * see `PatternDefinition.sizePinId`. Nothing else reads it, and a design
+   * built from blank never has one.
+   */
+  sourceId?: PatternId;
 }
 
 export const MOTIF_KINDS: { id: MotifKind; label: string }[] = [
@@ -60,6 +85,35 @@ export function blankDesign(): StudioDesign {
     omkrets_cm: 56,
     layers: [],
     override: emptyOverride(),
+  };
+}
+
+/**
+ * A published pattern as a studio design.
+ *
+ * One function, because there is exactly one right answer and two callers: the
+ * store's «Åpne i studio», and the check that proves the two hats are the same
+ * hat. When this lived inline in the store it quietly dropped the procedural
+ * field and the size pin, and the studio showed a 110-stitch hat with Helene's
+ * wave brim next to a recipe for a 100-stitch hat with ours.
+ */
+export function designFromPattern(def: PatternDefinition): StudioDesign {
+  return {
+    ...blankDesign(),
+    title: def.titleNo,
+    layers: structuredClone(def.chartLayers),
+    override: structuredClone(def.chartOverride ?? emptyOverride()),
+    bandRows: def.bandRows,
+    hookMm: def.defaults.hookMm,
+    sizeId: def.defaults.sizeId,
+    omkrets_cm: SIZES.find((x) => x.id === def.defaults.sizeId)?.omkrets_cm ?? 56,
+    baseColor: def.background,
+    crownColor: def.crownBase ?? def.background,
+    brimColor: def.finalBrim.color,
+    brimStyle: def.includeWave ? 'wave' : 'bucket',
+    crown: def.crown ? structuredClone(def.crown) : undefined,
+    brimFinish: def.brimFinish ? structuredClone(def.brimFinish) : undefined,
+    sourceId: def.id,
   };
 }
 
@@ -100,6 +154,9 @@ export function customDefinition(d: StudioDesign): PatternDefinition {
       d.brimStyle === 'bucket'
         ? { incRounds: 4, color: d.baseColor, flare: 1.35, edgeRounds: 2 }
         : undefined,
+    ...(d.crown ? { crown: d.crown } : {}),
+    ...(d.brimFinish ? { brimFinish: d.brimFinish } : {}),
+    ...(d.sourceId ? { sizePinId: d.sourceId } : {}),
     finalBrim: { color: d.brimColor },
     layout: {
       frontAnchorStitch: 10,

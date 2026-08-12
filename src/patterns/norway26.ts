@@ -24,8 +24,6 @@ export const NORWAY26 = buildNorwayKit({
   field: {
     seed: 2026,
     strokes: ['red', 'white', 'lightblue'],
-    count: 4,
-    width: 2.5,
-    companions: 3,
+    count: 11,
   },
 });

@@ -40,15 +40,12 @@ function bandFor(fontId: FontId): {
   );
   if (!wordmark) throw new Error('norway26 has no text layer');
 
-  // The new face is ten rows and sits flat; the old one is eight and climbs.
-  const flat = fontId !== 'runik';
   const layer: ChartLayer = {
     ...wordmark,
     fontId,
     // One copy, parked mid-band, so the crop below can't straddle the seam.
     repeat: 1,
     centerFrac: 0.5,
-    ...(flat ? { rise: 0, anchor: { row: 1, col: 0 } } : {}),
   };
   const d = derivePattern({ ...base, chartLayers: [layer] });
   const grid = d.chart.grid;

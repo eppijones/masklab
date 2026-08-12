@@ -24,8 +24,8 @@ export const NORWAY26_BLACK = buildNorwayKit({
   field: {
     seed: 7,
     strokes: ['white'],
-    count: 3,
-    width: 1.8,
+    count: 8,
+    width: 1.0,
     companions: 2,
     // Everything here is white on black, so the companions need real air
     // around them to stay legible as separate marks.

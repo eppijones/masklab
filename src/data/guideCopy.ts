@@ -103,11 +103,11 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
-      'Prematch-trøya er kolleksjonens vanskeligste: ni tette sikksakk-bunter i rødt, marineblått, hvitt og lyseblått, uten ensfargede flater noe sted. Regn med fargebytter i nesten hver eneste maske — hold de passive trådene løse, ellers strammer hatten seg.',
+      'Prematch-trøya er kolleksjonens vanskeligste: femten tette sikksakk-striper i rødt, marineblått, hvitt og lyseblått, uten ensfargede flater noe sted. Regn med fargebytter i nesten hver eneste maske — hold de passive trådene løse, ellers strammer hatten seg.',
       'Hvitt runisk NORGE foran og bak. Mønsteret går ubrutt helt ut i bremmen, og bare de to siste rundene hekles marineblå.',
     ],
     tipsEn: [
-      'The pre-match top is the hardest in the collection: nine tight zigzag bundles in red, navy, off-white and periwinkle, with no plain area anywhere. Expect a colour change in nearly every stitch — keep the unused strands loose or the hat will pull in.',
+      'The pre-match top is the hardest in the collection: fifteen tight zigzag stripes in red, navy, off-white and periwinkle, with no plain area anywhere. Expect a colour change in nearly every stitch — keep the unused strands loose or the hat will pull in.',
       'White runic NORGE front and back. The pattern runs unbroken all the way onto the brim, and only the last two rounds are worked in navy.',
     ],
   },
@@ -117,11 +117,11 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
-      'Keeperdrakten er varm: sikksakken går i mørkere gult, oransje og rosa over den sterke gule bunnen, med lys grå som skiller tonene. Kolleksjonens mest krevende hatt — fem garn i samme runde.',
+      'Keeperdrakten er varm hele veien: tette sikksakk-striper i mørkere gult, oransje og rosa over den sterke gule bunnen, uten en eneste grå tone. Kolleksjonens mest krevende hatt.',
       'Svart runisk NORGE foran og bak. Mønsteret går ubrutt ned i bremmen, og bare de to siste rundene hekles svarte.',
     ],
     tipsEn: [
-      'The goalkeeper shirt is warm: the zigzag runs in deeper gold, orange and pink over the strong yellow ground, with light grey separating the tones. The most demanding hat in the collection — five yarns in a single round.',
+      'The goalkeeper shirt is warm the whole way: tight zigzag stripes in deeper gold, orange and pink over the strong yellow ground, without a single grey tone. The most demanding hat in the collection.',
       'Black runic NORGE front and back. The pattern runs unbroken onto the brim, and only the last two rounds are worked in black.',
     ],
   },
