@@ -1,16 +1,13 @@
-import { useApp, getModel } from '../store';
+import { useApp, getModel, getActivePatternId } from '../store';
 import HatScene from './HatScene';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useDeviceClass } from '../hooks/useDeviceClass';
 import { t } from '../i18n/ui';
-
-const PDF_URL =
-  'https://helenespilling.com/wp-content/uploads/2026/06/RO-DET-I-LAND-HATTEN.pdf';
-const HELENE_URL = 'https://helenespilling.com';
+import { welcomeCopy } from '../data/guideCopy';
 
 /**
- * Stilrent velkomstskjerm før oppskriften.
- * Resume leser samme zustand-persist (`robo-hatt-progress-4mm`).
+ * Pattern-aware welcome screen before the guide.
+ * Resume reads the same zustand-persist key for this pattern.
  */
 export default function WelcomeScreen() {
   const device = useDeviceClass();
@@ -22,6 +19,8 @@ export default function WelcomeScreen() {
   const setViewMode = useApp((s) => s.setViewMode);
   const stepIndex = useApp((s) => s.stepIndex);
   const cursors = useApp((s) => s.cursors);
+  const patternId = getActivePatternId();
+  const copy = welcomeCopy(patternId, locale);
 
   const hasProgress = stepIndex > 0 || Object.keys(cursors).length > 0;
 
@@ -65,14 +64,24 @@ export default function WelcomeScreen() {
             <span style={{ background: '#00205B' }} />
           </div>
           <span className="welcome-brand">
-            {ui.brandWelcome} <span>{ui.brandBy}</span>
+            {copy.brandWelcome} <span>{copy.brandBy}</span>
           </span>
         </div>
         <div className="welcome-top-right">
           <LanguageSwitcher />
-          <a className="welcome-pdf" href={PDF_URL} target="_blank" rel="noreferrer">
-            {ui.welcomePdf}
+          <a className="welcome-pdf" href="/oppskrifter">
+            {locale === 'en' ? 'All patterns' : 'Alle oppskrifter'}
           </a>
+          {copy.pdfUrl && (
+            <a
+              className="welcome-pdf"
+              href={copy.pdfUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {ui.welcomePdf}
+            </a>
+          )}
         </div>
       </header>
 
@@ -83,15 +92,18 @@ export default function WelcomeScreen() {
             {ui.welcomeTitle1}
             <br />
             {ui.welcomeTitle2Before}
-            <em>{ui.welcomeTitle2Em}</em>
+            <em>{copy.titleEm}</em>
             {ui.welcomeTitle2After}
           </h1>
-          <p className="welcome-lede">{ui.welcomeLede}</p>
+          <p className="welcome-lede">{copy.lede}</p>
           {cta}
           <p className="welcome-fine">{ui.welcomeFine(stepCount)}</p>
         </section>
 
-        <aside className="welcome-aside" aria-label={locale === 'en' ? 'Finished hat in 3D' : 'Ferdig hatt i 3D'}>
+        <aside
+          className="welcome-aside"
+          aria-label={locale === 'en' ? 'Finished hat in 3D' : 'Ferdig hatt i 3D'}
+        >
           <div className="welcome-stage">
             <HatScene preview device={device} />
           </div>
@@ -101,13 +113,16 @@ export default function WelcomeScreen() {
       <footer className="welcome-foot">
         <p>
           {ui.welcomeFoot}{' '}
-          <a href={HELENE_URL} target="_blank" rel="noreferrer">
-            Helene Spilling
-          </a>
+          {copy.footUrl ? (
+            <a href={copy.footUrl} target="_blank" rel="noreferrer">
+              {copy.footName}
+            </a>
+          ) : (
+            copy.footName
+          )}
         </p>
       </footer>
 
-      {/* Always-reachable start controls on phone / portrait tablet */}
       <div className="welcome-mobile-bar">{cta}</div>
     </div>
   );

@@ -1,4 +1,5 @@
 import type { Round, Stitch, YarnColor } from './types';
+import { YARN_WORD, YARN_WORD_EN, YARN_WORD_PLURAL } from './types';
 import { chartStitchColor } from './chart';
 import { waveStitchColor, WAVE_COUNTS } from './waves';
 
@@ -74,10 +75,16 @@ export function buildRoundsLegacyRo(): Round[] {
 export interface StitchColorResolvers {
   textColor?: (row: number, stitchNum: number) => YarnColor;
   waveColor?: (waveRow: number, i: number) => YarnColor;
+  /**
+   * Per-stitch color for non-text/wave rounds (crown + brim colorwork,
+   * e.g. the NUSA streaks). Return null to keep the round's base color.
+   */
+  baseColor?: (roundIdx: number, i: number, count: number) => YarnColor | null;
 }
 
 function stitchColor(
   round: Round,
+  roundIdx: number,
   i: number,
   resolvers?: StitchColorResolvers,
 ): YarnColor {
@@ -87,7 +94,8 @@ function stitchColor(
   if (round.phase === 'wave' && round.waveRow) {
     return (resolvers?.waveColor ?? waveStitchColor)(round.waveRow, i);
   }
-  return round.color;
+  const over = resolvers?.baseColor?.(roundIdx, i, round.count);
+  return over ?? round.color;
 }
 
 /**
@@ -107,7 +115,7 @@ export function buildStitches(
       stitches.push({
         roundIdx,
         i,
-        color: stitchColor(round, i, resolvers),
+        color: stitchColor(round, roundIdx, i, resolvers),
         isIncrease,
         changeColorAfter: null,
       });
@@ -242,20 +250,15 @@ export function roundRuns(stitches: Stitch[], roundIdx: number): StitchRun[] {
 }
 
 export function runText(run: StitchRun, locale: 'no' | 'en' = 'no'): string {
-  const names: Record<YarnColor, [string, string]> =
+  const word =
     locale === 'en'
-      ? {
-          white: ['white', 'white'],
-          red: ['red', 'red'],
-          blue: ['blue', 'blue'],
-        }
-      : {
-          white: ['hvit', 'hvite'],
-          red: ['rød', 'røde'],
-          blue: ['blå', 'blå'],
-        };
-  return `${run.count} ${names[run.color][run.count === 1 ? 0 : 1]}`;
+      ? YARN_WORD_EN[run.color]
+      : run.count === 1
+        ? YARN_WORD[run.color]
+        : YARN_WORD_PLURAL[run.color];
+  return `${run.count} ${word}`;
 }
+
 
 /**
  * Advance to the end of the current colour/pattern block (Maske-for-maske chip).

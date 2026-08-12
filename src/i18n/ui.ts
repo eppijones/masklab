@@ -1,6 +1,30 @@
 import type { Locale } from './locale';
+import type { YarnColor } from '../data/types';
+import {
+  YARN_NAME,
+  YARN_NAME_EN,
+  YARN_WORD_EN,
+  YARN_WORD_PLURAL,
+} from '../data/types';
+
+const upper = (m: Record<YarnColor, string>): Record<YarnColor, string> =>
+  Object.fromEntries(
+    (Object.keys(m) as YarnColor[]).map((k) => [k, m[k].toUpperCase()]),
+  ) as Record<YarnColor, string>;
+
+// Derived from the single yarn table in data/types, so adding a colour to the
+// palette can never leave a recipe with a hole where a colour name should be.
+const YARN_NO = YARN_NAME;
+const YARN_NO_UPPER = upper(YARN_NAME);
+const YARN_NO_PLURAL = YARN_WORD_PLURAL;
+const YARN_EN = YARN_NAME_EN;
+const YARN_EN_UPPER = upper(YARN_NAME_EN);
+const YARN_EN_PLURAL = YARN_WORD_EN;
 
 const no = {
+  yarnName: YARN_NO,
+  yarnNameUpper: YARN_NO_UPPER,
+  yarnNamePlural: YARN_NO_PLURAL,
   brandKicker: 'Ro det i land',
   brandWelcome: 'Ro det i land hatten',
   brandBy: 'av Helene Spilling',
@@ -44,7 +68,7 @@ const no = {
   viewWorkingTitle: 'Slik arbeidet ligger i hendene dine',
   viewFinishedTitle: 'Hele den ferdige hatten, med teksten riktig vei',
   viewFinaleTitle: 'Avslutningen viser ferdig hatt',
-  homeTitle: 'Tilbake til start',
+  homeTitle: 'Tilbake til oppskrifter',
   settingsTitle: 'Innstillinger og hjelp',
   settingsAria: 'Innstillinger',
   toolSpinOn: '◉ Snurring PÅ',
@@ -113,6 +137,9 @@ type UiDict = {
 };
 
 const en: UiDict = {
+  yarnName: YARN_EN,
+  yarnNameUpper: YARN_EN_UPPER,
+  yarnNamePlural: YARN_EN_PLURAL,
   brandKicker: 'Ro det i land',
   brandWelcome: 'Ro det i land hat',
   brandBy: 'by Helene Spilling',
@@ -156,7 +183,7 @@ const en: UiDict = {
   viewWorkingTitle: 'How the work sits in your hands',
   viewFinishedTitle: 'The finished hat, text the right way up',
   viewFinaleTitle: 'The finale shows the finished hat',
-  homeTitle: 'Back to start',
+  homeTitle: 'Back to patterns',
   settingsTitle: 'Settings and help',
   settingsAria: 'Settings',
   toolSpinOn: '◉ Spinning ON',

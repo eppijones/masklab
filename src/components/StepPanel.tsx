@@ -81,17 +81,20 @@ export default function StepPanel({
   const isLast = stepIndex === steps.length - 1;
   const startChapter = step.eyebrow === 'Startkapittel' || step.eyebrow === 'Getting started';
 
-  const yarnLabel = isText
-    ? ui.yarnWhiteRed
-    : isWave
-      ? ui.yarnWhiteBlue
-      : step.yarn === 'white'
-        ? ui.yarnWhite
-        : step.yarn === 'red'
-          ? ui.yarnRed
-          : step.yarn === 'blue'
-            ? ui.yarnBlue
-            : null;
+  // Patterned rounds show all colors actually present in the round.
+  const patterned = isText || isWave || round?.patterned === true;
+  let yarnLabel: string | null = null;
+  if (patterned && step.roundIdx !== null) {
+    const seen: string[] = [];
+    for (const st of model.stitches) {
+      if (st.roundIdx !== step.roundIdx) continue;
+      const name = ui.yarnName[st.color];
+      if (!seen.includes(name)) seen.push(name);
+    }
+    yarnLabel = seen.join(' + ');
+  } else if (step.yarn) {
+    yarnLabel = ui.yarnName[step.yarn];
+  }
 
   const body = (
     <>
@@ -141,7 +144,10 @@ export default function StepPanel({
         </div>
       )}
 
-      {isWave && round?.waveRow != null && (
+      {/* Helene's blue wave chart only applies when the flare IS the wave motif;
+          kits that carry their own colorwork out over the brim get the generic
+          stitch-by-stitch treatment instead. */}
+      {isWave && round?.waveRow != null && round?.patterned !== true && (
         <WaveMiniChart activeRow={round.waveRow} locale={locale} />
       )}
 
@@ -164,7 +170,7 @@ export default function StepPanel({
           </span>
         )}
         {step.countChip && <span className="chip">{step.countChip}</span>}
-        <span className="chip">{ui.needleChip}</span>
+        {!step.countChip && <span className="chip">{ui.needleChip}</span>}
       </div>
     </>
   );

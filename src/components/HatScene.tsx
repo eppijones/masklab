@@ -1,27 +1,85 @@
-import { useLayoutEffect, useMemo, useRef, useEffect } from 'react';
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useEffect,
+} from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Billboard, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import { useApp, getModel, computeVisible } from '../store';
+import {
+  useApp,
+  getModel,
+  computeVisible,
+  type PatternModel,
+} from '../store';
 import {
   buildProfile,
   buildStitchTransforms,
+  computeSpokeFracDeltas,
   makeStitchGeometry,
   makeGhostGeometry,
   stitchTheta,
+  type HatLayoutOpts,
 } from '../lib/hatGeometry';
 import { targetHole } from '../data/pattern';
 import { YARN_HEX, YARN_NAME } from '../data/types';
+import { getPattern } from '../patterns/registry';
 import type { DeviceClass } from '../lib/device';
 
-const BG = '#EDE7DA';
+function layoutOptsFor(model: PatternModel): HatLayoutOpts {
+  const def = getPattern(model.patternId);
+  const textCount =
+    model.rounds.find((r) => r.phase === 'text')?.count ?? 100;
+  const lockSpokeColor = def.layout.lockSpokeColor;
+  const spokeFracDeltas = lockSpokeColor
+    ? computeSpokeFracDeltas(model.rounds, model.stitches, lockSpokeColor)
+    : undefined;
+  return {
+    frontAnchorStitch: def.layout.frontAnchorStitch,
+    textCols: textCount,
+    lockSpokeColor,
+    spokeFracDeltas,
+  };
+}
 
-const COLORS = {
-  white: new THREE.Color(YARN_HEX.white),
-  red: new THREE.Color(YARN_HEX.red),
-  blue: new THREE.Color(YARN_HEX.blue),
-};
+const BG = '#EDE7DA';
+/**
+ * Catalogue cards are shot like the kit photography: a seamless warm-grey
+ * concrete sweep instead of the guide's cream, so the hat reads as a product
+ * rather than an illustration.
+ */
+const CARD_BG = '#C6C2BA';
+
+const PatternModelCtx = createContext<PatternModel | null>(null);
+
+function usePatternModel(): PatternModel {
+  return useContext(PatternModelCtx) ?? getModel();
+}
+
+const COLORS = Object.fromEntries(
+  Object.entries(YARN_HEX).map(([id, hex]) => [id, new THREE.Color(hex)]),
+) as Record<keyof typeof YARN_HEX, THREE.Color>;
+
+/**
+ * Yarn is not paint: two stitches of the same ball never take the light the
+ * same way, because the ply twists differently under each one. A deterministic
+ * ±5 % on the instance colour reproduces that without any texture — and it is
+ * what stops a flat colour field from reading as moulded plastic.
+ *
+ * Deliberately restrained. Push it further and it becomes speckle, which is the
+ * thing the pattern system spends most of its effort avoiding.
+ */
+const YARN_TONE = new THREE.Color();
+function yarnShade(base: THREE.Color, index: number): THREE.Color {
+  let h = Math.imul(index + 0x1f83, 0x85ebca6b) >>> 0;
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35) >>> 0;
+  const t = ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  return YARN_TONE.copy(base).multiplyScalar(0.955 + t * 0.09);
+}
 
 /** Objects the HTML labels raycast against to fade out behind the hat. */
 type Occluder = React.RefObject<THREE.Object3D>[];
@@ -74,7 +132,7 @@ function StitchNumberLabels({
   occlude: Occluder;
 }) {
   const showNumbers = useApp((s) => s.showNumbers);
-  const model = getModel();
+  const model = usePatternModel();
   if (!showNumbers || !stitchStepping || curRound === null || curRound === 0) return null;
 
   const before = model.cumCounts[curRound - 1];
@@ -139,7 +197,7 @@ function UpcomingPreview({
   curRound: number | null;
   stitchStepping: boolean;
 }) {
-  const model = getModel();
+  const model = usePatternModel();
   const geo = useMemo(() => makeStitchGeometry(), []);
   const meshRef = useRef<THREE.InstancedMesh>(null!);
 
@@ -253,7 +311,7 @@ function MarkerClips({
   occlude: Occluder;
 }) {
   const showMarkers = useApp((s) => s.showMarkers);
-  const model = getModel();
+  const model = usePatternModel();
   if (!showMarkers || curRound === null) return null;
 
   const before = curRound > 0 ? model.cumCounts[curRound - 1] : 0;
@@ -311,7 +369,7 @@ function InsertTargetMarker({
   flipped: boolean;
   occlude: Occluder;
 }) {
-  const model = getModel();
+  const model = usePatternModel();
   const ringRef = useRef<THREE.Mesh>(null!);
   const arrowRef = useRef<THREE.Mesh>(null!);
 
@@ -415,16 +473,18 @@ function Hat({ preview = false }: { preview?: boolean }) {
   const showFinished = useApp((s) => s.showFinished);
   const viewMode = useApp((s) => s.viewMode);
 
-  const model = useMemo(() => getModel(), []);
+  const model = usePatternModel();
+  const layoutOpts = useMemo(() => layoutOptsFor(model), [model]);
   const profile = useMemo(() => buildProfile(model.rounds), [model]);
   // With the physical working direction fixed (18 July), the working view is
   // ONLY the upside-down flip — no mirroring. The flip alone reproduces
   // exactly what you see in your hands: text upside down, work advancing
   // to the left.
   const transforms = useMemo(
-    () => buildStitchTransforms(model.rounds, model.stitches, profile),
-    [model, profile],
+    () => buildStitchTransforms(model.rounds, model.stitches, profile, layoutOpts),
+    [model, profile, layoutOpts],
   );
+  const crownPlugColor = model.rounds[0]?.color ?? 'white';
   const stitchGeo = useMemo(() => makeStitchGeometry(), []);
   const ghostGeo = useMemo(() => makeGhostGeometry(profile), [profile]);
 
@@ -451,7 +511,7 @@ function Hat({ preview = false }: { preview?: boolean }) {
       const t = transforms[i];
       m.compose(t.position, t.quaternion, new THREE.Vector3(1, 1, 1));
       mesh.setMatrixAt(i, m);
-      mesh.setColorAt(i, COLORS[model.stitches[i].color]);
+      mesh.setColorAt(i, yarnShade(COLORS[model.stitches[i].color], i));
     }
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
@@ -557,7 +617,9 @@ function Hat({ preview = false }: { preview?: boolean }) {
   // "Sy-visning": flip the whole hat upside down — the way it actually sits
   // in your hands / on the table while you crochet (a bowl growing upwards).
   // Finale / landing / preview always show the worn hat upright.
-  const flipped = !finale && viewMode === 'working';
+  // Working view = Z-flip only (never X-mirror). Preview mode (welcome) stays upright.
+  // Studio results use showFinished + viewMode without preview so Arbeid can flip.
+  const flipped = !preview && viewMode === 'working';
   const flipH = profile[0].y + profile[profile.length - 1].y;
 
   // Invisible full-hat silhouette that the HTML labels raycast against, so
@@ -573,18 +635,35 @@ function Hat({ preview = false }: { preview?: boolean }) {
       <mesh ref={occluderRef} geometry={ghostGeo}>
         <meshBasicMaterial colorWrite={false} depthWrite={false} side={THREE.DoubleSide} />
       </mesh>
+
       <instancedMesh
         ref={meshRef}
         args={[stitchGeo, undefined, total]}
         frustumCulled={false}
       >
-        <meshStandardMaterial roughness={0.94} metalness={0} vertexColors={false} />
+        {/* Matte cotton cord. `sheen` is the fibre halo a spun yarn has at
+            grazing angles — it is what separates textile from plastic — and it
+            is kept white and very rough so it never becomes a specular
+            highlight. No clearcoat, no metalness: this must not look wet. */}
+        <meshPhysicalMaterial
+          roughness={0.96}
+          metalness={0}
+          sheen={0.55}
+          sheenRoughness={0.95}
+          sheenColor="#efe7d8"
+          specularIntensity={0.12}
+          vertexColors={false}
+        />
       </instancedMesh>
 
       {/* small fabric plug closing the very centre of the crown (luftmaske 1) */}
-      <mesh position={[0, crownY - 0.12, 0]} scale={[1.1, 0.36, 1.1]} visible={shown > 0}>
+      <mesh
+        position={[0, crownY - 0.12, 0]}
+        scale={[1.1, 0.36, 1.1]}
+        visible={shown > 0}
+      >
         <sphereGeometry args={[1, 32, 16]} />
-        <meshStandardMaterial color={YARN_HEX.white} roughness={0.95} />
+        <meshStandardMaterial color={YARN_HEX[crownPlugColor]} roughness={0.95} />
       </mesh>
 
       <StitchNumberLabels
@@ -711,6 +790,8 @@ function CameraDirector({
   const stitchCursor = useApp((s) => s.stitchCursor);
   const showFinished = useApp((s) => s.showFinished);
   const autoRotate = useApp((s) => s.autoRotate);
+  const model = usePatternModel();
+  const layoutOpts = useMemo(() => layoutOptsFor(model), [model]);
   const { camera } = useThree();
   const goal = useRef(new THREE.Vector3());
   const goalTarget = useRef(new THREE.Vector3(0, 9, 0));
@@ -723,7 +804,6 @@ function CameraDirector({
   const close = device === 'phone' ? 1.18 : device === 'tablet' ? 0.95 : 1;
 
   useEffect(() => {
-    const model = getModel();
     const step = model.steps[stepIndex];
     const celebrate =
       showFinished || step?.kind === 'finish' || step?.kind === 'done';
@@ -766,7 +846,7 @@ function CameraDirector({
         const round = model.rounds[roundIdx];
         const before = roundIdx > 0 ? model.cumCounts[roundIdx - 1] : 0;
         const nextIdx = Math.min(vis.shownStitches, model.cumCounts[roundIdx] - 1);
-        const theta = stitchTheta(nextIdx - before, round.count);
+        const theta = stitchTheta(nextIdx - before, round.count, layoutOpts, roundIdx);
         // The hat group is flipped (rotZ = PI) in working view:
         // local (r cos, y, r sin) -> world azimuth = PI - theta.
         const wTheta = Math.PI - theta;
@@ -830,7 +910,12 @@ function CameraDirector({
       if (vis.stitchStepping && vis.currentRoundIdx !== null) {
         const before = step.roundIdx > 0 ? model.cumCounts[step.roundIdx - 1] : 0;
         const nextIdx = Math.min(vis.shownStitches, model.cumCounts[step.roundIdx] - 1);
-        const theta = stitchTheta(nextIdx - before, round.count);
+        const theta = stitchTheta(
+          nextIdx - before,
+          round.count,
+          layoutOpts,
+          step.roundIdx,
+        );
         const ring = profile[step.roundIdx];
         const cx = Math.cos(theta);
         const cz = Math.sin(theta);
@@ -879,7 +964,7 @@ function CameraDirector({
     goal.current.set(...pos);
     goalTarget.current.set(...target);
     active.current = true;
-  }, [stepIndex, viewMode, stitchCursor, showFinished, autoRotate, preview, device, close, controls, camera]);
+  }, [stepIndex, viewMode, stitchCursor, showFinished, autoRotate, preview, device, close, controls, camera, model, layoutOpts]);
 
   useEffect(() => {
     const c = controls.current;
@@ -908,21 +993,69 @@ function CameraDirector({
   return null;
 }
 
-function GroundShadow() {
+/**
+ * Studio lighting.
+ *
+ * One strong key from the upper left does most of the work: with the stitch
+ * geometry now carrying a real post and top loops, a hard-ish key is what makes
+ * the fabric look crocheted, because each stitch self-shades against the round
+ * below it. The fill is deliberately weak and cool, and there is a dim bounce
+ * from below — enough to keep the far side of the hat and the underside of the
+ * brim from going black without flattening the relief the key just created.
+ *
+ * No cast shadows: a real shadow map throws a hard slab of the whole hat across
+ * the sweep, which reads as a cut-out pasted onto the background rather than a
+ * product photographed on it. The soft painted pool in `GroundShadow` is what
+ * grounds the hat.
+ */
+function StudioLights({ card }: { card: boolean }) {
+  return (
+    <>
+      <hemisphereLight
+        args={card ? ['#f4f1ea', '#6f6a62', 0.5] : ['#fff6e6', '#a89a86', 0.62]}
+      />
+      <directionalLight
+        position={card ? [-34, 46, 30] : [-30, 44, 28]}
+        intensity={card ? 2.15 : 2.0}
+      />
+      {/* Cool fill from the opposite side — opens the shadows, adds no shine. */}
+      <directionalLight
+        position={[38, 14, -26]}
+        intensity={card ? 0.42 : 0.4}
+        color="#cfd8ea"
+      />
+      {/* Low bounce off the sweep, so the underside of the brim is not a void. */}
+      <directionalLight position={[6, -18, 14]} intensity={0.22} color="#efe6d6" />
+    </>
+  );
+}
+
+/**
+ * Fake ground shadow. `contact` gives the tighter, darker, cooler pool the kit
+ * photography has — the hats sit ON the concrete rather than floating over it.
+ */
+function GroundShadow({ contact = false }: { contact?: boolean }) {
   const tex = useMemo(() => {
     const cv = document.createElement('canvas');
     cv.width = cv.height = 256;
     const g = cv.getContext('2d')!;
     const grad = g.createRadialGradient(128, 128, 12, 128, 128, 128);
-    grad.addColorStop(0, 'rgba(96,84,60,0.30)');
-    grad.addColorStop(1, 'rgba(96,84,60,0)');
+    if (contact) {
+      grad.addColorStop(0, 'rgba(48,45,42,0.52)');
+      grad.addColorStop(0.45, 'rgba(48,45,42,0.20)');
+      grad.addColorStop(1, 'rgba(48,45,42,0)');
+    } else {
+      grad.addColorStop(0, 'rgba(96,84,60,0.30)');
+      grad.addColorStop(1, 'rgba(96,84,60,0)');
+    }
     g.fillStyle = grad;
     g.fillRect(0, 0, 256, 256);
     return new THREE.CanvasTexture(cv);
-  }, []);
+  }, [contact]);
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.35, 0]}>
-      <circleGeometry args={[32, 48]} />
+      {/* The contact pool is tighter, so it needs less ground to fall on. */}
+      <circleGeometry args={[contact ? 24 : 32, 48]} />
       <meshBasicMaterial map={tex} transparent depthWrite={false} />
     </mesh>
   );
@@ -952,56 +1085,109 @@ function CameraDevHook({ controls }: { controls: React.RefObject<OrbitControlsIm
 export default function HatScene({
   preview = false,
   device = 'desktop',
+  model: modelProp,
+  card = false,
+  overview = false,
 }: {
   preview?: boolean;
   device?: DeviceClass;
+  /** Optional override (Studio / custom patterns). Defaults to getModel(). */
+  model?: PatternModel;
+  /**
+   * Start framed on the whole hat (Studio) instead of close on the working
+   * round — without the endless spin that `preview` implies.
+   */
+  overview?: boolean;
+  /**
+   * Compact gallery/landing thumbnail: no pointer grab (page scroll wins),
+   * lower DPR, class-based root so many cards can coexist.
+   */
+  card?: boolean;
 }) {
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const autoRotateStore = useApp((s) => s.autoRotate);
   const spinning = preview || autoRotateStore;
-  const fov = device === 'phone' ? 42 : device === 'tablet' ? 40 : 36;
-  const dpr: [number, number] = device === 'phone' ? [1, 1.5] : [1, 2];
-  const startPos: [number, number, number] = preview
-    ? [44, 26, 52]
+  const fov = card ? 38 : device === 'phone' ? 42 : device === 'tablet' ? 40 : 36;
+  const dpr: [number, number] = card
+    ? [1, 1.25]
     : device === 'phone'
-      ? [24, 28, 28]
-      : [20, 30, 26];
+      ? [1, 1.5]
+      : [1, 2];
+  const startPos: [number, number, number] = card
+    ? // Near eye level, like the kit photography, and squarely on the front
+      // anchor. Looking down foreshortens the wall and curls the wordmark
+      // away; off-axis puts the seam between the two NORGE copies in view.
+      // The wordmark centre sits at theta = FRONT_THETA + (front-0.5)/cols·2π
+      // − centerFrac·2π ≈ 0.82 rad, so the camera rides (cos θ, ·, sin θ).
+      // Pulled back for the NORWAY'26 brim, which flares to 1.44× the body —
+      // the old framing cropped the rim off the bottom of the card.
+      [46, 14, 50]
+    : preview || overview
+      ? [44, 26, 52]
+      : device === 'phone'
+        ? [24, 28, 28]
+        : [20, 30, 26];
+  const rootClass = [
+    'scene-root',
+    preview || card || overview ? 'scene-preview' : '',
+    card ? 'scene-card' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <div id="scene-root" className={preview ? 'scene-preview' : undefined}>
-      <Canvas
-        dpr={dpr}
-        camera={{
-          fov,
-          near: 0.5,
-          far: 300,
-          position: startPos,
-        }}
-        gl={{ antialias: true }}
+    <PatternModelCtx.Provider value={modelProp ?? null}>
+      <div
+        id={card ? undefined : 'scene-root'}
+        className={rootClass}
       >
-        <color attach="background" args={[BG]} />
-        <fog attach="fog" args={[BG, 70, 150]} />
-        <hemisphereLight args={['#fff6e6', '#cbbfa4', 1.15]} />
-        <directionalLight position={[30, 45, 25]} intensity={1.5} />
-        <directionalLight position={[-38, 22, -30]} intensity={0.5} color="#dfe8ff" />
-        <Hat preview={preview} />
-        <GroundShadow />
-        <CameraDirector controls={controlsRef} preview={preview} device={device} />
-        {!preview && <CameraDevHook controls={controlsRef} />}
-        <OrbitControls
-          ref={controlsRef}
-          target={[0, 9, 0]}
-          enableDamping
-          dampingFactor={0.06}
-          autoRotate={spinning}
-          autoRotateSpeed={1.2}
-          minDistance={device === 'phone' ? 6 : 5}
-          maxDistance={90}
-          // Allow near-overhead (brim in sy-visning) and slightly under-horizon
-          // (brim in ferdig-visning) so stitches can face the camera.
-          maxPolarAngle={Math.PI * 0.92}
-          enablePan={false}
-        />
-      </Canvas>
-    </div>
+        <Canvas
+          dpr={dpr}
+          camera={{
+            fov,
+            near: 0.5,
+            far: 300,
+            position: startPos,
+          }}
+          gl={{
+            antialias: !card,
+            alpha: false,
+            powerPreference: card ? 'low-power' : 'high-performance',
+            preserveDrawingBuffer: card,
+          }}
+          style={card ? { pointerEvents: 'none' } : undefined}
+        >
+          <color attach="background" args={[card ? CARD_BG : BG]} />
+          <fog attach="fog" args={[card ? CARD_BG : BG, 70, 150]} />
+          <StudioLights card={card} />
+          <Hat preview={preview || card} />
+          <GroundShadow contact={card} />
+          <CameraDirector
+            controls={controlsRef}
+            preview={preview || card}
+            device={device}
+          />
+          {!preview && !card && <CameraDevHook controls={controlsRef} />}
+          <OrbitControls
+            ref={controlsRef}
+            target={[0, 9, 0]}
+            enableDamping
+            dampingFactor={0.06}
+            // Catalogue cards hold still on the front view. A spinning hat is
+            // caught at a random angle in every card and in every screenshot;
+            // a product grid should present the wordmark, not a lottery.
+            autoRotate={card ? false : spinning}
+            autoRotateSpeed={1.2}
+            minDistance={device === 'phone' ? 6 : 5}
+            maxDistance={90}
+            // Allow near-overhead (brim in sy-visning) and slightly under-horizon
+            // (brim in ferdig-visning) so stitches can face the camera.
+            maxPolarAngle={Math.PI * 0.92}
+            enablePan={false}
+            enableZoom={!card}
+            enableRotate={!card}
+          />
+        </Canvas>
+      </div>
+    </PatternModelCtx.Provider>
   );
 }

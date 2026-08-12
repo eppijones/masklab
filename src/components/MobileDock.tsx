@@ -1,4 +1,5 @@
 import { useApp, getModel, isPatterned } from '../store';
+import type { YarnColor } from '../data/types';
 import {
   nextRhythmStep,
   nextRunStep,
@@ -52,7 +53,7 @@ export default function MobileDock({
   let rhythm: ReturnType<typeof nextRhythmStep> = null;
   let runStep: ReturnType<typeof nextRunStep> = null;
   let progressLabel: string | null = null;
-  let blockColor: 'white' | 'red' | 'blue' | null = null;
+  let blockColor: YarnColor | null = null;
 
   if (counting && step.roundIdx !== null) {
     const round = model.rounds[step.roundIdx];

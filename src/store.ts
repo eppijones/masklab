@@ -3,9 +3,21 @@ import { persist } from 'zustand/middleware';
 import { buildRounds, buildStitches } from './data/pattern';
 import { buildSteps, type StepDef } from './data/steps';
 import { buildStepsEn } from './data/stepsEn';
-import type { Round, Stitch } from './data/types';
-import { progressStorageKey } from './lib/entry';
+import { buildStepsGeneric } from './data/stepsGeneric';
+import { GUIDE_COPY } from './data/guideCopy';
+import type { Round, Stitch, YarnColor } from './data/types';
+import { patternIdFromUrl, progressStorageKey } from './lib/entry';
 import type { Locale } from './i18n/locale';
+import type { PatternDefinition, PatternId } from './patterns/types';
+import { getPattern } from './patterns/registry';
+import { derivePattern } from './patterns/buildFromDefinition';
+
+/** Per-round stitch color lists (for the generic steps builder). */
+function colorsPerRound(rounds: Round[], stitches: Stitch[]): YarnColor[][] {
+  const out: YarnColor[][] = rounds.map(() => []);
+  for (const st of stitches) out[st.roundIdx].push(st.color);
+  return out;
+}
 
 export interface PatternModel {
   rounds: Round[];
@@ -13,27 +25,107 @@ export interface PatternModel {
   steps: StepDef[];
   /** Cumulative stitch count up to and including round idx. */
   cumCounts: number[];
+  patternId: PatternId;
 }
 
-const models: Partial<Record<Locale, PatternModel>> = {};
+const models: Partial<Record<string, PatternModel>> = {};
 /** Mirrors store.locale so getModel works before/without React. */
 let activeLocale: Locale = 'no';
+let activePatternId: PatternId = 'ro-ro-ro';
 
-export function getModel(locale?: Locale): PatternModel {
+if (typeof window !== 'undefined') {
+  activePatternId = patternIdFromUrl();
+}
+
+export function setActivePatternId(id: PatternId): void {
+  activePatternId = id;
+}
+
+export function getActivePatternId(): PatternId {
+  return activePatternId;
+}
+
+function modelKey(locale: Locale, patternId: PatternId): string {
+  return `${locale}:${patternId}`;
+}
+
+/**
+ * Install a ready-made model (a Studio design) so the guided app can run on
+ * it. Registered before first render from /oppskrift/custom?d=…
+ */
+export function registerModel(
+  model: PatternModel,
+  locale: Locale = 'no',
+  patternId: PatternId = 'custom',
+): void {
+  models[modelKey(locale, patternId)] = model;
+}
+
+export function getModel(locale?: Locale, patternId?: PatternId): PatternModel {
   const loc = locale ?? activeLocale;
-  if (!models[loc]) {
-    const rounds = buildRounds();
-    const stitches = buildStitches(rounds);
-    const steps = loc === 'en' ? buildStepsEn(rounds) : buildSteps(rounds);
+  const pid = patternId ?? activePatternId;
+  const key = modelKey(loc, pid);
+  if (!models[key]) {
+    let rounds: Round[];
+    let stitches: Stitch[];
+    let steps: StepDef[];
+    if (pid === 'ro-ro-ro') {
+      // Exact historical path — pixel/count parity at /
+      rounds = buildRounds();
+      stitches = buildStitches(rounds);
+      steps = loc === 'en' ? buildStepsEn(rounds) : buildSteps(rounds);
+    } else {
+      const def = getPattern(pid);
+      const derived = derivePattern(def);
+      rounds = derived.rounds;
+      stitches = derived.stitches;
+      steps = buildStepsGeneric(
+        rounds,
+        def,
+        GUIDE_COPY[pid],
+        loc,
+        colorsPerRound(rounds, stitches),
+      );
+    }
     const cumCounts: number[] = [];
     let acc = 0;
     for (const r of rounds) {
       acc += r.count;
       cumCounts.push(acc);
     }
-    models[loc] = { rounds, stitches, steps, cumCounts };
+    models[key] = { rounds, stitches, steps, cumCounts, patternId: pid };
   }
-  return models[loc]!;
+  return models[key]!;
+}
+
+/** Build a PatternModel from an arbitrary derived studio/pattern result. */
+export function modelFromParts(
+  rounds: Round[],
+  stitches: Stitch[],
+  locale: Locale = 'no',
+  patternId: PatternId = 'custom',
+  /** Studio designs pass their own definition so the kit list names their yarn. */
+  def?: Pick<PatternDefinition, 'palette' | 'defaults'>,
+): PatternModel {
+  const steps =
+    patternId === 'ro-ro-ro'
+      ? locale === 'en'
+        ? buildStepsEn(rounds)
+        : buildSteps(rounds)
+      : buildStepsGeneric(
+          rounds,
+          def ?? getPattern(patternId),
+          GUIDE_COPY[patternId as Exclude<PatternId, 'ro-ro-ro'>],
+          locale,
+          colorsPerRound(rounds, stitches),
+        );
+  const cumCounts: number[] = [];
+  let acc = 0;
+  for (const r of rounds) {
+    acc += r.count;
+    cumCounts.push(acc);
+  }
+  return { rounds, stitches, steps, cumCounts, patternId };
 }
 
 interface AppState {
@@ -219,7 +311,11 @@ export const useApp = create<AppState>()(
 
 /** Is this round shown stitch-by-stitch (patterned rounds)? */
 export function isPatterned(round: Round): boolean {
-  return round.phase === 'text' || round.phase === 'wave';
+  return (
+    round.phase === 'text' ||
+    round.phase === 'wave' ||
+    round.patterned === true
+  );
 }
 
 export interface Visible {
