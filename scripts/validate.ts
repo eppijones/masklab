@@ -19,7 +19,12 @@ import {
 import { WAVE_CHART_DISPLAY, WAVE_COUNTS, WAVE_BLOCKS, waveStitchColor } from '../src/data/waves';
 import { getFont } from '../src/data/fonts/registry';
 import { layoutText } from '../src/data/rasterizeText';
-import { fontHeight, textGlyphPieces, textPiece } from '../src/data/layerGeometry';
+import {
+  fontHeight,
+  textGlyphPieces,
+  textPiece,
+  textPlacements,
+} from '../src/data/layerGeometry';
 import { listPatterns, getPattern } from '../src/patterns/registry';
 import { derivePattern, deriveRoDefault } from '../src/patterns/buildFromDefinition';
 import { expandRuns } from '../src/patterns/script';
@@ -757,29 +762,62 @@ for (const kit of NORWAY_KITS) {
       `${id}: bokstavene beholder konturen (${(cleanShare * 100).toFixed(0)} % rene naboer)`,
     );
 
-    // Is the contour actually porous?
-    //
-    // Counting field colours around the letters would answer a different
-    // question — Svart has only three bundles and they may simply not pass
-    // through the wordmark, which would fail a kit that is behaving perfectly.
-    // The claim to test is structural: the ring has gaps in it. So render the
-    // contour TWICE in a colour it never otherwise uses, once solid and once
-    // dithered, and compare how many stitches each one lays down.
-    const probe = (haloDither: number) => {
-      const g = derivePattern({
-        ...def,
-        chartLayers: [{ ...textLayer, haloColorId: 'magenta', haloDither }],
-      }).chart.grid;
-      let n = 0;
-      for (const row of g) for (const cell of row) if (cell === 'magenta') n++;
-      return n;
-    };
-    const solidHalo = probe(0);
-    const openHalo = solidHalo - probe(textLayer.haloDither ?? 0);
-    const porosity = solidHalo > 0 ? openHalo / solidHalo : 0;
+    /**
+     * THE WORDMARK SITS ON A CLEAN PANEL.
+     *
+     * This check used to assert the opposite: that the contour was POROUS,
+     * 10–45 % of it left open so the field could cross behind the letters and
+     * the type would not read as a hole cut in the pattern. That was the right
+     * call for a face with two-stitch stems. It is the wrong one for «Norge26»,
+     * whose strokes are a single stitch — every ink cell the field reached
+     * showed up as a speck ON the letter, and five letters of that read as
+     * dirt rather than as fabric passing behind.
+     *
+     * So the contour is solid now, two stitches deep, and what gets tested is
+     * the thing that actually matters: no field colour anywhere near a letter.
+     * The field is not lost — it runs over the crown, and it comes back out
+     * from under the panel and carries on to the rim, which the brim coverage
+     * check below is what protects.
+     */
+    /**
+     * The letters come from the LAYER, not from the grid. Reading them back as
+     * "every cell in the wordmark's colour" is the obvious shortcut and it is
+     * wrong on three of the five kits: Drakt strokes in off-white and sets
+     * off-white type, so half the field would be counted as lettering and the
+     * check would pass on hats that are covered in specks.
+     */
+    const letterCells = new Set<string>();
+    for (const p of textPlacements(textLayer, d.chart.cols)) {
+      p.mask.forEach((row, r) =>
+        row.forEach((on, c) => {
+          if (!on) return;
+          const rr = p.row + r;
+          let cc = (p.col + c) % d.chart.cols;
+          if (cc < 0) cc += d.chart.cols;
+          if (rr >= 0 && rr < d.chart.rows) letterCells.add(`${rr},${cc}`);
+        }),
+      );
+    }
+    const clearance = Math.min(2, Math.max(1, Math.round(textLayer.haloWidth ?? 1)));
+    let intruding = 0;
+    d.chart.grid.forEach((row, r) =>
+      row.forEach((v, c) => {
+        if (v === def.background || letterCells.has(`${r},${c}`)) return;
+        for (let dr = -clearance; dr <= clearance; dr++) {
+          for (let dc = -clearance; dc <= clearance; dc++) {
+            let cc = (c + dc) % d.chart.cols;
+            if (cc < 0) cc += d.chart.cols;
+            if (letterCells.has(`${r + dr},${cc}`)) {
+              intruding++;
+              return;
+            }
+          }
+        }
+      }),
+    );
     check(
-      porosity > 0.1 && porosity < 0.45,
-      `${id}: konturen er porøs, ikke en hard linje (${(porosity * 100).toFixed(0)} % åpen)`,
+      intruding === 0,
+      `${id}: ingen feltfarger innenfor ${clearance} masker av bokstavene (${intruding})`,
     );
   }
 

@@ -167,6 +167,7 @@ export function slashParamsFromLayer(
     kinkRows: Number(params.kinkRows ?? d.kinkRows),
     kinkAmp: Number(params.kinkAmp ?? d.kinkAmp),
     tipSharp: Number(params.tipSharp ?? d.tipSharp),
+    tipSharpEnd: Number(params.tipSharpEnd ?? params.tipSharp ?? d.tipSharp),
     echoGap: Number(params.echoGap ?? d.echoGap),
     echoWidth: Number(params.echoWidth ?? d.echoWidth),
     vMin: Number(params.vMin ?? -20),

@@ -206,6 +206,18 @@ export interface SlashParams {
    * only points at the very tips.
    */
   tipSharp: number;
+  /**
+   * How pointed the FAR end is — the one that runs off the brim. Defaults to
+   * `tipSharp`, which points both ends equally.
+   *
+   * A hat is cut off at the rim; a stroke is not. With one exponent for both
+   * ends the brim sat in the stroke's tapering tail and the colour thinned out
+   * exactly where the wordmark stops — a third of the coverage of the crown by
+   * the last patterned round, which reads as the pattern giving up rather than
+   * running off the edge. Near 0 the stroke holds full width to the end and the
+   * rim does the cutting.
+   */
+  tipSharpEnd?: number;
   /** Sideways gap from stroke to its echo, in stitches. */
   echoGap: number;
   /** Belly half-width of the echo. */
@@ -228,6 +240,8 @@ export interface Slash {
   kinkAmp: number;
   kinkPhase: number;
   tipSharp: number;
+  /** Taper exponent for the far (brim) end — see SlashParams.tipSharpEnd. */
+  tipSharpEnd: number;
   /** Index into the motif's colour list. */
   colorIdx: number;
   id: number;
@@ -244,6 +258,7 @@ export function slashParamsDefaults(): Omit<SlashParams, 'seed' | 'vMin' | 'vMax
     kinkRows: 0,
     kinkAmp: 0,
     tipSharp: 0.7,
+    tipSharpEnd: 0.7,
     echoGap: 4,
     echoWidth: 1.0,
   };
@@ -278,6 +293,7 @@ export function buildSlashes(
     kinkRows: p.kinkRows,
     kinkAmp: p.kinkAmp,
     tipSharp: p.tipSharp,
+    tipSharpEnd: p.tipSharpEnd ?? p.tipSharp,
   };
 
   for (let i = 0; i < p.count; i++) {
@@ -369,10 +385,13 @@ export function slashAt(
   for (const s of slashes) {
     const t = v - s.v0;
     if (t < 0 || t > s.len) continue;
-    // Pointed at both ends, full width across the belly. A low tipSharp keeps
-    // the stroke at full width from the crown all the way to the rim, so the
-    // bundle reads as one continuous travelling mark.
-    const prof = Math.pow(Math.sin((Math.PI * t) / s.len), Math.max(0.05, s.tipSharp));
+    // Pointed at the crown end, and as blunt as the kit asks for at the brim
+    // end. The two halves take different exponents because the hat is cut off
+    // at the rim and the stroke is not: taper both ends equally and the brim
+    // lands in the tail, where the colour thins to nothing just as the
+    // wordmark ends.
+    const tip = t * 2 <= s.len ? s.tipSharp : s.tipSharpEnd;
+    const prof = Math.pow(Math.sin((Math.PI * t) / s.len), Math.max(0.05, tip));
     // The floor keeps a stroke from clipping to a single stitch on the narrow
     // crown rounds (see the caller: it passes the round's column spacing).
     // Only the belly is floored — the outer fifth still tapers to a point.

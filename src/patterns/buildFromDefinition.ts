@@ -261,20 +261,25 @@ export function buildCrownResolver(
   // a couple of rounds above the edge as soon as the brim grew.
   const tailRounds = roundsBelowWall(rounds);
   /**
-   * How much field HEIGHT one brim round spends — 1 row per round unless a
-   * pattern says otherwise.
+   * How much of its sideways travel a stroke keeps once it is on the brim.
    *
-   * Below 1 the strokes cross the brim more steeply, which is not a stylistic
-   * preference but a correction for what the brim does to them. The wall is a
-   * cylinder, so a stroke leaning 50° off vertical reads as leaning 50°. The
-   * brim is close to a flat annulus: the same stroke, laid on it, sweeps ROUND
-   * the hat instead of down it, and nine rounds of that come out as concentric
-   * arcs — the banded look the ring stripes were removed to avoid, arriving
-   * again by the back door. Spending less field height per brim round makes the
-   * stroke travel less sideways over the flare, so it runs radially out to the
-   * rim and the brim reads as the wall continuing.
+   * The wall is a cylinder, so a stroke leaning 50° off vertical reads as
+   * leaning 50°. The brim is close to a flat annulus: the same stroke laid on
+   * it sweeps ROUND the hat rather than down it, and nine rounds of that come
+   * out as concentric arcs — the banded look the ring stripes were removed to
+   * avoid, arriving again by the back door. Below 1 the stroke's centre is
+   * pulled back toward where it crossed the fold, so it runs radially out to
+   * the rim instead.
+   *
+   * THIS IS A SHIFT IN u, NOT A COMPRESSION OF v. The first attempt spent less
+   * field HEIGHT per brim round, which fixed the arcs and broke something
+   * worse: the field's row space shrank with it, so the brim landed in the
+   * tapered last fifth of every stroke and came out nearly bare — the colour
+   * died exactly where the wordmark ends. Depth still advances a full row per
+   * round, so the strokes keep their width all the way to the edge.
    */
-  const brimVStep = Number(crown.params.brimVStep ?? 1);
+  const brimSlopeGain = Number(crown.params.brimSlopeGain ?? 1);
+  const fieldSlope = Number(crown.params.slope ?? 0);
   // Leave the outermost rounds a single solid color, the way a knitted-in edge
   // finishes a real bucket hat. edgeSolidRounds widens the band (default 1 =
   // just the final round).
@@ -292,7 +297,7 @@ export function buildCrownResolver(
     const p = {
       ...streakParamsFromLayer(crown.params, bandRows),
       vMin: -crownRounds,
-      vMax: coverBrim ? bandRows + tailRounds * brimVStep : bandRows,
+      vMax: coverBrim ? bandRows + tailRounds : bandRows,
     };
     streaks = buildStreaks(cols, p);
     streakSeed = p.seed;
@@ -304,7 +309,7 @@ export function buildCrownResolver(
     const p = {
       ...slashParamsFromLayer(crown.params, bandRows),
       vMin: -crownRounds,
-      vMax: coverBrim ? bandRows + tailRounds * brimVStep : bandRows,
+      vMax: coverBrim ? bandRows + tailRounds : bandRows,
     };
     const table = slashColorList(crown.colorIds ?? [], crown.params);
     slashColors = table.colors;
@@ -337,12 +342,16 @@ export function buildCrownResolver(
       // v = -1 is the crown round next to the wall; centre = -crownRounds.
       v = -(crownRounds - roundIdx) + 0.5;
     } else if (isBrim && coverBrim && brimStart >= 0) {
-      v = bandRows + (roundIdx - brimStart) * brimVStep + 0.5;
+      v = bandRows + (roundIdx - brimStart) + 0.5;
     } else {
       return null;
     }
     void textStart;
-    const u = ((i + 0.5) / count) * cols;
+    let u = ((i + 0.5) / count) * cols;
+    // Pull the stroke back toward where it crossed the fold — see brimSlopeGain.
+    if (isBrim && brimSlopeGain !== 1) {
+      u += fieldSlope * (v - bandRows) * (1 - brimSlopeGain);
+    }
     if (slashes) {
       // Same trap as the streak field: u is in field columns, but a stroke's
       // width has to stay constant in STITCHES or it clips to nothing as the
@@ -428,7 +437,6 @@ function layersWithFieldExtent(
   bandRows: number,
   coverBrim: boolean,
   tailRounds: number,
-  brimVStep: number,
 ): ChartLayer[] {
   return layers.map((l) => {
     if (
@@ -442,7 +450,7 @@ function layersWithFieldExtent(
       params: {
         ...l.params,
         vMin: -crownRounds,
-        vMax: coverBrim ? bandRows + tailRounds * brimVStep : bandRows,
+        vMax: coverBrim ? bandRows + tailRounds : bandRows,
       },
     };
   });
@@ -518,14 +526,7 @@ export function derivePattern(
 
   const rawLayers = opts?.layers ?? def.chartLayers;
   const layers = def.crown
-    ? layersWithFieldExtent(
-        rawLayers,
-        crownRounds,
-        bandRows,
-        coverBrim,
-        tailRounds,
-        Number(def.crown?.params.brimVStep ?? 1),
-      )
+    ? layersWithFieldExtent(rawLayers, crownRounds, bandRows, coverBrim, tailRounds)
     : rawLayers;
   const override = opts?.override ?? def.chartOverride ?? emptyOverride();
 
