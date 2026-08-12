@@ -45,16 +45,8 @@ function Dot({ color, big }: { color: YarnColor; big?: boolean }) {
 export default function WorkHUD({ hideControls = false }: { hideControls?: boolean }) {
   const locale = useApp((s) => s.locale);
   const ui = t(locale);
-  const NAME_UPPER: Record<YarnColor, string> = {
-    white: ui.white,
-    red: ui.red,
-    blue: ui.blue,
-  };
-  const NAME_PLURAL: Record<YarnColor, string> = {
-    white: ui.whitePlural,
-    red: ui.redPlural,
-    blue: ui.bluePlural,
-  };
+  const NAME_UPPER: Record<YarnColor, string> = ui.yarnNameUpper;
+  const NAME_PLURAL: Record<YarnColor, string> = ui.yarnNamePlural;
   const stepIndex = useApp((s) => s.stepIndex);
   const cursor = useApp((s) => s.stitchCursor);
   const setCursor = useApp((s) => s.setStitchCursor);

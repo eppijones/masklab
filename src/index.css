@@ -33,6 +33,22 @@ html, body {
   overflow: hidden;
 }
 
+/* Platform (gallery / landing / collection): document scrolls.
+   Guide + studio keep a fixed viewport. */
+html[data-app='platform'],
+html[data-app='platform'] body {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+html[data-app='platform'] #root {
+  height: auto;
+  min-height: 100%;
+}
+
 body {
   font-family: 'Karla', sans-serif;
   color: var(--ink);
@@ -286,9 +302,22 @@ a { color: var(--red); }
 .stage-tools { display: flex; gap: 8px; align-items: center; }
 
 .scene-wrap { position: relative; flex: 1; min-height: 0; }
-#scene-root { position: absolute; inset: 0; border-radius: 0; overflow: hidden; }
-#scene-root canvas { display: block; cursor: grab; }
-#scene-root canvas:active { cursor: grabbing; }
+#scene-root,
+.scene-root {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  overflow: hidden;
+}
+#scene-root canvas,
+.scene-root canvas {
+  display: block;
+  cursor: grab;
+}
+#scene-root canvas:active,
+.scene-root canvas:active {
+  cursor: grabbing;
+}
 .hint {
   position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
   font-size: 10.5px; color: var(--gold); letter-spacing: 0.14em; font-weight: 700;
@@ -511,6 +540,8 @@ a { color: var(--red); }
 }
 .workhud-pm.plus.unit.yarn-red { background: var(--red); color: #FDFAF3; }
 .workhud-pm.plus.unit.yarn-blue { background: var(--blue); color: #FDFAF3; }
+.workhud-pm.plus.unit.yarn-black { background: #23211E; color: #FDFAF3; }
+.workhud-pm.plus.unit.yarn-lightblue { background: #6E86C0; color: #FDFAF3; }
 .workhud-unit-meta {
   font-size: 10px; font-weight: 800; letter-spacing: 0.06em;
   text-transform: uppercase; opacity: 0.75;
@@ -927,6 +958,7 @@ a { color: var(--red); }
   transform: translateY(-4px);
 }
 .welcome-stage #scene-root,
+.welcome-stage .scene-root,
 .welcome-stage .scene-preview { position: absolute; inset: 0; }
 .welcome-foot {
   flex: none; display: flex; align-items: baseline;
@@ -1331,6 +1363,14 @@ html[data-screen="welcome"][data-device="tablet"][data-orientation="portrait"] .
   background: var(--blue); color: #FDFAF3;
   box-shadow: 0 12px 22px -12px rgba(0, 32, 91, 0.45);
 }
+.mobile-dock-pm.plus.rhythm.yarn-black {
+  background: #23211E; color: #FDFAF3;
+  box-shadow: 0 12px 22px -12px rgba(20, 20, 18, 0.5);
+}
+.mobile-dock-pm.plus.rhythm.yarn-lightblue {
+  background: #6E86C0; color: #FDFAF3;
+  box-shadow: 0 12px 22px -12px rgba(110, 134, 192, 0.5);
+}
 .mobile-dock-pm:disabled { opacity: 0.35; cursor: default; }
 .mobile-dock-count-row.rhythm-mode {
   grid-template-columns: 64px minmax(0, 1fr) minmax(118px, 1.55fr);
@@ -1587,7 +1627,8 @@ html[data-device="phone"] .app {
 [data-device="phone"] .tool-btn {
   padding: 10px 12px; font-size: 11px; min-height: 40px;
 }
-[data-device="phone"] #scene-root canvas { touch-action: none; }
+[data-device="phone"] #scene-root canvas,
+[data-device="phone"] .scene-root canvas { touch-action: none; }
 [data-device="phone"] .ai-fab-label { max-width: 0; padding: 0; overflow: hidden; }
 [data-device="phone"] .ai-fab { padding: 10px; border-radius: 50%; }
 [data-device="phone"] .stitch-overlay {
@@ -1654,7 +1695,8 @@ html[data-device="phone"] .app {
 [data-device="tablet"] .icon-btn { width: 44px; height: 44px; }
 [data-device="tablet"] .workhud-pm { height: 44px; }
 [data-device="tablet"] .workhud-pm.jump { min-height: 88px; }
-[data-device="tablet"] #scene-root canvas { touch-action: none; }
+[data-device="tablet"] #scene-root canvas,
+[data-device="tablet"] .scene-root canvas { touch-action: none; }
 [data-device="tablet"] .layout {
   gap: 14px; padding: 0 16px 16px;
 }
@@ -1663,13 +1705,13 @@ html[data-device="phone"] .app {
 }
 [data-device="tablet"] .jump-drawer { width: min(420px, 100vw); }
 
-/* Tablet portrait: stack + dock like phone, larger 3D */
-html[data-device="tablet"][data-orientation="portrait"],
-html[data-device="tablet"][data-orientation="portrait"] body {
+/* Tablet portrait: stack + dock like phone, larger 3D (guide only) */
+html[data-app='guide'][data-device="tablet"][data-orientation="portrait"],
+html[data-app='guide'][data-device="tablet"][data-orientation="portrait"] body {
   height: 100%; overflow: hidden;
 }
-html[data-device="tablet"][data-orientation="portrait"] #root,
-html[data-device="tablet"][data-orientation="portrait"] .app {
+html[data-app='guide'][data-device="tablet"][data-orientation="portrait"] #root,
+html[data-app='guide'][data-device="tablet"][data-orientation="portrait"] .app {
   height: 100dvh; max-height: 100dvh; overflow: hidden;
 }
 [data-device="tablet"][data-orientation="portrait"] .layout.mobile-work {

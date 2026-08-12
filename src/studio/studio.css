@@ -1,0 +1,1295 @@
+/* MASKLAB Studio — same paper, ink and red as the rest of the platform. */
+
+/* The studio is a fixed workspace: the shell must not grow past the viewport,
+   or the chart under the 3D hat falls outside the clipped page. */
+html[data-app='studio'] .ml-shell {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+html[data-app='studio'] .ml-content {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.st-root {
+  --st-bg: #ede7db;
+  --st-paper: #fbf8f0;
+  --st-paper-2: #f5f0e2;
+  --st-ink: #1a1a17;
+  --st-muted: #55503f;
+  --st-faint: #8a8070;
+  --st-label: #a89a7e;
+  --st-line: #dcd4bf;
+  --st-red: #b7182e;
+  --st-red-dark: #8f1023;
+
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--st-bg);
+  color: var(--st-ink);
+  font-family: 'Karla', sans-serif;
+}
+
+.st-root * {
+  box-sizing: border-box;
+}
+
+/* ---------- top tool bar ---------- */
+.st-bar {
+  flex: none;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--st-line);
+  background: var(--st-bg);
+}
+
+.st-bar-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 19px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.st-bar-sub {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--st-label);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.st-bar-spacer {
+  flex: 1;
+}
+
+.st-group {
+  display: flex;
+  gap: 3px;
+  background: var(--st-paper);
+  border: 1px solid var(--st-line);
+  border-radius: 7px;
+  padding: 3px;
+  flex: none;
+}
+
+.st-tool {
+  border: none;
+  background: none;
+  border-radius: 5px;
+  padding: 6px 11px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--st-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.st-tool:hover:not(:disabled) {
+  color: var(--st-ink);
+}
+
+.st-tool.on {
+  background: var(--st-ink);
+  color: var(--st-paper);
+}
+
+.st-tool:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.st-btn {
+  border: 1.5px solid var(--st-line);
+  background: none;
+  color: var(--st-muted);
+  border-radius: 6px;
+  padding: 8px 13px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.st-btn:hover {
+  border-color: var(--st-ink);
+  color: var(--st-ink);
+}
+
+.st-btn.primary {
+  background: var(--st-red);
+  border-color: transparent;
+  color: #fbf8f0;
+  box-shadow: 0 10px 18px -10px rgba(183, 24, 46, 0.7);
+}
+
+.st-btn.primary:hover {
+  background: var(--st-red-dark);
+  color: #fbf8f0;
+}
+
+.st-btn.small {
+  padding: 5px 9px;
+  font-size: 11px;
+}
+
+/* ---------- body ---------- */
+.st-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 316px minmax(0, 1fr);
+}
+
+.st-rail {
+  min-height: 0;
+  overflow-y: auto;
+  border-right: 1px solid var(--st-line);
+  padding: 16px 18px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.st-sec-head {
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--st-label);
+  margin: 0 0 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.st-hint {
+  font-size: 10.5px;
+  color: var(--st-faint);
+  line-height: 1.5;
+  margin: 7px 0 0;
+}
+
+/* yarn palette */
+.st-yarns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.st-yarn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  border: 2px solid rgba(26, 26, 23, 0.18);
+}
+
+.st-yarn.on {
+  border-color: var(--st-ink);
+  box-shadow: 0 0 0 3px rgba(183, 24, 46, 0.28);
+}
+
+/* hat parts */
+.st-parts {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.st-part {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1.5px solid var(--st-line);
+  background: var(--st-paper);
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.st-part:hover {
+  border-color: var(--st-red);
+}
+
+.st-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid rgba(26, 26, 23, 0.25);
+  flex: none;
+}
+
+.st-part-label {
+  flex: 1;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.st-part-note {
+  font-size: 10px;
+  color: var(--st-faint);
+}
+
+/* generic controls */
+.st-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--st-muted);
+}
+
+.st-field > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.st-field b {
+  color: var(--st-ink);
+  font-weight: 800;
+}
+
+.st-field input[type='range'] {
+  width: 100%;
+  accent-color: var(--st-red);
+}
+
+.st-field select,
+.st-field input[type='text'],
+.st-field input[type='number'] {
+  border: 1.5px solid var(--st-line);
+  border-radius: 5px;
+  background: var(--st-paper);
+  padding: 7px 9px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--st-ink);
+  width: 100%;
+}
+
+.st-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.st-grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.st-chip {
+  border: 1.5px solid var(--st-line);
+  background: var(--st-paper);
+  border-radius: 5px;
+  padding: 6px 4px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--st-ink);
+  cursor: pointer;
+}
+
+.st-chip.on {
+  border-color: var(--st-red);
+  background: #f7e9eb;
+}
+
+.st-readout {
+  border: 1px dashed var(--st-line);
+  border-radius: 6px;
+  padding: 9px 10px;
+  font-size: 11.5px;
+  color: var(--st-muted);
+  line-height: 1.55;
+}
+
+.st-readout b {
+  color: var(--st-ink);
+}
+
+/* layers */
+.st-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.st-layer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid var(--st-line);
+  background: var(--st-paper);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.st-layer.on {
+  border-color: var(--st-red);
+  background: #f7e9eb;
+}
+
+.st-layer-name {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--st-ink);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0;
+}
+
+.st-icon {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 11px;
+  color: var(--st-faint);
+  font-family: inherit;
+  line-height: 1;
+}
+
+.st-icon:hover {
+  color: var(--st-ink);
+}
+
+.st-icon.danger:hover {
+  color: var(--st-red);
+}
+
+.st-layer-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1px solid rgba(26, 26, 23, 0.3);
+  flex: none;
+}
+
+.st-params {
+  border: 1px solid var(--st-line);
+  border-radius: 8px;
+  background: var(--st-paper-2);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.st-params-head {
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--st-red);
+  margin: 0;
+}
+
+/* ---------- stage ---------- */
+.st-stage {
+  min-height: 0;
+  /* The chart is far wider than the column: keep it from stretching the grid. */
+  min-width: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.st-3d {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  background: #ede7da;
+}
+
+.st-3d .scene-root,
+.st-3d #scene-root {
+  width: 100%;
+  height: 100%;
+}
+
+.st-3d-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--st-faint);
+  background: rgba(251, 248, 240, 0.82);
+  border: 1px solid var(--st-line);
+  border-radius: 999px;
+  padding: 5px 12px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.st-chartwrap {
+  min-width: 0;
+  border-top: 1px solid var(--st-line);
+  background: var(--st-paper);
+  padding: 10px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.st-chart-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.st-chart-title {
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--st-label);
+}
+
+.st-chart-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid var(--st-line);
+  background: #fff;
+  border-radius: 4px;
+}
+
+.st-chart-canvas {
+  display: block;
+  touch-action: none;
+}
+
+/* The chart is a drawing board: the readout follows the drag. */
+.st-chart-holder {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Sticky, not absolute: the chart is far wider than its scroll box, so the
+   readout has to ride along the horizontal scroll to stay on screen. */
+.st-chart-hud {
+  position: sticky;
+  left: 8px;
+  align-self: flex-start;
+  /* Overlays the last rows of the chart without taking any height of its own:
+     the negative top margin and the bottom margin cancel out, so the scroll
+     box still sizes to the canvas and never clips the stitch numbers. */
+  height: 22px;
+  line-height: 14px;
+  margin: -30px 0 8px 8px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(26, 26, 23, 0.9);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ---------- whole-stitch scale stepper ---------- */
+.st-scalerow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.st-scalerow-label {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--st-label);
+}
+
+.st-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--st-line);
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--st-paper);
+}
+
+.st-stepper b {
+  font-size: 11.5px;
+  padding: 0 7px;
+  min-width: 46px;
+  text-align: center;
+}
+
+.st-stepper button {
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 5px 8px;
+  color: var(--st-ink);
+  cursor: pointer;
+}
+
+.st-stepper button:hover:not(:disabled) {
+  background: #efe7d8;
+}
+
+.st-stepper button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* "no outline" swatch */
+.st-yarn.none {
+  background:
+    linear-gradient(
+      45deg,
+      transparent 46%,
+      var(--st-red) 46%,
+      var(--st-red) 54%,
+      transparent 54%
+    ),
+    #fff;
+}
+
+/* ---------- craft check ---------- */
+.st-craft {
+  border-top: 1px solid var(--st-line);
+  padding-top: 12px;
+}
+
+.st-craft-head {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.st-craft-pill {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 800;
+  font-size: 10.5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1.5px solid var(--st-line);
+}
+
+.st-craft-pill.lvl-ok {
+  border-color: #2f7a4f;
+  color: #2f7a4f;
+  background: #eaf5ee;
+}
+
+.st-craft-pill.lvl-error {
+  border-color: var(--st-red);
+  color: var(--st-red);
+  background: #f7e9eb;
+}
+
+.st-craft-pill.lvl-warn {
+  border-color: #b07d12;
+  color: #8a6210;
+  background: #fbf1dc;
+}
+
+.st-craft-pill.lvl-tip {
+  color: var(--st-label);
+}
+
+.st-findings {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.st-finding {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  border: 1px solid var(--st-line);
+  border-left-width: 3px;
+  border-radius: 5px;
+  padding: 7px 8px;
+  background: var(--st-paper);
+}
+
+.st-finding.lvl-error {
+  border-left-color: var(--st-red);
+}
+
+.st-finding.lvl-warn {
+  border-left-color: #b07d12;
+}
+
+.st-finding.lvl-tip {
+  border-left-color: var(--st-label);
+}
+
+.st-finding.on {
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(183, 24, 46, 0.18);
+}
+
+.st-finding-main {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.st-finding-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--st-ink);
+  line-height: 1.25;
+}
+
+.st-finding-detail {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--st-label);
+}
+
+.st-finding-fix {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  white-space: nowrap;
+}
+
+/* ---------- recipe drawer ---------- */
+.st-drawer-back {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 23, 0.35);
+  z-index: 60;
+}
+
+.st-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(560px, 96vw);
+  background: var(--st-bg);
+  border-left: 1px solid var(--st-line);
+  z-index: 61;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -30px 0 60px -40px rgba(26, 26, 23, 0.6);
+}
+
+.st-drawer-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--st-line);
+}
+
+.st-drawer-head h2 {
+  margin: 0;
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: 23px;
+}
+
+.st-drawer-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 18px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.st-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.st-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px dashed var(--st-line);
+  padding: 6px 0;
+  font-size: 13px;
+}
+
+.st-row b {
+  font-weight: 800;
+}
+
+.st-recipe {
+  white-space: pre-wrap;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--st-muted);
+  background: var(--st-paper);
+  border: 1px solid var(--st-line);
+  border-radius: 6px;
+  padding: 12px;
+  margin: 0;
+  max-height: 46vh;
+  overflow: auto;
+}
+
+.st-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.st-errors {
+  border: 1px solid var(--st-red);
+  background: #f7e9eb;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--st-red-dark);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* toast */
+.st-notice {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  background: var(--st-ink);
+  color: var(--st-paper);
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-size: 12.5px;
+  font-weight: 700;
+  z-index: 70;
+  box-shadow: 0 18px 30px -18px rgba(26, 26, 23, 0.8);
+}
+
+/* ---------- templates popover ---------- */
+.st-pop {
+  position: absolute;
+  top: 48px;
+  right: 12px;
+  z-index: 50;
+  background: var(--st-paper);
+  border: 1px solid var(--st-line);
+  border-radius: 10px;
+  padding: 10px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: 0 24px 40px -28px rgba(26, 26, 23, 0.7);
+}
+
+.st-pop-head {
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--st-label);
+  margin: 2px 2px 4px;
+}
+
+.st-pop button {
+  border: 1px solid var(--st-line);
+  background: var(--st-bg);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--st-ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.st-pop button:hover {
+  border-color: var(--st-red);
+}
+
+.st-barwrap {
+  position: relative;
+  flex: none;
+}
+
+/* ---------- narrow screens ---------- */
+@media (max-width: 940px) {
+  /* Phone: the hat comes first, the controls scroll underneath it. */
+  /* Flex column, not grid: auto grid rows shrink proportionally inside a
+     fixed-height container, which squeezed the stage under the rail. */
+  .st-body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .st-body > * {
+    flex: none;
+  }
+
+  .st-body > * {
+    min-width: 0;
+  }
+
+  .st-stage {
+    order: 0;
+    display: block;
+  }
+
+  .st-rail {
+    order: 1;
+    border-right: none;
+    border-top: 1px solid var(--st-line);
+    overflow: visible;
+    padding: 14px 16px 60px;
+  }
+
+  .st-3d {
+    height: 42vh;
+    min-height: 260px;
+  }
+
+  .st-chartwrap {
+    padding: 10px 12px 12px;
+  }
+
+  .st-bar {
+    height: auto;
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    gap: 6px;
+  }
+
+  .st-bar-sub {
+    display: none;
+  }
+
+  .st-bar-spacer {
+    display: none;
+  }
+
+  .st-btn {
+    padding: 7px 10px;
+    font-size: 11.5px;
+  }
+
+  .st-drawer {
+    width: 100%;
+  }
+}
+
+@media print {
+  .st-bar,
+  .st-body,
+  .st-drawer-back {
+    display: none !important;
+  }
+
+  .st-drawer {
+    position: static;
+    width: auto;
+    box-shadow: none;
+    border: none;
+  }
+
+  .st-recipe {
+    max-height: none;
+    color: #000;
+  }
+}
+
+/* ---------- creative assist ---------- */
+.st-assist {
+  border-bottom: 1px solid var(--st-line);
+  padding-bottom: 16px;
+}
+
+.st-brief {
+  width: 100%;
+  border: 1.5px solid var(--st-line);
+  border-radius: 6px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 12.5px;
+  line-height: 1.45;
+  padding: 8px 9px;
+  resize: vertical;
+  color: var(--st-ink);
+}
+
+.st-brief:focus {
+  outline: none;
+  border-color: var(--st-red);
+}
+
+.st-assist-run {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.st-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.st-example {
+  border: 1px dashed var(--st-line);
+  background: transparent;
+  border-radius: 5px;
+  padding: 6px 8px;
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--st-label);
+  text-align: left;
+  cursor: pointer;
+}
+
+.st-example:hover {
+  border-style: solid;
+  color: var(--st-ink);
+  background: #fff;
+}
+
+.st-variations {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.st-variation {
+  border: 1.5px solid var(--st-line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 7px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  overflow: hidden;
+  font-family: inherit;
+}
+
+.st-variation:hover {
+  border-color: var(--st-red);
+  box-shadow: 0 2px 10px rgba(26, 26, 23, 0.1);
+}
+
+.st-mini {
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  border: 1px solid var(--st-line);
+  border-radius: 2px;
+}
+
+.st-variation-name {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--st-ink);
+}
+
+.st-variation-note {
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--st-label);
+  text-align: left;
+}
+
+.st-remixes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.st-remixes .st-chip {
+  padding: 5px 9px;
+  flex: none;
+}
+
+/* ---------- shapes ---------- */
+.st-shapes {
+  border-top: 1px solid var(--st-line);
+  padding-top: 12px;
+}
+
+.st-shapecats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 8px 0;
+}
+
+.st-shapecats .st-chip {
+  padding: 4px 8px;
+  font-size: 10.5px;
+}
+
+.st-shapegrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(66px, 1fr));
+  gap: 5px;
+}
+
+.st-shapebtn {
+  border: 1.5px solid var(--st-line);
+  border-radius: 5px;
+  background: var(--st-paper);
+  padding: 5px 3px 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-family: inherit;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--st-label);
+  line-height: 1.15;
+  text-align: center;
+}
+
+.st-shapebtn:hover {
+  border-color: var(--st-red);
+  background: #fff;
+  color: var(--st-ink);
+}
+
+.st-shapebtn canvas {
+  image-rendering: pixelated;
+}
+
+.st-yarn.small {
+  width: 20px;
+  height: 20px;
+  border-width: 1.5px;
+}
+
+.st-yarn.small.on {
+  box-shadow: 0 0 0 2px rgba(183, 24, 46, 0.28);
+}
+
+/* ---------- contextual action bar ---------- */
+.st-actionbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 0 2px;
+}
+
+.st-actionbar.empty {
+  font-size: 11px;
+  color: var(--st-label);
+  padding: 8px 0 4px;
+}
+
+.st-action {
+  border: 1.5px solid var(--st-line);
+  background: var(--st-paper);
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--st-ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.st-action:hover {
+  border-color: var(--st-red);
+  background: #fff;
+}
+
+.st-action.on {
+  border-color: var(--st-red);
+  background: #f7e9eb;
+}
+
+/* ---------- mode: the one thing you must never have to remember ---------- */
+.st-modes {
+  display: inline-flex;
+  border: 1.5px solid var(--st-line);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--st-paper);
+}
+
+.st-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--st-label);
+  padding: 5px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.st-mode:hover {
+  color: var(--st-ink);
+}
+
+.st-mode.on {
+  background: var(--st-ink);
+  color: #fff;
+}
+
+.st-modes.mode-brush .st-mode.on,
+.st-modes.mode-erase .st-mode.on {
+  background: var(--st-red);
+}
+
+.st-mode-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 1px rgba(26, 26, 23, 0.25);
+}
+
+.st-mode-dot.erase {
+  background:
+    linear-gradient(
+      45deg,
+      transparent 42%,
+      #fff 42%,
+      #fff 58%,
+      transparent 58%
+    ),
+    #8a8070;
+}
+
+/* A painting mode is announced, and the chart itself changes colour. */
+.st-modebanner {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: #fff;
+  background: var(--st-red);
+  border-radius: 5px;
+  padding: 6px 10px;
+  margin: 6px 0 2px;
+}
+
+.st-modebanner b {
+  font-weight: 800;
+}
+
+.st-chart-scroll.mode-brush,
+.st-chart-scroll.mode-erase {
+  border-color: var(--st-red);
+  box-shadow: 0 0 0 2px rgba(183, 24, 46, 0.16);
+}
+
+/* ---------- the whole hat, round by round ---------- */
+.st-fullwrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px 10px;
+  background: #fff;
+}
+
+.st-fullchart {
+  align-self: center;
+}
+
+.st-fulllegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-self: center;
+  max-width: 100%;
+}
+
+.st-phase {
+  font-size: 10.5px;
+  color: var(--st-label);
+  white-space: nowrap;
+}
+
+.st-phase b {
+  font-weight: 800;
+  color: var(--st-ink);
+}
+
+.st-phase.text b {
+  color: var(--st-red);
+}
+
+.st-phase.note {
+  font-style: italic;
+}

@@ -12,11 +12,12 @@ import ConfettiBurst from './components/ConfettiBurst';
 import MobileDock from './components/MobileDock';
 import RecipeSheet from './components/RecipeSheet';
 import LanguageSwitcher from './components/LanguageSwitcher';
-import { useApp, getModel } from './store';
+import { useApp, getModel, getActivePatternId } from './store';
 import { useDeviceClass, useNeedsMobileDock } from './hooks/useDeviceClass';
 import { hasSavedProgress, isHeleneEntry } from './lib/entry';
 import { isPreHatStep } from './lib/guideMode';
 import { t } from './i18n/ui';
+import { welcomeCopy } from './data/guideCopy';
 
 function HomeIcon() {
   return (
@@ -49,11 +50,11 @@ function MenuIcon() {
 function TopBar() {
   const locale = useApp((s) => s.locale);
   const ui = t(locale);
+  const brand = welcomeCopy(getActivePatternId(), locale);
   const chartOpen = useApp((s) => s.chartOpen);
   const setChartOpen = useApp((s) => s.setChartOpen);
   const setCheatOpen = useApp((s) => s.setCheatOpen);
   const setTroubleOpen = useApp((s) => s.setTroubleOpen);
-  const setWelcomeDone = useApp((s) => s.setWelcomeDone);
   const setSchoolOpen = useApp((s) => s.setSchoolOpen);
   const schoolOpen = useApp((s) => s.schoolOpen);
   const showNumbers = useApp((s) => s.showNumbers);
@@ -92,8 +93,8 @@ function TopBar() {
           <span style={{ background: '#00205B' }} />
         </div>
         {/* Desktop keeps full line; phone/portrait uses short brand for space */}
-        <span className="kicker kicker-full">{ui.brandWelcome}</span>
-        <span className="kicker kicker-short">{ui.brandKicker}</span>
+        <span className="kicker kicker-full">{brand.brandWelcome}</span>
+        <span className="kicker kicker-short">{brand.brandKicker}</span>
       </div>
 
       <div className="topbar-tools" ref={toolsRef}>
@@ -102,7 +103,10 @@ function TopBar() {
         <button
           type="button"
           className="icon-btn"
-          onClick={() => setWelcomeDone(false)}
+          onClick={() => {
+            // Platform home: leave the guide for the pattern gallery.
+            window.location.href = '/oppskrifter';
+          }}
           title={ui.homeTitle}
           aria-label={ui.homeTitle}
         >
@@ -377,6 +381,13 @@ export default function App() {
         }
       },
       setCursor: (n: number) => useApp.getState().setStitchCursor(n),
+      setViewMode: (v: 'finished' | 'working') => {
+        const st = useApp.getState();
+        st.setViewMode(v);
+        st.setShowFinished(v === 'finished');
+        if (v === 'finished') st.setAutoRotate(true);
+        else st.setAutoRotate(false);
+      },
       openChart: () => useApp.getState().setChartOpen(true),
       closeOverlays: () => {
         const st = useApp.getState();
