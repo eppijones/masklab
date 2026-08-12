@@ -35,7 +35,7 @@ export const NORWAY26_WHITE = buildNorwayKit({
     spread: 5,
     // Thick, thin, thick — the alternating rhythm on the away shirt.
     thinEvery: 2,
-    slope: 0.72,
+    slope: 0.42,
     kinkAmp: 0.15,
     curve: 0.1,
     tipSharp: 0.7,

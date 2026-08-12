@@ -103,11 +103,11 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
-      'Prematch-trøya er kolleksjonens vanskeligste: femten tette sikksakk-striper i rødt, marineblått, hvitt og lyseblått, uten ensfargede flater noe sted. Regn med fargebytter i nesten hver eneste maske — hold de passive trådene løse, ellers strammer hatten seg.',
+      'Prematch-trøya er kolleksjonens vanskeligste: seksten tette sikksakk-striper i rødt, marineblått, hvitt og lyseblått, uten ensfargede flater noe sted. Regn med fargebytter i nesten hver eneste maske — hold de passive trådene løse, ellers strammer hatten seg.',
       'Hvitt runisk NORGE foran og bak. Mønsteret går ubrutt helt ut i bremmen, og bare de to siste rundene hekles marineblå.',
     ],
     tipsEn: [
-      'The pre-match top is the hardest in the collection: fifteen tight zigzag stripes in red, navy, off-white and periwinkle, with no plain area anywhere. Expect a colour change in nearly every stitch — keep the unused strands loose or the hat will pull in.',
+      'The pre-match top is the hardest in the collection: sixteen tight zigzag stripes in red, navy, off-white and periwinkle, with no plain area anywhere. Expect a colour change in nearly every stitch — keep the unused strands loose or the hat will pull in.',
       'White runic NORGE front and back. The pattern runs unbroken all the way onto the brim, and only the last two rounds are worked in navy.',
     ],
   },

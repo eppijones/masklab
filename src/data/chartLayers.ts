@@ -247,6 +247,8 @@ function stamp(
   colOffset = 0,
   /** Fraction of cells to skip, chosen by a stable per-cell hash (0 = none). */
   dither = 0,
+  /** When set, only overwrite cells that currently hold this colour. */
+  onlyOver?: YarnColor,
 ): void {
   for (let r = 0; r < p.mask.length; r++) {
     const dr = p.row + rowOffset + r;
@@ -260,6 +262,7 @@ function stamp(
       // repeated wordmark must not inherit the first copy's holes, or the two
       // sides of the hat wear the same broken outline in the same places.
       if (dither > 0 && hash2(0x9e37, dr, dc) < dither) continue;
+      if (onlyOver !== undefined && dest[dr][dc] !== onlyOver) continue;
       dest[dr][dc] = color;
     }
   }
@@ -280,6 +283,34 @@ function paintTextLayer(
     const haloDither = Math.min(0.8, Math.max(0, layer.haloDither ?? 0));
     for (const p of textPlacements(layer, cols)) {
       if (halo) {
+        /**
+         * TWO RINGS, AND THE OUTER ONE IS PICKY.
+         *
+         * One stitch of ground is enough to hold a letter apart from the field
+         * — as long as what it is being held apart FROM is a different colour.
+         * Where a kit strokes its field in the same yarn as its type, and three
+         * of the five do, a stroke arriving one stitch away merges with the
+         * letter and NORGE stops reading: Keeper was the only kit that stayed
+         * crisp, because black is its type and nothing else on the hat.
+         *
+         * So the inner ring is one stitch of ground against everything, which
+         * keeps the field running right up to the letters and through the gaps
+         * between them; and the outer ring is a second stitch that only clears
+         * cells already holding the TYPE's own colour. Contrasting strokes come
+         * as close as they like. Same-coloured ones are held back one further,
+         * which is exactly where the ambiguity was.
+         */
+        stamp(
+          { ...p, mask: dilate(p.mask, haloW + 1) },
+          halo,
+          cols,
+          rows,
+          dest,
+          -(haloW + 1),
+          -(haloW + 1),
+          haloDither,
+          layer.colorId,
+        );
         stamp(
           { ...p, mask: dilate(p.mask, haloW) },
           halo,

@@ -89,7 +89,7 @@ export const CATALOG: CatalogEntry[] = [
     name: "NORWAY'26 · Trening",
     collection: 'norway26',
     difficulty: 'avansert',
-    desc: 'Prematch-trøya, dekket fra topp til kant: femten tette sikksakk-striper i rødt, marineblått, hvitt og lyseblått — ingen ensfargede flater noe sted. NORGE i stigende hvit runisk kursiv, to marineblå kantrunder. Kolleksjonens vanskeligste.',
+    desc: 'Prematch-trøya, dekket fra topp til kant: seksten tette sikksakk-striper i rødt, marineblått, hvitt og lyseblått — ingen ensfargede flater noe sted. NORGE i stigende hvit runisk kursiv, to marineblå kantrunder. Kolleksjonens vanskeligste.',
     colors: ['red', 'blue', 'white', 'lightblue'],
     hook: '4,0 mm',
     time: '6–8 t',

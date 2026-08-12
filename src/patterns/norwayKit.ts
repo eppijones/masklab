@@ -175,10 +175,20 @@ function fieldParams(
     // anywhere and the hat is meant to be the hard one. Every bundle runs the
     // whole height, crown centre → wall → rim, so the hat reads as one gesture.
     count: field.count ?? 13,
-    // ~51° off vertical at the default: a stitch is 1 wide and 0.85 tall, so
-    // the drawn angle is atan(slope / 0.85). 2.4 used to give a near-horizontal
-    // 70°. Per kit from here — five hats, five gestures.
-    slope: field.slope ?? 1.05,
+    /**
+     * ~35° off vertical at the default: a stitch is 1 wide and 0.85 tall, so
+     * the drawn angle is atan(slope / 0.85). 2.4 used to give a near-horizontal
+     * 70°, and 1.05 about 51°.
+     *
+     * STEEP ENOUGH TO STAY ONE LINE. The wordmark and its contour cover most of
+     * the wall, so a stripe crossing it only survives in the gaps between
+     * letters. A shallow stripe meets a different letter on every row and comes
+     * out as scattered marks that happen to share a colour; a steep one falls
+     * through the same channel for several rows running, so the eye joins it up
+     * — crown, wall, brim, one line. Per kit from here, but the whole range
+     * moved down.
+     */
+    slope: field.slope ?? 0.6,
     /**
      * MANY THIN STRIPES, NOT A FEW THICK BUNDLES.
      *
@@ -288,7 +298,7 @@ export function buildNorwayKit(spec: NorwayKitSpec): PatternDefinition {
          * passes behind the word the way it does on the shirt.
          */
         haloColorId: spec.ground,
-        haloWidth: 2,
+        haloWidth: 1,
         haloDither: 0,
       },
     ],

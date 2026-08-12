@@ -24,15 +24,15 @@ export const NORWAY26_BLACK = buildNorwayKit({
   field: {
     seed: 7,
     strokes: ['white'],
-    count: 8,
-    width: 1.0,
-    companions: 2,
+    count: 6,
+    width: 0.95,
+    companions: 1,
     // Everything here is white on black, so the companions need real air
     // around them to stay legible as separate marks.
     spread: 5,
     /** Short companions: the marks read as broken, not as ruled tramlines. */
     lenMin: 0.42,
-    slope: 0.85,
+    slope: 0.52,
     curve: 0.4,
     kinkAmp: 0.25,
   },

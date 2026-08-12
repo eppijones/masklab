@@ -35,7 +35,7 @@ export const NORWAY26_KEEPER = buildNorwayKit({
     strokes: ['gold', 'orange', 'pink', 'gold', 'orange'],
     count: 12,
     width: 1.05,
-    slope: 1.45,
+    slope: 0.82,
     kinkAmp: 0.7,
     curve: 0.16,
   },
