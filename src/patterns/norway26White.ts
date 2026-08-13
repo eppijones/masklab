@@ -3,20 +3,20 @@ import { buildNorwayKit } from './norwayKit';
 /**
  * NORWAY'26 — Hvit (away).
  *
- * Off-white ground with navy bundles falling from the crown and light blue
- * running with them. Navy NORGE front and back — and the shirt's red collar
- * trim taken all the way round the finish: three red rings and a two-round red
- * rim, which is the only thing that frames an off-white hat.
+ * Warm white ground, dark navy NORGE, navy and light blue falling from the
+ * crown — and the shirt's red collar trim taken to the finish as a two-round
+ * red rim.
  *
- * LIGHT BLUE IS A PARTNER, NOT AN ACCENT. It used to be one ink in four, which
- * on a white ground is invisible: navy is so much darker that a single
- * periwinkle stroke in the bundle just reads as a navy one that has faded. At
- * an even share it separates the bundles into two depths and the field gets the
- * dimension the away shirt has.
+ * THE CLEANEST ONE, AND THE MOST NEGATIVE SPACE. Eight bundle positions where
+ * Drakt runs ten and Trening twelve, at the widest spread in the collection: on
+ * a white ground the eye reads the gaps as much as the strokes, and crowding
+ * them is what turns an away kit into a grey one.
  *
- * The most upright gesture in the collection — a low `slope` and almost no
- * kink, so the strokes fall nearly straight down the hat. Against Trening's
- * jagged noise and Keeper's flat zigzag, this one is the calm one.
+ * RED IS PUNCTUATION, NOT A FIELD. It takes one turn in five in the rotation
+ * against navy's two, so it arrives as a single stroke through a corridor
+ * rather than as a colour the hat is made of. Light blue stays a full partner —
+ * at one turn in four it was invisible, because next to navy on white a lone
+ * periwinkle stroke just reads as navy that has faded.
  */
 export const NORWAY26_WHITE = buildNorwayKit({
   id: 'norway26-white',
@@ -28,16 +28,29 @@ export const NORWAY26_WHITE = buildNorwayKit({
   edge: 'red',
   field: {
     seed: 2015,
-    strokes: ['blue', 'lightblue', 'blue', 'lightblue'],
-    count: 11,
+    strokes: ['blue', 'lightblue', 'blue', 'lightblue', 'red'],
+    count: 8,
+    width: 1.45,
     // Wide spread: navy and periwinkle read as one mass when they touch, so the
     // stripes need air between them to stay two colours.
-    spread: 5,
-    // Thick, thin, thick — the alternating rhythm on the away shirt.
-    thinEvery: 2,
-    slope: 0.42,
-    kinkAmp: 0.15,
-    curve: 0.1,
-    tipSharp: 0.7,
+    spread: 5.4,
+    /**
+     * THE ZIGZAG, AT HVIT'S OWN VOLUME.
+     *
+     * This kit used to run the most upright gesture of the five — `kinkAmp` at
+     * 0.15, `curve` at 0.1, which is a ruled line with a wobble in it — and next
+     * to Trening and Keeper it read as banding rather than as a graphic. The
+     * kink is the collection's shape, so Hvit carries it too.
+     *
+     * What stays Hvit's is everything around it: eight bundles rather than
+     * twelve, the widest spread in the collection, and red still taking one turn
+     * in five. The zigzag arrives on plenty of white ground instead of covering
+     * it, which is the difference between an away kit and a grey one.
+     */
+    slope: 0.3,
+    kinkRows: 6,
+    kinkAmp: 0.6,
+    curve: 0.24,
+    tipSharp: 0.35,
   },
 });

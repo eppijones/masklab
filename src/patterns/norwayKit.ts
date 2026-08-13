@@ -1,8 +1,9 @@
 import type { PatternDefinition, PatternId } from './types';
-import type { ChartLayer } from '../data/chartLayers';
+import type { ChartLayer, TextLayer } from '../data/chartLayers';
 import type { YarnColor } from '../data/types';
 import { YARN_HEX, YARN_NAME } from '../data/types';
 import { emptyOverride } from '../data/chartLayers';
+import { keepOutFromTextPlacement } from '../data/textKeepOut';
 
 /**
  * NORWAY'26 — the MASKLAB collection for the 2026 national-team kit.
@@ -20,6 +21,26 @@ import { emptyOverride } from '../data/chartLayers';
  * dense chevron from being Drakt in red. The field params are shared between
  * the wall motif layer and the crown resolver, so a stroke runs unbroken from
  * the crown centre, down the wall, and out to the last two rounds.
+ *
+ * ── THE WALL, READ ROUND THE HAT ────────────────────────────────────────────
+ *
+ *   [ NORGE, on clean ground ] [ corridor ] [ NORGE ] [ corridor ]
+ *          36 stitches            12              36        12
+ *
+ * The wordmark is set in «NorgeKursiv26», italic, with two-stitch uprights and
+ * one-stitch bars, and the field is SUBTRACTED from its footprint — letters,
+ * counters, the gaps between letters, a stitch of margin, and one round above
+ * and below. What is left between the two copies is not slack. It is the
+ * transition corridor, and the field is deliberately aimed down it: the widest
+ * route colour has from the crown to the brim, at two places round the head.
+ * Graphic crown, lettered wall, colour breaking through at the E→N gap, graphic
+ * brim. That is the collection.
+ *
+ * The panel no longer runs the full height of the wall. It stops one round
+ * above the letters and one below, and its lower edge FOLLOWS them — see
+ * `TEXT_MERGE_ROWS`. So the field also crosses the word's own columns, top and
+ * bottom, and climbs into the open ground under the short letters. The
+ * lettering sits in the fabric rather than on it.
  */
 
 /**
@@ -30,37 +51,118 @@ import { emptyOverride } from '../data/chartLayers';
  */
 export const NORWAY_BAND_ROWS = 14;
 /**
- * Baseline row of the word — the row the FIRST letter stands on, since the rest
- * climb above it.
+ * Top row of the ten-row wordmark block.
  *
- * «Norge26» is ten rows and the climb adds two, so the block is twelve and the
- * two-stitch contour needs a wall of fourteen. That is a taller hat than the
- * flat cut, and it is the trade the climb costs: a rising baseline is the one
- * thing that makes a sports wordmark look drawn rather than typed, and there
- * is nowhere to put it but rows.
+ * Two rows of wall above it and two below, which is what makes the arithmetic
+ * of the protected panel come out exactly at the wall: see `TEXT_ROW_MARGIN`.
+ * The wall stays fourteen rows — the published stitch count of every hat in the
+ * collection — and the face was drawn to fit that, rather than the wall being
+ * grown to fit a face.
  */
-const TEXT_ROW = 3;
+const TEXT_ROW = 2;
 /**
- * Rows the baseline climbs per stitch travelled right.
+ * ITALIC, BUT NOT SHEARED HERE. AND STILL NO CLIMB.
  *
- * The step is taken per GLYPH — a whole letter is what stands on a baseline —
- * so over the 46-stitch run this spends its two rows as a staircase across the
- * five letters rather than tilting them individually.
+ * The lean is back — it is what the collection wanted all along — but it is
+ * drawn into «NorgeKursiv26» as an explicit staircase rather than applied
+ * downstream, so `slantDeg` stays at ZERO and must. Shearing an already-italic
+ * face would lean it twice, and the second lean would be the `round(tan θ)`
+ * one: it steps wherever the arithmetic tips, which on the last italic cut was
+ * straight through N's diagonal and R's leg. That is the whole of «the
+ * letterforms are inconsistent, some strokes feel thin while others feel
+ * heavy», and it is why the previous pass gave up on the italic instead of
+ * fixing it. The fix was the staircase, not the upright.
+ *
+ * The climb stays gone, and for its own reason. A rising baseline is drawn per
+ * glyph, so the block grows two rows and the protected panel has to become a
+ * parallelogram approximating a staircase with a continuous slope — the ±1 row
+ * of disagreement between the two is precisely where accent colour used to land
+ * against the letters. Flat, the panel tracks the letters exactly, which is what
+ * `mergeRows` below now depends on.
  */
-const TEXT_RISE = 0.065;
+const TEXT_RISE = 0;
+const TEXT_SLANT_DEG = 0;
 /**
- * The italic, and the one thing that has to travel with it.
- *
- * 24° moves the cap line four columns right of the baseline over the ten rows
- * of the face. `slantRepair` bridges the shear's rounding step so the runic
- * diagonals — the lozenge O worst of all — stay in one piece; without it NORGE
- * shears into loose cells and reads as a zigzag rather than a word.
+ * One stitch. The sidebearings are drawn into the cells of «NorgeDisplay26», so
+ * this is a gap between letters and not a substitute for one — at 0 the bowls
+ * touch, at 2 the word runs to forty-three stitches and the corridor is gone.
  */
-const TEXT_SLANT_DEG = 24;
+const TEXT_LETTER_SPACING = 1;
 /** Front of the hat, as a fraction of the circumference. */
 const TEXT_CENTER_FRAC = 0.095;
 /** Wordmark copies around the hat (front + back). */
 const TEXT_REPEAT = 2;
+/**
+ * Stitches of clean ground beyond the word's ink, and rows above and below it.
+ *
+ * ONE STITCH SIDEWAYS, AND IT IS NOT MEANNESS. The panel is a hard mask, so a
+ * stitch of margin puts the nearest cell the field can reach two stitches from
+ * the nearest ink — and every stitch added here costs TWO from each transition
+ * corridor, which at 39 stitches of word on a 100-stitch hat is the difference
+ * between a corridor the pattern can run down and a seam.
+ *
+ * ONE ROW VERTICALLY, WHICH IS NO LONGER THE WHOLE WALL — AND THAT IS THE
+ * POINT.
+ *
+ * It was two, and two rows of margin under a ten-row word at row 2 of fourteen
+ * came to exactly the height of the wall: the panel ran edge to edge, and the
+ * field could not cross the word's columns anywhere. The wall was calm where the
+ * word was and busy where it was not, with a hard vertical seam between the two.
+ * Read on the hat rather than on the chart, that is a label laid over the hat.
+ * Nothing in the fabric ever reached the lettering.
+ *
+ * Nine rows of letter at row 2 with ONE row of margin protects rows 1–11, so the
+ * top round of the wall and the last two before the fold are the field's, right
+ * through the word's own columns. One clear round above the letters and one
+ * below, and then the pattern. `TEXT_MERGE_ROWS` does the rest.
+ */
+const TEXT_MARGIN = 1;
+const TEXT_ROW_MARGIN = 1;
+/**
+ * How far the field may climb past that clean round, where the letters leave
+ * room for it.
+ *
+ * The margin above is a straight line; this is what makes the line ragged. Under
+ * the open half of an R, in the gap between two letters, under the tail of a G —
+ * wherever a column's own ink stops early — the field comes up two rounds
+ * further than the straight edge would allow, and the stripes and the lettering
+ * visibly interlock instead of meeting at a seam.
+ *
+ * TWO. At one the raggedness is not readable as anything; it is just an
+ * irregular edge. At three a stroke arrives beside the letters at letter height
+ * and starts tying one letter to the next, which is the exact fault the
+ * protected panel exists to stop — colour in the counter of the O, an accent
+ * stitch bridging the R and the G. Two rounds is the whole usable range, and it
+ * is clamped per column so a letter gap can never open further than a short
+ * letter does.
+ */
+const TEXT_MERGE_ROWS = 2;
+/**
+ * Where the transition corridor is, as a fraction of the circumference.
+ *
+ * Two copies of the word sit half a circumference apart, so the gaps between
+ * them sit a quarter turn from each word's centre. This is the number the field
+ * is aimed at — see `anchorFrac` in `buildSlashes`.
+ */
+const CORRIDOR_CENTER_FRAC = TEXT_CENTER_FRAC + 1 / (2 * TEXT_REPEAT);
+/**
+ * The row the corridor lock is solved at: the middle of the wall.
+ *
+ * Not the crown and not the brim. A stroke drifts as it falls, so it can only
+ * be pinned at one depth, and the depth that matters is the one where the gap
+ * between the two words is narrowest in the eye — level with the letters. Pin
+ * it at the crown instead and the stroke has drifted into the back of the E by
+ * the time it reaches the wall.
+ */
+const CORRIDOR_ANCHOR_ROW = (NORWAY_BAND_ROWS - 1) / 2;
+/**
+ * NOTHING NARROWER THAN TWO STITCHES. The strokes used to feather away at the
+ * tips through every width between full and nothing, and the widths under a
+ * stitch are not a soft edge in yarn — they are a yarn change for one stitch.
+ * This is the structural version of «remove single-stitch noise»: not a cap on
+ * how many are tolerated, but a floor under the width so they are never drawn.
+ */
+const FIELD_MIN_HALF_W = 0.9;
 /**
  * Solid rounds at the very rim, counting the final round — the ONLY coloured
  * rounds on the brim.
@@ -108,6 +210,8 @@ export interface NorwayFieldSpec {
   curve?: number;
   /** Depth of the staircase kink, in stitches (default 0.4). */
   kinkAmp?: number;
+  /** Rows per zigzag leg (default 8). Shorter is tighter, not smaller. */
+  kinkRows?: number;
   /**
    * How sharply the ends come to a point (default 0.45). Lower is blunter — the
    * stroke keeps its width almost to the tip.
@@ -130,8 +234,96 @@ export interface NorwayKitSpec {
   field?: NorwayFieldSpec;
 }
 
+/**
+ * The NORGE wordmark layer — identical on all seven hats but for its colour.
+ *
+ * One function, and the whole of §2: same face, same size, same spacing, same
+ * upright setting, same placement, same repeat. A kit chooses the yarn and
+ * nothing else, which is what makes the collection read as a collection rather
+ * than as seven hats that happen to say the same word.
+ *
+ * NO HALO. The wordmark used to be ringed in the ground colour, one stitch of
+ * it against everything and a second stitch against strokes in the type's own
+ * yarn, because the field ran right up to the letters and something had to hold
+ * it off. Nothing runs up to the letters now — the protected panel below takes
+ * the field out of the word's whole footprint — so a contour would be a ring of
+ * ground drawn on ground. It reads because the face is heavy, the colour
+ * contrasts, and the panel is clean; that is §12, and it is the right way round.
+ */
+export function norgeWordmark(colorId: YarnColor): TextLayer {
+  return {
+    kind: 'text',
+    id: 'norge-wordmark',
+    text: 'NORGE',
+    fontId: NORGE_TEXT.fontId,
+    slantDeg: NORGE_TEXT.slantDeg,
+    anchor: { row: NORGE_TEXT.row, col: 0 },
+    centerFrac: NORGE_TEXT.centerFrac,
+    repeat: NORGE_TEXT.repeat,
+    colorId,
+    mirror: false,
+    letterSpacing: NORGE_TEXT.letterSpacing,
+    rise: NORGE_TEXT.rise,
+  };
+}
+
+/**
+ * The collection's typographic settings, in one object, so «the same NORGE
+ * lettering system on all seven hats» is a thing that can be READ rather than a
+ * thing seven files are trusted to have copied correctly. The two draft hats in
+ * `scripts/proto-masklab.ts` build their wordmarks from it, and `validate.ts`
+ * checks every hat against it.
+ */
+export const NORGE_TEXT = {
+  fontId: 'norgeKursiv26',
+  slantDeg: TEXT_SLANT_DEG,
+  rise: TEXT_RISE,
+  letterSpacing: TEXT_LETTER_SPACING,
+  centerFrac: TEXT_CENTER_FRAC,
+  repeat: TEXT_REPEAT,
+  row: TEXT_ROW,
+  bandRows: NORWAY_BAND_ROWS,
+} as const;
+
+/** Margins the protected panel is built with — see `TEXT_MARGIN`. */
+export const NORGE_KEEP_OUT = {
+  margin: TEXT_MARGIN,
+  rowMargin: TEXT_ROW_MARGIN,
+  mergeRows: TEXT_MERGE_ROWS,
+} as const;
+
+/**
+ * Everything a field has to be told about the wordmark standing in front of it:
+ * the panel to keep out of, the corridor to aim down, and the floor under its
+ * stroke widths.
+ *
+ * ONE FUNCTION, SEVEN HATS. This is the piece that stops the collection being
+ * seven configurations of the same idea that drift apart — the five kits get it
+ * through `fieldParams`, the two drafts spread it straight into their own field
+ * params, and none of them can have a slightly different notion of where the
+ * word is or how wide the gap between the words should be.
+ */
+export function norgeFieldProtection(
+  wordmark: TextLayer,
+): Record<string, number | string | boolean> {
+  return {
+    ...keepOutFromTextPlacement(wordmark, NORGE_KEEP_OUT),
+    anchorFrac: CORRIDOR_CENTER_FRAC,
+    anchorV: CORRIDOR_ANCHOR_ROW,
+    minHalfW: FIELD_MIN_HALF_W,
+    /**
+     * The mask cuts strokes, and a cut stroke can leave one stitch stranded in
+     * the corridor. `pruneSingleCells` clears those; it belongs here rather
+     * than in the motif's defaults because it is a consequence of masking a
+     * wordmark out of a field, which is a thing only these seven hats do.
+     */
+    pruneSingles: true,
+  };
+}
+
 function fieldParams(
   field: NorwayFieldSpec,
+  wordmark: TextLayer,
 ): Record<string, number | string | boolean> {
   return {
     seed: field.seed,
@@ -166,49 +358,106 @@ function fieldParams(
      */
     crownFieldMinCount: 20,
 
+    /**
+     * THE WORDMARK GETS CLEAN GROUND, AND THE WORDMARK IS WHAT SAYS SO.
+     *
+     * Every one of these numbers used to be typed in — «half the 46-stitch
+     * wordmark, plus a stitch of air» — and every one of them was a guess
+     * against a word whose width nobody had measured since the face last
+     * changed. That is the whole of the fault: the panel and the word were two
+     * independent opinions about where NORGE is, and where they disagreed the
+     * field arrived. Colour inside the counter of the O, an accent stitch in the
+     * gap between R and G tying the two letters together, and five letters that
+     * had stopped being five letters.
+     *
+     * `keepOutFromTextPlacement` reads the panel off `textPiece` — the same
+     * function that puts the ink on the chart. Face, spacing, scale, weight,
+     * shear and climb are all resolved before it measures, so there is no
+     * second opinion left to disagree with. Change the font and the panel
+     * changes; there is nothing here to keep in step by hand.
+     *
+     * WHAT IT PROTECTS is the word's whole footprint — the strokes, every
+     * counter, every gap from the N to the E, a stitch of margin round the
+     * outside, and the full height of the wall. WHAT IT DOES NOT PROTECT is the
+     * gap between one copy of the word and the next. That gap is the design.
+     *
+     * AND THE FIELD IS AIMED AT IT.
+     *
+     * With the wall masked over both wordmarks, the corridors either side are
+     * the only route a stroke has from the crown to the brim — so the hat
+     * either reads as one gesture running top to bottom through them, or as a
+     * patterned crown and a patterned brim with a lettered band stuck between.
+     * Which of the two you got was, until now, down to where the seed happened
+     * to drop a bundle. `anchorFrac` aims a core through the corridor's centre
+     * at the middle row of the wall and rotates the whole ring to suit.
+     */
+    ...norgeFieldProtection(wordmark),
+
     // ---- Bundle geometry ----
-    // Bundle positions round the hat, each a core plus thinner companions at
-    // irregular gaps in the other inks. FOUR is the default and it is a
-    // deliberate one: a bundle needs a clear run of ground on either side of
-    // it, or the field closes up and reads as camouflage. Trening is the
-    // exception at nine, because the shirt it comes from has no ground showing
-    // anywhere and the hat is meant to be the hard one. Every bundle runs the
-    // whole height, crown centre → wall → rim, so the hat reads as one gesture.
-    count: field.count ?? 13,
     /**
-     * ~35° off vertical at the default: a stitch is 1 wide and 0.85 tall, so
+     * Bundle positions round the hat, each a core plus thinner companions at
+     * irregular gaps in the other inks. Every bundle runs the whole height,
+     * crown centre → wall → rim, so the hat reads as one gesture.
+     *
+     * ALWAYS EVEN, AND THE FACTORY ENFORCES IT RATHER THAN TRUSTING IT. An odd
+     * count puts a core through one transition corridor and nothing through the
+     * other, so one side of the head gets the design and the other gets a plain
+     * seam — and it is invisible in any single photograph, which is exactly the
+     * kind of fault that ships. Rounding up costs one more stroke; getting it
+     * wrong costs half the hat.
+     */
+    count: evenCount(field.count ?? 12),
+    /**
+     * ~19° off vertical at the default: a stitch is 1 wide and 0.85 tall, so
      * the drawn angle is atan(slope / 0.85). 2.4 used to give a near-horizontal
-     * 70°, and 1.05 about 51°.
+     * 70°, 1.05 about 51°, and 0.6 about 35°.
      *
-     * STEEP ENOUGH TO STAY ONE LINE. The wordmark and its contour cover most of
-     * the wall, so a stripe crossing it only survives in the gaps between
-     * letters. A shallow stripe meets a different letter on every row and comes
-     * out as scattered marks that happen to share a colour; a steep one falls
-     * through the same channel for several rows running, so the eye joins it up
-     * — crown, wall, brim, one line. Per kit from here, but the whole range
-     * moved down.
+     * THE CORRIDOR SETS THE CEILING NOW. A stroke aimed down the E→N gap is
+     * pinned at the middle row of the wall and drifts `slope` stitches per row
+     * either side of that — so over the seven rows to the crown seam it wanders
+     * 7·slope stitches sideways. The corridor is twelve wide since the wordmark
+     * went italic and the core is three, which leaves four and a half stitches
+     * of play each way, and anything past `slope ≈ 0.6` walks the stroke out of
+     * the corridor and into the masked
+     * panel before it reaches the shoulder. It does not look like a steep line
+     * when that happens; it looks like the line stopped.
+     *
+     * So the whole range moved down again, to 0.22–0.38. What the kits differ by
+     * is no longer mostly angle — it is width, count, spread, kink and curve,
+     * which is a better set of dials anyway: they change the fabric rather than
+     * just tilting it.
      */
-    slope: field.slope ?? 0.6,
+    slope: field.slope ?? 0.3,
     /**
-     * MANY THIN STRIPES, NOT A FEW THICK BUNDLES.
+     * MANY STRIPES, BUT NONE OF THEM THIN.
      *
-     * The first cut drew four positions round the hat, each a five-stitch core
-     * with three companions crowded against it at a spread of 2.4. That reads
-     * as four clusters with a lot of bare ground between them — the colour
-     * arrives in clumps, and on a hat you see one clump at a time. Thirteen
-     * positions of one- and two-stitch strokes at nearly double the spread put
-     * the same amount of ink on the hat as an even rhythm instead, so it reads
-     * as colourful from any angle rather than striped on one side and plain on
-     * the other.
+     * The rhythm stays: a dozen positions round the hat rather than four thick
+     * bundles, because four clusters read as striped on one side of the head
+     * and plain on the other. What changed is the floor. At 1.05 the core is
+     * two stitches at the belly and ONE for most of its length, and a one-stitch
+     * stroke is a yarn change per round for a mark you can barely see — the
+     * confetti this pass was asked to get rid of. At 1.3 the core is three
+     * stitches through the middle and never under two; with `minHalfW` under it
+     * the companions cannot go under two either. Broad strokes, fewer of them
+     * dissolving, the same amount of colour on the hat.
      */
-    width: field.width ?? 1.05,
+    width: field.width ?? 1.3,
     widthVary: 0.15,
     thinEvery: field.thinEvery ?? 0,
     curve: field.curve ?? 0.22,
-    // Controlled kinks on the same integer staircase the diagonal-stripe motif
-    // uses — each stroke gets its own phase, so the fabric flexes without
-    // banding into one chevron.
-    kinkRows: 8,
+    /**
+     * Controlled kinks on the same integer staircase the diagonal-stripe motif
+     * uses — each stroke gets its own phase, so the fabric flexes without
+     * banding into one chevron.
+     *
+     * THE PERIOD IS PART OF THE KINK'S REACH, and per kit for that reason: a
+     * stroke wanders `kinkAmp × (kinkRows − 1)` stitches from end to end of its
+     * zigzag, so eight rows at Trening's amplitude is five stitches of travel —
+     * more than the corridor is wide, and the corridor stroke leaves it. A
+     * shorter period at the same amplitude is a TIGHTER zigzag, not a smaller
+     * one, which is also closer to what the pre-match shirt actually does.
+     */
+    kinkRows: field.kinkRows ?? 8,
     kinkAmp: field.kinkAmp ?? 0.4,
     // Pointed where it starts, at the crown centre; blunt where it leaves the
     // hat. See `tipSharpEnd` — the brim is the last quarter of every stroke's
@@ -231,8 +480,14 @@ function fieldParams(
   };
 }
 
+/** Round a bundle count up to the next even number — see `count` above. */
+function evenCount(n: number): number {
+  return 2 * Math.max(1, Math.round(n / 2));
+}
+
 export function buildNorwayKit(spec: NorwayKitSpec): PatternDefinition {
-  const params = spec.field ? fieldParams(spec.field) : null;
+  const wordmark = norgeWordmark(spec.textColor);
+  const params = spec.field ? fieldParams(spec.field, wordmark) : null;
   const motifLayers: ChartLayer[] = [];
   if (spec.field && params) {
     motifLayers.push({
@@ -256,52 +511,7 @@ export function buildNorwayKit(spec: NorwayKitSpec): PatternDefinition {
     })),
     bandRows: NORWAY_BAND_ROWS,
     background: spec.ground,
-    chartLayers: [
-      ...motifLayers,
-      {
-        kind: 'text',
-        id: 'norge-wordmark',
-        text: 'NORGE',
-        fontId: 'norge26',
-        slantDeg: TEXT_SLANT_DEG,
-        slantRepair: true,
-        anchor: { row: TEXT_ROW, col: 0 },
-        centerFrac: TEXT_CENTER_FRAC,
-        repeat: TEXT_REPEAT,
-        colorId: spec.textColor,
-        mirror: false,
-        // One column between glyphs: several terminal rows are full-width, so
-        // without it NORGE fuses into a slab.
-        letterSpacing: 2,
-        rise: TEXT_RISE,
-        /**
-         * THE CONTOUR, AND WHY IT IS NOT A HALO ANY MORE.
-         *
-         * A letter on a busy field needs a stitch of separation or the strokes
-         * run into its counters. The obvious way to get one is to ring the
-         * glyph in the ground colour — and that is what this used to do, with
-         * `haloColorId: spec.ground`. It is also what produced the fault: the
-         * ring is a solid band of GROUND, so wherever a stroke arrived at a
-         * letter it hit a clean edge of navy (or white, or yellow) and simply
-         * stopped. Five letters' worth of that, side by side, is a continuous
-         * line across the hat — the hard division between the type and the
-         * pattern. The strokes did not pass behind NORGE, they were cut off by
-         * a wordmark-shaped hole with a bright rim.
-         *
-         * `haloDither` breaks the rim. The contour is still drawn, but roughly
-         * two stitches in five are left as whatever the field already put
-         * there, chosen by a stable per-cell hash. That is enough to keep the
-         * letters legible — the separation still reads, because the eye
-         * completes an interrupted outline — while every stroke now runs INTO
-         * the letter and continues out the other side. There is no longer an
-         * unbroken edge anywhere for the eye to read as a line, so the fabric
-         * passes behind the word the way it does on the shirt.
-         */
-        haloColorId: spec.ground,
-        haloWidth: 1,
-        haloDither: 0,
-      },
-    ],
+    chartLayers: [...motifLayers, wordmark],
     chartOverride: emptyOverride(),
     /**
      * HELENE'S BREM, ROUND FOR ROUND.

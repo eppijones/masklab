@@ -12,7 +12,7 @@ const TEMPLATES: { id: Exclude<PatternId, 'custom'>; label: string }[] = [
   { id: 'ro-ro-ro', label: 'Ro det i land' },
   { id: 'flagget', label: 'Flagget til topps' },
   { id: 'martin', label: 'Vi som elsker Martin' },
-  { id: 'norway26', label: "NORWAY'26 · Drakt" },
+  { id: 'norway26', label: "NORWAY'26 · Hjemme" },
   { id: 'norway26-white', label: "NORWAY'26 · Hvit" },
   { id: 'norway26-black', label: "NORWAY'26 · Svart" },
   { id: 'norway26-training', label: "NORWAY'26 · Trening" },

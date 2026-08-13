@@ -8,6 +8,8 @@ import { FONT_TAAKEFERD } from './taakeferd';
 import { FONT_LYN } from './lyn';
 import { FONT_RUNIK } from './runik';
 import { FONT_NORGE26 } from './norge26';
+import { FONT_NORGE_DISPLAY26 } from './norgeDisplay26';
+import { FONT_NORGE_KURSIV26 } from './norgeKursiv26';
 
 export type { FontId, FontSpec } from './types';
 
@@ -21,6 +23,8 @@ const FONTS: Record<FontId, FontSpec> = {
   lyn: FONT_LYN,
   runik: FONT_RUNIK,
   norge26: FONT_NORGE26,
+  norgeDisplay26: FONT_NORGE_DISPLAY26,
+  norgeKursiv26: FONT_NORGE_KURSIV26,
 };
 
 export function getFont(id: FontId): FontSpec {

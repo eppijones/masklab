@@ -48,7 +48,15 @@ const G: Record<string, string[]> = {
   B: ['XXXX..', 'X...X.', 'X...X.', 'X...X.', 'XXXX..', 'X...X.', 'X....X', 'X....X', 'X...X.', 'XXXX..'],
   C: ['.XXXXX.', 'X.....X', 'X......', 'X......', 'X......', 'X......', 'X......', 'X......', 'X.....X', '.XXXXX.'],
   D: ['XXXXX..', 'X....X.', 'X.....X', 'X.....X', 'X.....X', 'X.....X', 'X.....X', 'X.....X', 'X....X.', 'XXXXX..'],
-  E: ['.XXXX', 'X....', 'X....', 'X....', 'XXX..', 'X....', 'X....', 'X....', 'X....', '.XXXX'],
+  /**
+   * FULL BARS. The arms used to be inset a column at top and bottom
+   * (`.XXXX`), which left the stem stopping short of both corners — so E read
+   * as a C with a nub on it, and at the end of NORGE that is the letter the
+   * eye needs most. F and L in this same face already run their bars the full
+   * width; E was the one that didn't. The middle arm gains a column with them,
+   * or a full-width top and bottom make it look bitten.
+   */
+  E: ['XXXXX', 'X....', 'X....', 'X....', 'XXXX.', 'X....', 'X....', 'X....', 'X....', 'XXXXX'],
   F: ['XXXXX', 'X....', 'X....', 'X....', 'XXXX.', 'X....', 'X....', 'X....', 'X....', 'X....'],
   G: ['.XXXX.', 'X....X', 'X.....', 'X.....', 'X.....', 'X..XXX', 'X....X', 'X....X', 'X....X', '.XXXX.'],
   H: ['X.....X', 'X.....X', 'X.....X', 'X.....X', 'XXXXXXX', 'X.....X', 'X.....X', 'X.....X', 'X.....X', 'X.....X'],
@@ -57,8 +65,33 @@ const G: Record<string, string[]> = {
   K: ['X.....X', 'X....X.', 'X...X..', 'X..X...', 'XXX....', 'X..X...', 'X...X..', 'X....X.', 'X.....X', 'X.....X'],
   L: ['X....', 'X....', 'X....', 'X....', 'X....', 'X....', 'X....', 'X....', 'X....', 'XXXXX'],
   M: ['X.....X', 'XX...XX', 'X.X.X.X', 'X..X..X', 'X.....X', 'X.....X', 'X.....X', 'X.....X', 'X.....X', 'X.....X'],
-  N: ['X....X', 'XX...X', 'XX...X', 'X.X..X', 'X.X..X', 'X..X.X', 'X..X.X', 'X...XX', 'X....X', 'X....X'],
-  O: ['...X...', '..X.X..', '.X...X.', 'X.....X', 'X.....X', 'X.....X', 'X.....X', '.X...X.', '..X.X..', '...X...'],
+  /**
+   * The diagonal now LANDS. It stepped col 1, 2, 3, 4 two rows apiece and then
+   * gave up with two rows still to go, so it stopped in mid-air a stitch short
+   * of the right stem and the letter read as a stem, a stem, and a stroke
+   * between them that belonged to neither. Four even steps, the last one
+   * meeting the stem, and the two-stitch joins at the top left and bottom right
+   * are the diagonal touching each stem — the same join at both ends, which is
+   * what makes it symmetrical instead of top-heavy.
+   */
+  N: ['X....X', 'XX...X', 'XX...X', 'X.X..X', 'X.X..X', 'X..X.X', 'X..X.X', 'X...XX', 'X...XX', 'X....X'],
+  /**
+   * STILL A LOZENGE — BUT ONE THAT SURVIVES BEING SHEARED.
+   *
+   * The lozenge is the face's signature and it stays. What had to go was the
+   * way it was built: it came to a SINGLE STITCH at the top and bottom apex,
+   * with one-stitch diagonals running away from it on both sides. Sheared 24°,
+   * that apex is the most fragile cell in the whole wordmark — `slantRepair`
+   * keeps it connected, but connected by a corner — and the shape opened into a
+   * wide, nearly empty diamond. Against a field it read as a hole with a thin
+   * outline round it, which is why the strokes behind it were so visible.
+   *
+   * Three-stitch apexes and doubled shoulders, and the counter loses a row and
+   * a column at each end. The two-stitch runs are corner JOINS, not strokes —
+   * the face's one-stitch rule is about stems, and a diagonal turning a corner
+   * needs a cell on both sides of the turn or it hinges.
+   */
+  O: ['..XXX..', '.XX.XX.', 'XX...XX', 'X.....X', 'X.....X', 'X.....X', 'X.....X', 'XX...XX', '.XX.XX.', '..XXX..'],
   P: ['XXXX..', 'X...X.', 'X...X.', 'X...X.', 'XXXX..', 'X.....', 'X.....', 'X.....', 'X.....', 'X.....'],
   Q: ['.XXXXX.', 'X.....X', 'X.....X', 'X.....X', 'X.....X', 'X.....X', 'X.....X', 'X...X.X', 'X....X.', '.XXXXXX'],
   R: ['XXXX..', 'X...X.', 'X...X.', 'X...X.', 'XXXX..', 'X.X...', 'X..X..', 'X...X.', 'X....X', 'X....X'],

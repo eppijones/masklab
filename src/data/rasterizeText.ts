@@ -95,14 +95,26 @@ export function shearMask(
   mask: boolean[][],
   slantDeg: number,
   repair = false,
+  lean?: number[],
 ): boolean[][] {
   const h = mask.length;
   if (h === 0) return mask;
   const tanSlant = Math.tan((slantDeg * Math.PI) / 180);
-  if (tanSlant === 0) return mask;
+  if (!lean?.length && tanSlant === 0) return mask;
   const w = mask[0]?.length ?? 0;
 
-  const shearOf = (r: number) => Math.round((h - 1 - r) * tanSlant);
+  /**
+   * A DRAWN lean wins over a derived one.
+   *
+   * `round` is the whole problem this escape hatch exists for: it holds an
+   * offset for a row or two and then jumps a column, wherever the arithmetic
+   * happens to tip. A face with two-stitch strokes and travelling diagonals
+   * cannot absorb a jump landing on one of its own steps — see the note under
+   * `repair`, and `norgeKursiv26.ts`, which spells its staircase out instead.
+   */
+  const shearOf = lean?.length
+    ? (r: number) => lean[Math.min(r, lean.length - 1)] ?? 0
+    : (r: number) => Math.round((h - 1 - r) * tanSlant);
   let minShear = 0;
   let maxShear = 0;
   for (let r = 0; r < h; r++) {
@@ -181,12 +193,29 @@ export function rasterizeText(
     rasterizeUpright(text, font, opts),
     opts.slantDeg,
     opts.slantRepair,
+    scaledLean(font, opts.scaleY),
   );
 }
 
+/**
+ * A drawn face's lean, stretched to match a magnified master.
+ *
+ * `lean` has one entry per MASTER row; `rasterizeUpright` has by then turned
+ * each master row into `scaleY` chart rows. Repeating each entry keeps the
+ * staircase on the same letters it was drawn against instead of leaving the
+ * lean on row 9 of a block that is now eighteen rows tall.
+ */
+function scaledLean(font: FontSpec, scaleY?: number): number[] | undefined {
+  if (!font.lean?.length) return undefined;
+  const sy = normScale(scaleY);
+  if (sy === 1) return font.lean;
+  return font.lean.flatMap((v) => Array<number>(sy).fill(v));
+}
+
 /** Columns the shear travels sideways over a block `h` rows tall. */
-function shearTravel(h: number, slantDeg: number): number {
+function shearTravel(h: number, slantDeg: number, lean?: number[]): number {
   if (h <= 0) return 0;
+  if (lean?.length) return Math.max(...lean) - Math.min(...lean);
   const tanSlant = Math.tan((slantDeg * Math.PI) / 180);
   if (tanSlant === 0) return 0;
   let min = 0;
@@ -222,6 +251,7 @@ export function rasterizeGlyphRun(
   const sx = normScale(opts.scaleX);
   const sy = normScale(opts.scaleY);
   const height = font.cell.h * sy;
+  const lean = scaledLean(font, opts.scaleY);
   const pieces: GlyphPiece[] = [];
   let x = 0;
 
@@ -238,7 +268,7 @@ export function rasterizeGlyphRun(
       bold: opts.bold,
     });
     pieces.push({
-      mask: shearMask(upright, opts.slantDeg, opts.slantRepair),
+      mask: shearMask(upright, opts.slantDeg, opts.slantRepair, lean),
       col: x,
     });
     x += (glyph[0]?.length ?? font.cell.w) * sx + opts.letterSpacing;
@@ -247,7 +277,7 @@ export function rasterizeGlyphRun(
   const runWidth = Math.max(1, x + (opts.bold ? 1 : 0));
   return {
     pieces,
-    width: runWidth + shearTravel(height, opts.slantDeg),
+    width: runWidth + shearTravel(height, opts.slantDeg, lean),
     height,
   };
 }

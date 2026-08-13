@@ -32,6 +32,8 @@ const FONT_LABELS: Record<FontId, string> = {
   lyn: 'Lyn',
   runik: 'Runer',
   norge26: 'Norge26',
+  norgeDisplay26: 'NORGE Display',
+  norgeKursiv26: 'NORGE Kursiv',
 };
 
 function layerName(l: ChartLayer): string {

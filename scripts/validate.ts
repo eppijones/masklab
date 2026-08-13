@@ -21,6 +21,7 @@ import { getFont } from '../src/data/fonts/registry';
 import { layoutText } from '../src/data/rasterizeText';
 import {
   fontHeight,
+  placementBox,
   textGlyphPieces,
   textPiece,
   textPlacements,
@@ -34,6 +35,11 @@ import { HOOKS } from '../src/sizing/hooks';
 import { SIZES } from '../src/sizing/sizes';
 import type { Stitch, YarnColor } from '../src/data/types';
 import type { TextLayer } from '../src/data/chartLayers';
+import type { FontId, FontSpec } from '../src/data/fonts/types';
+import { keepOutFromTextPlacement, keepOutMetrics } from '../src/data/textKeepOut';
+import { inKeepOutZone, keepOutZoneFromParams } from '../src/data/motifs';
+import { NORGE_KEEP_OUT, NORGE_TEXT } from '../src/patterns/norwayKit';
+import { HAT_A, HAT_B } from './proto-masklab';
 
 let failures = 0;
 const check = (cond: boolean, msg: string) => {
@@ -425,7 +431,7 @@ function runStats(colors: YarnColor[]): { runs: number; singles: number; mean: n
 }
 
 /** Stitches of ink a word costs in a given face — the weight of the cut. */
-function glyphInk(word: string, fontId: 'runik' | 'norge26'): number {
+function glyphInk(word: string, fontId: FontId): number {
   const font = getFont(fontId);
   let n = 0;
   for (const ch of word.toUpperCase()) {
@@ -434,6 +440,55 @@ function glyphInk(word: string, fontId: 'runik' | 'norge26'): number {
     }
   }
   return n;
+}
+
+/**
+ * The narrowest run of ink in a glyph, measured along rows and along columns.
+ *
+ * THIS IS THE CHECK THE OLD FACE COULD NOT HAVE PASSED, and the reason the
+ * collection needed a new one. «Norge26» drew every stroke a single stitch and
+ * relied on `bold` and a halo to look heavy; the horizontal runs came back at
+ * one row, so E's arms and G's bar were hairlines against stems that the shear
+ * had thickened to two. "Some strokes feel thin while others feel heavy" is
+ * exactly that, and it is a property of the MASTER, so it is tested on the
+ * master rather than on the finished hat.
+ *
+ * Runs at the very edge of the glyph box are excluded: a bowl's top row is a
+ * run of one in the vertical direction by construction, and so is every
+ * diacritic. What is being measured is a stroke's thickness in the middle of
+ * the letter, where a reader looks.
+ */
+function minStrokeRun(font: FontSpec, ch: string): { rows: number; cols: number } {
+  const g = font.glyphs[ch] ?? [];
+  const h = g.length;
+  const w = g[0]?.length ?? 0;
+  const at = (r: number, c: number) => (g[r]?.[c] ?? '.') === 'X';
+  let minH = Infinity;
+  let minV = Infinity;
+  // Horizontal runs: a stroke's width, seen along a row.
+  for (let r = 0; r < h; r++) {
+    let run = 0;
+    for (let c = 0; c <= w; c++) {
+      if (at(r, c)) run++;
+      else {
+        if (run > 0) minH = Math.min(minH, run);
+        run = 0;
+      }
+    }
+  }
+  // Vertical runs: a bar's thickness, seen down a column. Runs that touch the
+  // top or bottom of the box are the ends of stems and are not strokes.
+  for (let c = 0; c < w; c++) {
+    let run = 0;
+    for (let r = 0; r <= h; r++) {
+      if (at(r, c)) run++;
+      else {
+        if (run > 0 && r < h) minV = Math.min(minV, run);
+        run = 0;
+      }
+    }
+  }
+  return { rows: minV === Infinity ? 99 : minV, cols: minH === Infinity ? 99 : minH };
 }
 
 /**
@@ -471,6 +526,402 @@ function minLetterGap(layer: TextLayer): number {
     }
   }
   return worst === Infinity ? Infinity : worst;
+}
+
+/**
+ * THE MASTER TYPOGRAPHY CHECK — one function, seven hats.
+ *
+ * Everything §15 asks for, and it runs against the DERIVED CHART rather than
+ * against the spec that produced it, because the chart is what gets crocheted.
+ * The five published kits go through it from their registry definitions; the
+ * two drafts in `scripts/proto-masklab.ts` go through the identical function
+ * from their studio designs. That is the point of it being a function: «all
+ * seven hats use the same lettering system» is checkable rather than asserted.
+ */
+interface NorgeHat {
+  id: string;
+  background: YarnColor;
+  layers: readonly import('../src/data/chartLayers').ChartLayer[];
+  grid: YarnColor[][];
+  cols: number;
+  rows: number;
+  bandRows: number;
+  /** Rounds + stitches, when the caller has them — enables the corridor trace. */
+  rounds?: { num: number; phase: string; count: number }[];
+  stitches?: { roundIdx: number; color: YarnColor }[];
+}
+
+/** The five letters the collection actually sets. */
+const NORGE_GLYPHS = ['N', 'O', 'R', 'G', 'E'];
+
+function checkNorgeHat(hat: NorgeHat): void {
+  const { id, cols, rows } = hat;
+  const textLayers = hat.layers.filter((l): l is TextLayer => l.kind === 'text');
+  const wordmark = textLayers[0];
+
+  // ---- One wordmark, and it is the collection's ----
+  check(
+    textLayers.length === 1 &&
+      wordmark?.text === 'NORGE' &&
+      wordmark.fontId === NORGE_TEXT.fontId &&
+      wordmark.repeat === NORGE_TEXT.repeat &&
+      wordmark.centerFrac === NORGE_TEXT.centerFrac &&
+      wordmark.anchor.row === NORGE_TEXT.row &&
+      (wordmark.letterSpacing ?? 1) === NORGE_TEXT.letterSpacing,
+    `${id}: NORGE i «NorgeKursiv26», samme sats som resten av kolleksjonen`,
+  );
+  if (!wordmark) return;
+
+  /**
+   * THE LEAN COMES FROM THE FACE, AND NOTHING IS ALLOWED TO ADD TO IT.
+   *
+   * `slantDeg: 0` is not «upright» any more — «NorgeKursiv26» is italic, and it
+   * carries its own drawn staircase in `lean`. A slant here would shear an
+   * already-italic face a SECOND time, with the `round(tan θ)` staircase the
+   * face exists to avoid: it steps wherever the arithmetic tips, which on the
+   * last italic cut was through N's diagonal and R's leg. The rest are faults
+   * for their own reasons — a climb turns the protected panel into a
+   * parallelogram that cannot track the letters per column, `bold` fattens
+   * uprights sideways and leaves the one-stitch bars behind, and a halo is a
+   * ring of ground drawn on ground now the panel is clean.
+   */
+  check(
+    wordmark.slantDeg === 0 &&
+      (wordmark.rise ?? 0) === 0 &&
+      !wordmark.arcRows &&
+      !wordmark.bold &&
+      wordmark.scaleX == null &&
+      wordmark.scaleY == null,
+    `${id}: ingen ekstra skjæring, stigning, forstørring eller «bold» oppå kursiven`,
+  );
+  check(
+    getFont(wordmark.fontId).lean?.length === 9,
+    `${id}: kursiven er tegnet inn i skriften, ikke regnet ut av en vinkel`,
+  );
+  check(
+    wordmark.haloColorId == null && !wordmark.haloDither,
+    `${id}: ingen kontur og ingen dither rundt bokstavene`,
+  );
+
+  // ---- The face: two-stitch uprights, nine rows, counters that survive ----
+  const font = getFont(wordmark.fontId);
+  check(fontHeight(wordmark) === 9, `${id}: bokstavene er ni rader (${fontHeight(wordmark)})`);
+  /**
+   * THE STRESS IS SYSTEMATIC, WHICH IS WHAT SEPARATES IT FROM THE OLD FAULT.
+   *
+   * «NorgeDisplay26» was tested for two stitches in EVERY stroke, because its
+   * fault was thin strokes turning up at random — and two everywhere is the
+   * right cure for an upright face. It is the wrong cure for an italic: two
+   * stitches in every direction is also what made the word 39 stitches wide and
+   * unable to lean at all.
+   *
+   * So the rule moved rather than relaxed. Uprights are two, bars and diagonals
+   * are one, and the test is the part the eye actually reads a letter off:
+   * EVERY row of every letter opens with a run of at least two, so no letter is
+   * ever standing on a one-stitch stem. A bar may be one row and a diagonal one
+   * stitch; a stem may not.
+   */
+  const thin = NORGE_GLYPHS.filter((ch) =>
+    (font.glyphs[ch] ?? []).some((row) => {
+      const run = /^\.*(X+)/.exec(row);
+      return run != null && run[1].length < 2;
+    }),
+  );
+  check(
+    thin.length === 0,
+    `${id}: hver bokstav i N O R G E står på en to-maskers stamme${thin.length ? ` (tynne: ${thin.join(', ')})` : ''}`,
+  );
+  /**
+   * COUNTERS SURVIVE THE CROCHET. Two stitches is the floor for this face and
+   * it is the one compromise in it: the bowls are 2 + 2 + 2, so the counters are
+   * two wide — but SEVEN tall, a slot rather than the three-by-six hole the
+   * upright face carried. Watch the first hat off the hook; if an O fills in,
+   * the fix is bowls at seven and a word four stitches wider. Measured as the
+   * widest run of ground enclosed on both sides by ink.
+   */
+  const counters = ['O', 'G', 'R'].map((ch) => {
+    const g = font.glyphs[ch] ?? [];
+    let best = 0;
+    for (const row of g) {
+      let run = 0;
+      let seenInk = false;
+      for (let c = 0; c < row.length; c++) {
+        if (row[c] === 'X') {
+          if (seenInk && run > best) best = run;
+          seenInk = true;
+          run = 0;
+        } else if (seenInk) run++;
+      }
+    }
+    return { ch, w: best };
+  });
+  check(
+    counters.every((c) => c.w >= 2),
+    `${id}: motformene er minst to masker (${counters.map((c) => `${c.ch}=${c.w}`).join(' ')})`,
+  );
+  const gap = minLetterGap(wordmark);
+  check(gap >= 1, `${id}: bokstavene har luft mellom seg (${gap} maske på det trangeste)`);
+
+  // ---- Placement: two copies, each 36–40 % of the circumference ----
+  const places = textPlacements(wordmark, cols);
+  const boxes = places.map(placementBox).filter((b): b is NonNullable<typeof b> => b != null);
+  check(places.length === 2 && boxes.length === 2, `${id}: NORGE står to steder rundt hatten`);
+  const wordW = boxes[0]?.width ?? 0;
+  const share = wordW / cols;
+  check(
+    wordW >= 36 && wordW <= 40,
+    `${id}: NORGE er ${wordW} masker bredt (36–40)`,
+  );
+  check(
+    share >= 0.34 && share <= 0.42,
+    `${id}: hvert NORGE tar ${(share * 100).toFixed(0)} % av omkretsen`,
+  );
+
+  // ---- The protected panel, straight off the placement ----
+  const zone = keepOutZoneFromParams(
+    keepOutFromTextPlacement(wordmark, NORGE_KEEP_OUT),
+  );
+  const metrics = keepOutMetrics(wordmark, cols, NORGE_KEEP_OUT);
+  check(zone != null, `${id}: teksten har en avledet friholdt sone`);
+  /**
+   * The letter cells come from the LAYER, never from the grid. Reading them
+   * back as «every cell in the wordmark's colour» is the obvious shortcut and
+   * it is wrong wherever a kit strokes its field in the same yarn as its type —
+   * half the field would be counted as lettering and the check would pass on a
+   * hat covered in specks.
+   */
+  const letterCells = new Set<string>();
+  for (const p of places) {
+    p.mask.forEach((row, r) =>
+      row.forEach((on, c) => {
+        if (!on) return;
+        const rr = p.row + r;
+        let cc = (p.col + c) % cols;
+        if (cc < 0) cc += cols;
+        if (rr >= 0 && rr < rows) letterCells.add(`${rr},${cc}`);
+      }),
+    );
+  }
+  let panelCells = 0;
+  let intruders = 0;
+  let brokenGlyphCells = 0;
+  let corridorCells = 0;
+  let corridorInk = 0;
+  const firstIntruder: string[] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const v = hat.grid[r][c];
+      const isLetter = letterCells.has(`${r},${c}`);
+      if (inKeepOutZone(zone, cols, r, c)) {
+        panelCells++;
+        if (isLetter) {
+          if (v !== wordmark.colorId) brokenGlyphCells++;
+        } else if (v !== hat.background) {
+          intruders++;
+          if (firstIntruder.length < 4) firstIntruder.push(`r${r}k${c}=${v}`);
+        }
+      } else {
+        corridorCells++;
+        if (v !== hat.background) corridorInk++;
+        if (isLetter) intruders++;
+      }
+    }
+  }
+  /**
+   * THE ONE THAT MATTERS. Inside the panel — the strokes, every counter, every
+   * gap from the N to the E, and a stitch of margin round the outside — there
+   * are exactly two colours on the hat: the type and the ground. No accent
+   * streak, no slash, no chevron, no motif fragment, no stray field cell.
+   */
+  check(
+    intruders === 0,
+    `${id}: ingen mønsterfarger i NORGE-feltet (${intruders}${firstIntruder.length ? ': ' + firstIntruder.join(' ') : ''})`,
+  );
+  check(
+    brokenGlyphCells === 0,
+    `${id}: hver bokstavmaske er ${wordmark.colorId} (${brokenGlyphCells} avvik)`,
+  );
+  /**
+   * THE PANEL NO LONGER FILLS THE WALL, AND THAT IS THE DESIGN.
+   *
+   * It used to be tested as exactly `width × bandRows × 2` — a rectangle, edge
+   * to edge of the wall — and the wordmark sat on a shelf nothing in the fabric
+   * ever touched. Now it stops one round above the letters and one below, and
+   * its edges FOLLOW the letters: under the open half of an R, under a letter
+   * gap, the field is let up two rounds further. Three things have to hold.
+   */
+  const rowStarts = zone?.rowStarts ?? [];
+  const rowEnds = zone?.rowEnds ?? [];
+  check(
+    rowStarts.length === metrics.width && rowEnds.length === metrics.width,
+    `${id}: panelkanten er målt per maske (${rowEnds.length} av ${metrics.width})`,
+  );
+  // One clear round above the letters and one below, both inside the wall — so
+  // the field crosses the word's own columns at the top and bottom of the wall.
+  check(
+    rowStarts.length > 0 &&
+      Math.min(...rowStarts) > 0 &&
+      Math.max(...rowEnds) < hat.bandRows - 1,
+    `${id}: feltet går over og under ordet (rad ${Math.min(...rowStarts)}–${Math.max(...rowEnds)} av ${hat.bandRows})`,
+  );
+  // And the edge is ragged by exactly the allowance — never more, or a stroke
+  // arrives beside the letters at letter height and ties one to the next.
+  const ragged = Math.max(...rowEnds) - Math.min(...rowEnds);
+  check(
+    ragged === NORGE_KEEP_OUT.mergeRows,
+    `${id}: underkanten følger bokstavene ${ragged} rader (skal være ${NORGE_KEEP_OUT.mergeRows})`,
+  );
+  check(
+    panelCells < 2 * metrics.width * hat.bandRows,
+    `${id}: panelet dekker ikke lenger hele veggen (${panelCells} celler)`,
+  );
+
+  // ---- The corridor: wide enough, and NOT masked ----
+  check(
+    metrics.corridor >= 8 && metrics.corridor <= 12,
+    `${id}: overgangskorridoren er ${metrics.corridor} masker (8–12)`,
+  );
+  /**
+   * THE CORRIDOR IS NOT ACCIDENTALLY MASKED — measured against what the field
+   * actually is.
+   *
+   * A stroke field marks a ground, so «how much of the corridor is not ground»
+   * is a fair measure of it: at thirty per cent or better the gap is visibly
+   * carrying the pattern. An OPAQUE field is not that shape at all. Skifer's
+   * bands are black, slate, black, stone, and black IS the hat's ground — so
+   * half its corridor is legitimately ground-coloured and a share test reads
+   * 22 % on a corridor that is completely full of pattern. What that field has
+   * to show instead is that more than one band crosses the gap.
+   */
+  const strokeField = hat.layers.some(
+    (l) => l.kind === 'motif' && (l.motif === 'slash' || l.motif === 'streaks'),
+  );
+  const corridorShare = corridorCells > 0 ? corridorInk / corridorCells : 0;
+  if (strokeField) {
+    check(
+      corridorShare >= 0.3,
+      `${id}: korridoren slipper mønsteret gjennom (${(corridorShare * 100).toFixed(0)} % farge)`,
+    );
+  } else {
+    const seen = new Set<YarnColor>();
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (!inKeepOutZone(zone, cols, r, c)) seen.add(hat.grid[r][c]);
+      }
+    }
+    check(
+      seen.size >= 2 && corridorInk > 0,
+      `${id}: korridoren slipper mønsteret gjennom (${seen.size} farger, ${(corridorShare * 100).toFixed(0)} % ikke-bunn)`,
+    );
+  }
+
+  // ---- Crochetability: no accent island of a single stitch ----
+  /**
+   * An «island» is a cell whose four neighbours are ALL a different colour —
+   * one stitch of a yarn you had to join and cut for, and the thing §8 is
+   * about. Ground cells are exempt: a single stitch of ground between two
+   * strokes is the ground showing through, not an island.
+   */
+  let islands = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const v = hat.grid[r][c];
+      if (v === hat.background || letterCells.has(`${r},${c}`)) continue;
+      const same = [
+        [r - 1, c],
+        [r + 1, c],
+        [r, (c + 1) % cols],
+        [r, (c - 1 + cols) % cols],
+      ].some(([rr, cc]) => rr >= 0 && rr < rows && hat.grid[rr][cc] === v);
+      if (!same) islands++;
+    }
+  }
+  check(islands === 0, `${id}: ingen enkeltmasker alene i veggen (${islands})`);
+
+  // ---- Continuity: crown → wall → brim, along the corridor's own line ----
+  /**
+   * FOLLOW THE STROKE, NOT A PLUMB LINE.
+   *
+   * The first cut of this check sampled a fixed angular window — the corridor's
+   * fraction of every round, crown to rim — and it fails a hat that is doing
+   * exactly what it was asked to. The gesture is a DIAGONAL: the stroke aimed
+   * down the corridor is pinned at the middle of the wall and drifts `slope`
+   * stitches per row either side of it, so by the crown's ninth round it is
+   * three stitches round from where a plumb line looks, and the check reported
+   * a break in a line that is visibly unbroken.
+   *
+   * So the window travels with it, on the same arithmetic `buildSlashes` and
+   * `buildCrownResolver` use: the row coordinate of each round, the drift from
+   * the field's start to that row, and the brim's `brimSlopeGain` pull-back.
+   * What is being tested is the claim §5 actually makes — one gesture, crown to
+   * brim — rather than the much stronger and quite wrong claim that the gesture
+   * is vertical.
+   */
+  const field = hat.layers.find(
+    (l): l is import('../src/data/chartLayers').MotifLayer =>
+      l.kind === 'motif' && l.motif === 'slash',
+  );
+  if (hat.rounds && hat.stitches && field) {
+    const byRound: YarnColor[][] = hat.rounds.map(() => []);
+    for (const s of hat.stitches) byRound[s.roundIdx].push(s.color);
+
+    const p = field.params;
+    const slope = Number(p.slope ?? 0);
+    const curve = Number(p.curve ?? 0);
+    const brimGain = Number(p.brimSlopeGain ?? 1);
+    const anchorFrac = Number(p.anchorFrac ?? 0);
+    const anchorV = Number(p.anchorV ?? 0);
+    const crownRounds = hat.rounds.filter((r) => r.phase === 'top').length;
+    const brimStart = hat.rounds.findIndex(
+      (r) => r.phase === 'brim-inc' || r.phase === 'wave' || r.phase === 'brim',
+    );
+    const vMin = -crownRounds;
+    const vMax = hat.bandRows + (hat.rounds.length - brimStart);
+    const span = vMax - vMin;
+    const drift = (v: number) => {
+      const t = v - vMin;
+      return span > 0 ? slope * t * (1 + curve * (t / span)) : 0;
+    };
+    const u0 = anchorFrac * cols - drift(anchorV);
+
+    // Half the corridor, in field columns — the same unit `u` is measured in.
+    const half = metrics.corridor / 2;
+    let bare = 0;
+    let traced = 0;
+    const bareRounds: number[] = [];
+    hat.rounds.forEach((round, i) => {
+      // The centre knot is plain by design, and so are the two rim rounds.
+      if (round.count < 20) return;
+      if (i >= hat.rounds!.length - 2) return;
+      let v: number;
+      if (round.phase === 'top') v = -(crownRounds - i) + 0.5;
+      else if (i < brimStart) v = i - crownRounds + 0.5;
+      else v = hat.bandRows + (i - brimStart) + 0.5;
+      let u = u0 + drift(v);
+      // The brim pulls a stroke back toward where it crossed the fold, or it
+      // would sweep round the hat instead of out to the rim.
+      if (i >= brimStart) u += slope * (v - hat.bandRows) * (1 - brimGain);
+
+      traced++;
+      const colors = byRound[i];
+      const n = colors.length;
+      let ink = 0;
+      // Field columns → this round's own stitches.
+      const lo = Math.floor(((u - half) / cols) * n);
+      const hi = Math.ceil(((u + half) / cols) * n);
+      for (let k = lo; k <= hi; k++) {
+        if (colors[((k % n) + n) % n] !== hat.background) ink++;
+      }
+      if (ink === 0) {
+        bare++;
+        bareRounds.push(round.num);
+      }
+    });
+    check(
+      bare === 0,
+      `${id}: én gest fra pull til brem gjennom korridoren (${traced - bare}/${traced} runder${bareRounds.length ? `, tomme: ${bareRounds.join(', ')}` : ''})`,
+    );
+  }
 }
 
 interface KitExpectation {
@@ -522,7 +973,9 @@ const NORWAY_KITS: KitExpectation[] = [
   },
   {
     id: 'norway26-black',
-    palette: ['black', 'white'],
+    // White is the type and the rim, and nothing else on the hat is white —
+    // the field is two greys. See the note in `norway26Black.ts`.
+    palette: ['black', 'white', 'slate', 'stone'],
     dominant: 'black',
     patterned: true,
   },
@@ -615,218 +1068,18 @@ for (const kit of NORWAY_KITS) {
     `${id}: deterministisk (samme seed → samme masker)`,
   );
 
-  // ---- Text: one NORGE layer, stamped twice around the hat ----
-  const textLayers = def.chartLayers.filter((l) => l.kind === 'text');
-  const wordmark = textLayers[0];
-  check(
-    textLayers.length === 1 &&
-      wordmark?.kind === 'text' &&
-      wordmark.text === 'NORGE' &&
-      wordmark.fontId === 'norge26' &&
-      wordmark.repeat === 2 &&
-      wordmark.haloColorId === def.background,
-    `${id}: NORGE i Norge26-kursiv med kontur i bunnfargen, gjentatt 2 ganger`,
-  );
-
-  // ---- Typography: slim, leaning, climbing ----
-  if (wordmark && wordmark.kind === 'text') {
-    /**
-     * THE LEAN IS IN THE MASTERS NOW, so asking `slantDeg` about it answers the
-     * wrong question — it is 0, and the face is still italic. `rasterizeText`
-     * shears by rounding each row's offset, which steps a whole column every
-     * other row; a glyph diagonal that already moves a column per row either
-     * flattens or doubles against that step, and the doubled step tore the
-     * lozenge O into loose cells. Pre-shearing the masters with the seam
-     * repaired is what fixed it. So measure the lean where it now lives: how
-     * far the word's leading edge travels between its bottom row and its top.
-     */
-    const block = textPiece(wordmark).mask;
-    const leftmost = (row: boolean[]) => row.indexOf(true);
-    const inkRows = block.filter((r) => r.includes(true));
-    const lean = leftmost(inkRows[0]) - leftmost(inkRows[inkRows.length - 1]);
-    check(
-      lean >= 3,
-      `${id}: kursiven heller ordentlig (${lean} kolonner over ordet)`,
-    );
-    /**
-     * THE BASELINE CLIMBS — «stigende», the lift under a sports mark.
-     *
-     * Ten rows of letter plus two of climb is a twelve-row block, which is why
-     * the wall is fourteen: the contour still needs a free row above and below.
-     * The climb steps per GLYPH, so those two rows are spent as a staircase
-     * across the five letters rather than tilting any one of them.
-     */
-    const piece = textPiece(wordmark).mask;
-    const lift = piece.length - fontHeight(wordmark);
-    check(
-      (wordmark.rise ?? 0) > 0 && lift === 2,
-      `${id}: grunnlinjen stiger mot høyre (${lift} rader over ordet)`,
-    );
-    check(
-      fontHeight(wordmark) === 10,
-      `${id}: bokstavene er ti rader høye (${fontHeight(wordmark)})`,
-    );
-    /**
-     * ONE STITCH PER STROKE — measured as ink PER ROW of cap height, not as a
-     * total. The total was the old test and it does not survive a taller face:
-     * Runik spent 136 stitches over eight rows and this cut spends 145 over
-     * ten, which looks heavier and is in fact a fifth lighter. Per row it is 17
-     * against 14.5, and 14.5 is a face drawn in single strokes. A slab comes
-     * straight back over 15.5.
-     */
-    const inkPerRow = glyphInk('NORGE', 'norge26') / fontHeight(wordmark);
-    check(
-      inkPerRow <= 15.5,
-      `${id}: bokstavene er tynne (${inkPerRow.toFixed(1)} masker blekk per rad, tak 15,5)`,
-    );
-    // AIR BETWEEN THE LETTERS. This is the check the climb kept failing: a
-    // lifted glyph shows a less-sheared row of itself at any given row of the
-    // block, so it drifts back into its neighbour until the two sit side by
-    // side with nothing between them. `textGlyphPieces` slides each glyph along
-    // the italic axis to pay for its climb; without that this drops to 0.
-    const gap = minLetterGap(wordmark);
-    check(gap >= 1, `${id}: bokstavene har luft mellom seg (${gap} maske på det trangeste)`);
-    // Ink must leave a row top and bottom for the one-stitch halo.
-    const solo = derivePattern({ ...def, chartLayers: [wordmark] });
-    const inked = (r: number) =>
-      solo.chart.grid[r].some((c) => c === wordmark.colorId);
-    check(
-      !inked(0) && !inked(d.bandRows - 1),
-      `${id}: konturen får plass over og under ordet (rad 0 og ${d.bandRows - 1} er frie)`,
-    );
-  }
-  let legible = true;
-  for (const layer of textLayers) {
-    const solo = derivePattern({ ...def, chartLayers: [layer] });
-    for (let r = 0; r < d.bandRows; r++) {
-      for (let c = 0; c < d.bodyCount; c++) {
-        if (
-          solo.chart.grid[r][c] === layer.colorId &&
-          layer.colorId !== def.background &&
-          d.chart.grid[r][c] !== layer.colorId
-        ) {
-          legible = false;
-        }
-      }
-    }
-  }
-  check(legible, `${id}: NORGE-bokstavene er uforstyrret i diagrammet`);
-
-  // Both copies actually landed: the wordmark ink must appear on both halves
-  // of the circumference.
-  if (wordmark && wordmark.kind === 'text') {
-    const solo = derivePattern({ ...def, chartLayers: [wordmark] });
-    const half = Math.floor(d.bodyCount / 2);
-    let frontInk = 0;
-    let backInk = 0;
-    for (let r = 0; r < d.bandRows; r++) {
-      for (let c = 0; c < d.bodyCount; c++) {
-        if (solo.chart.grid[r][c] !== wordmark.colorId) continue;
-        if (c < half) frontInk++;
-        else backInk++;
-      }
-    }
-    check(
-      frontInk > 20 && backInk > 20,
-      `${id}: NORGE står både foran og bak (${frontInk} / ${backInk} masker)`,
-    );
-  }
-
-  // ---- The contour: separation without a hard line ----
-  //
-  // This used to demand that EVERY cell beside a letter was either ink or
-  // ground — a solid contour, the letters on a clean panel. That is what put
-  // the hard line on the hat: an unbroken ring of ground colour is an edge the
-  // strokes visibly stop at, and five letters of it in a row reads as one rule
-  // dividing the type from the pattern.
-  //
-  // The contour is now deliberately porous (`haloDither`), so the test has two
-  // halves and needs both:
-  //   · MOST neighbours are still ink or ground, or the letters lose the
-  //     separation that keeps them legible over a stroke field;
-  //   · SOME are field colour, or the dither is not doing anything and the
-  //     hard line is back.
-  const textLayer = textLayers[0];
-  if (textLayer && textLayer.kind === 'text') {
-    const solo = derivePattern({ ...def, chartLayers: [textLayer] });
-    let clean = 0;
-    let crossed = 0;
-    for (let r = 0; r < d.bandRows; r++) {
-      for (let c = 0; c < d.bodyCount; c++) {
-        if (solo.chart.grid[r][c] !== textLayer.colorId) continue;
-        for (const dc of [-1, 1]) {
-          const n = (c + dc + d.bodyCount) % d.bodyCount;
-          const v = d.chart.grid[r][n];
-          if (v === textLayer.colorId || v === def.background) clean++;
-          else crossed++;
-        }
-      }
-    }
-    const total = clean + crossed;
-    const cleanShare = total > 0 ? clean / total : 1;
-    check(
-      cleanShare >= 0.6,
-      `${id}: bokstavene beholder konturen (${(cleanShare * 100).toFixed(0)} % rene naboer)`,
-    );
-
-    /**
-     * THE WORDMARK SITS ON A CLEAN PANEL.
-     *
-     * This check used to assert the opposite: that the contour was POROUS,
-     * 10–45 % of it left open so the field could cross behind the letters and
-     * the type would not read as a hole cut in the pattern. That was the right
-     * call for a face with two-stitch stems. It is the wrong one for «Norge26»,
-     * whose strokes are a single stitch — every ink cell the field reached
-     * showed up as a speck ON the letter, and five letters of that read as
-     * dirt rather than as fabric passing behind.
-     *
-     * So the contour is solid now, two stitches deep, and what gets tested is
-     * the thing that actually matters: no field colour anywhere near a letter.
-     * The field is not lost — it runs over the crown, and it comes back out
-     * from under the panel and carries on to the rim, which the brim coverage
-     * check below is what protects.
-     */
-    /**
-     * The letters come from the LAYER, not from the grid. Reading them back as
-     * "every cell in the wordmark's colour" is the obvious shortcut and it is
-     * wrong on three of the five kits: Drakt strokes in off-white and sets
-     * off-white type, so half the field would be counted as lettering and the
-     * check would pass on hats that are covered in specks.
-     */
-    const letterCells = new Set<string>();
-    for (const p of textPlacements(textLayer, d.chart.cols)) {
-      p.mask.forEach((row, r) =>
-        row.forEach((on, c) => {
-          if (!on) return;
-          const rr = p.row + r;
-          let cc = (p.col + c) % d.chart.cols;
-          if (cc < 0) cc += d.chart.cols;
-          if (rr >= 0 && rr < d.chart.rows) letterCells.add(`${rr},${cc}`);
-        }),
-      );
-    }
-    const clearance = Math.min(2, Math.max(1, Math.round(textLayer.haloWidth ?? 1)));
-    let intruding = 0;
-    d.chart.grid.forEach((row, r) =>
-      row.forEach((v, c) => {
-        if (v === def.background || letterCells.has(`${r},${c}`)) return;
-        for (let dr = -clearance; dr <= clearance; dr++) {
-          for (let dc = -clearance; dc <= clearance; dc++) {
-            let cc = (c + dc) % d.chart.cols;
-            if (cc < 0) cc += d.chart.cols;
-            if (letterCells.has(`${r + dr},${cc}`)) {
-              intruding++;
-              return;
-            }
-          }
-        }
-      }),
-    );
-    check(
-      intruding === 0,
-      `${id}: ingen feltfarger innenfor ${clearance} masker av bokstavene (${intruding})`,
-    );
-  }
+  // ---- Typography and text protection: the shared system, per kit ----
+  checkNorgeHat({
+    id,
+    background: def.background,
+    layers: def.chartLayers,
+    grid: d.chart.grid,
+    cols: d.chart.cols,
+    rows: d.chart.rows,
+    bandRows: d.bandRows,
+    rounds: d.rounds,
+    stitches: d.stitches,
+  });
 
   // ---- Palette ----
   const used = new Set(d.stitches.map((s) => s.color));
@@ -1037,6 +1290,44 @@ for (const def of listPatterns()) {
       got.stitches.every((st, i) => st.color === want.stitches[i].color),
     `${def.id}: studioet gir samme masker som oppskriften, farge for farge`,
   );
+}
+
+/* ================= NORWAY'26-utkastene (Lyn + Skifer) ================= */
+/**
+ * The two draft hats live in `scripts/proto-masklab.ts` as studio designs
+ * rather than as registered patterns — that is the point of them, and the
+ * cheap way to draw a hat here (a `PatternDefinition` costs edits in seven
+ * files; a `StudioDesign` costs one). What they are NOT allowed to be is
+ * outside the collection's typography, and the only way to know that is to run
+ * them through the same function the five kits go through.
+ *
+ * §13's claim is «same collection, seven personalities». Five of the seven
+ * being checked and two being taken on trust is how they drifted in the first
+ * place: one of them had a private face, the other a bold setting, a wider
+ * letter gap and a black contour, and both looked least like the collection
+ * they are drafts for.
+ */
+console.log("NORWAY'26-utkastene:");
+for (const [label, design] of [
+  ['lyn', HAT_A],
+  ['skifer', HAT_B],
+] as const) {
+  const d = deriveDesign(design);
+  check(
+    d.bandRows === NORGE_TEXT.bandRows,
+    `${label}: samme fjortenradersvegg som kolleksjonen (${d.bandRows})`,
+  );
+  checkNorgeHat({
+    id: label,
+    background: design.baseColor,
+    layers: design.layers,
+    grid: d.chart.grid,
+    cols: d.chart.cols,
+    rows: d.chart.rows,
+    bandRows: d.bandRows,
+    rounds: d.rounds,
+    stitches: d.stitches,
+  });
 }
 
 /* ================= Størrelse x mønster x nål ================= */

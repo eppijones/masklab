@@ -171,8 +171,30 @@ function roundStep(
         ];
     techniques.push('fastmaske', 'kjedemaske');
   } else if (patterned) {
-    title =
-      round.phase === 'text' && round.chartRow !== null
+    const prevCount = rounds[roundIdx - 1]?.count ?? round.count;
+    /**
+     * AN INCREASE ROUND IS NAMED AFTER ITS INCREASE, COLOURWORK OR NOT.
+     *
+     * RO titles every growing round «Øk til 70 masker» — the count is the one
+     * thing you need at a glance, because it is what you check your work
+     * against when the round is done. The colourwork branch used to throw that
+     * away and title the round «Fargemønster», which says nothing RO's own
+     * rounds don't and hides the number: the whole crown of every NORWAY'26 kit
+     * is patterned, so nineteen rounds of a hat that is visibly growing were
+     * all called the same thing.
+     *
+     * The colours are not lost by dropping the word — they are already on the
+     * chip under the step («Gul + Gyllen + Oransje + Rosa · 90 fm») and spelled
+     * out stitch by stitch in the body. So a growing round reads exactly as it
+     * does on RO, and only a round that does NOT grow needs naming after its
+     * pattern.
+     */
+    const grows = round.count > prevCount;
+    title = grows
+      ? no
+        ? `Runde ${round.num}: Øk til ${round.count} masker`
+        : `Round ${round.num}: Increase to ${round.count} stitches`
+      : round.phase === 'text' && round.chartRow !== null
         ? no
           ? `Runde ${round.num}: Mønster — diagramrad ${round.chartRow}`
           : `Round ${round.num}: Pattern — chart row ${round.chartRow}`
@@ -180,8 +202,8 @@ function roundStep(
           ? `Runde ${round.num}: Fargemønster`
           : `Round ${round.num}: Colorwork`;
     body = patternedBody(round, locale, colors);
-    if (round.increaseEvery !== null || rounds[roundIdx - 1]?.count !== round.count) {
-      const prev = rounds[roundIdx - 1]?.count ?? round.count;
+    if (round.increaseEvery !== null || prevCount !== round.count) {
+      const prev = prevCount;
       if (round.count > prev) {
         body.splice(
           2,
