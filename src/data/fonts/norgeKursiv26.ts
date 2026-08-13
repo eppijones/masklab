@@ -80,15 +80,31 @@ const G: Record<string, string[]> = {
   L: ['XX...', 'XX...', 'XX...', 'XX...', 'XX...', 'XX...', 'XX...', 'XX...', 'XXXXX'],
   M: ['XX....XX', 'XXX..XXX', 'XXXXXXXX', 'XX.XX.XX', 'XX....XX', 'XX....XX', 'XX....XX', 'XX....XX', 'XX....XX'],
   /**
-   * SEVEN WIDE, AND THE DIAGONAL STEPS OFF THE SHEAR.
+   * SEVEN WIDE, AND THE DIAGONAL STEPS *WITH* THE LEAN — NOT AGAINST IT.
    *
-   * Two-stitch stems take four of the seven columns; the diagonal is one; that
-   * leaves two of counter to share between the wedges. It steps at rows 1→2 and
-   * 4→5 — deliberately NOT at 2→3 or 5→6, which is where `lean` steps. Move
-   * either and the diagonal goes flat for a row exactly where it crosses the
-   * middle of the letter, and N reads as an H from across a room.
+   * This is the one letter in the face where the rule inverts, and getting it
+   * wrong is subtle enough to survive a render. Every other travelling stroke
+   * here is drawn to step at row boundaries `lean` does NOT step at, so the two
+   * never cancel. N's diagonal is the opposite case: it has to stay put in
+   * ABSOLUTE columns while the stems lean away from it, because that is what a
+   * sheared N is — a middle stroke that leaves the left stem at the top and
+   * arrives at the right stem at the bottom purely because the stems have moved
+   * out from under it.
+   *
+   * So the master steps exactly where `lean` steps, and the two cancel BY
+   * DESIGN: columns 2,2,2 / 3,3,3 / 4,4,4 against offsets 2,2,2 / 1,1,1 / 0,0,0
+   * put the diagonal at absolute column 4 on all nine rows. The draft this
+   * replaced stepped at rows 1→2 and 4→5 instead, half a beat out of phase, and
+   * the diagonal came out at absolute 4,4,5,4,4,5,4 — a zigzag reading as a
+   * loose notch in the middle of the letter rather than as a stroke, and it
+   * stopped two rows short of the right stem so the bottom of the N was two
+   * bare stems with nothing between them.
+   *
+   * It runs the full nine rows for the same reason: joined to the left stem at
+   * rows 0–2 and into the right stem at rows 6–8, the same weld at both ends,
+   * which is what makes it symmetrical instead of top-heavy.
    */
-  N: ['XXX..XX', 'XXX..XX', 'XX.X.XX', 'XX.X.XX', 'XX.X.XX', 'XX..XXX', 'XX..XXX', 'XX...XX', 'XX...XX'],
+  N: ['XXX..XX', 'XXX..XX', 'XXX..XX', 'XX.X.XX', 'XX.X.XX', 'XX.X.XX', 'XX..XXX', 'XX..XXX', 'XX..XXX'],
   /**
    * The reference bowl: two-stitch walls, a two-by-seven counter, and the
    * corners cut by one stitch top and bottom so the ring reads round rather
