@@ -222,9 +222,28 @@ export interface SlashParams {
   echoGap: number;
   /** Belly half-width of the echo. */
   echoWidth: number;
+  /**
+   * Floor on the half-width, in stitches, over the stroke's belly.
+   *
+   * NO ONE-STITCH FEATHERING. A tapering stroke passes through every width on
+   * its way to nothing, and the widths under one stitch are not a soft edge in
+   * yarn — they are a colour change, one stitch, and a colour change back, and
+   * a hat covered in them is a hat nobody finishes. At 0.9 the belly never goes
+   * under two stitches; the outer fifth still tapers, so the tips end bluntly
+   * instead of dissolving. `tipSharpEnd` is what decides how blunt.
+   */
+  minHalfW?: number;
   /** Row-space coverage: vMin (crown centre, negative) .. vMax (brim edge). */
   vMin: number;
   vMax: number;
+  /**
+   * Aim a bundle core through this fraction of the circumference, at row
+   * `anchorV` — the transition corridor lock. Null leaves the ring where the
+   * seed put it. A fraction rather than a column, so it tracks the wordmark's
+   * own `centerFrac` at any size.
+   */
+  anchorFrac?: number | null;
+  anchorV?: number;
   bundle?: SlashBundleSpec;
 }
 
@@ -284,7 +303,56 @@ export function buildSlashes(
   // so a kit can be turned to sit differently on the head without the field
   // ever losing its order.
   const rnd = mulberry32(p.seed);
-  const phase = (rnd() * slot) % cols;
+  // Drawn whether or not it is used, so anchoring a field never disturbs the
+  // per-bundle streams below it.
+  const seedPhase = (rnd() * slot) % cols;
+  /**
+   * THE CORRIDOR IS AIMED, NOT HOPED FOR.
+   *
+   * The wordmark masks the field over most of the wall, so the only place a
+   * stroke can cross from the crown to the brim is the gap between one copy of
+   * the word and the next. Leaving that to the seed means the gap gets whatever
+   * bundle happens to drift past it — sometimes a core, sometimes the tail of a
+   * companion, sometimes nothing, and the hat reads as a pattern that gave up
+   * at the shoulder and started again at the fold.
+   *
+   * So the ring is rotated until a core lands in the corridor. `anchorU` is
+   * where it should be and `anchorV` is the row it should be there — the middle
+   * of the wall, not the crown, because that is where the eye joins the two
+   * halves of the line. Run the stroke's own drift backwards from that row to
+   * get the u it must start at, and take that modulo the slot: bundles sit a
+   * slot apart, so fixing one fixes the ring.
+   *
+   * BOTH CORRIDORS, FOR FREE, WHEN `count` IS EVEN. Two copies of the word put
+   * the corridors half a circumference apart, and half a circumference is a
+   * whole number of slots exactly when the count is even. Every kit in the
+   * collection therefore runs an even count, and the two transitions are the
+   * same transition seen from the other side of the head.
+   *
+   * THE KINK IS CENTRED, NOT SOLVED FOR. `zigzagStep` runs 0…kinkRows−1 and
+   * back, so a kinked stroke does not oscillate about its own centreline — it
+   * sits entirely to one side of it, by half the kink's reach on average. Left
+   * out of the sum, a kit with a deep kink has its corridor stroke pushed a
+   * couple of stitches off the corridor and out of it: Trening, at
+   * `kinkAmp 0.75`, lost the last row of the wall that way. Subtracting the
+   * MEAN puts the stroke's wander either side of the corridor's centre instead
+   * of beside it.
+   *
+   * Solving for the exact phase is not possible here and should not be faked:
+   * each bundle draws its own `kinkPhase` from its own stream, and which bundle
+   * lands in the corridor depends on the phase being computed. The mean is the
+   * honest correction — it centres the wander, and the corridor is sized to
+   * hold the rest.
+   */
+  let phase = seedPhase;
+  if (p.anchorFrac != null) {
+    const span = p.vMax - p.vMin;
+    const t = (p.anchorV ?? 0) - p.vMin;
+    const drift = span > 0 ? p.slope * t * (1 + p.curve * (t / span)) : 0;
+    const kinkMean =
+      p.kinkRows > 0 ? (p.kinkAmp * (p.kinkRows - 1)) / 2 : 0;
+    phase = ((((p.anchorFrac * cols - drift - kinkMean) % slot) + slot) % slot);
+  }
   const inks = Math.max(1, colorCount);
 
   const common = {

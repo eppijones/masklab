@@ -56,17 +56,17 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     ],
   },
   norway26: {
-    nameNo: "NORWAY'26 Drakt-hatten",
+    nameNo: "NORWAY'26 Hjemme-hatten",
     nameEn: "the NORWAY'26 kit hat",
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
       'Ikat-stripene løper diagonalt fra pullen og helt ut i bremmen — følg maske-for-maske-oppskriften i de mønstrede rundene, og hold de passive trådene løse.',
-      'NORGE står i runeskrift foran og bak, med én maskes marineblå kontur rundt bokstavene — strøkene løper helt inntil og forsvinner bak dem. Under teksten fortsetter mønsteret ubrutt helt ut i bremmen; bare de to siste rundene hekles hvite.',
+      'NORGE står i kursiv foran og bak, på ren marineblå bunn — ingen striper går inn i ordet. Mellom de to ordene er det et felt på tolv masker der mønsteret bryter gjennom fra pullen og ned i bremmen; bare de to siste rundene hekles hvite.',
     ],
     tipsEn: [
       'The ikat streaks run diagonally from the crown all the way onto the brim — follow the stitch-by-stitch recipe in the patterned rounds and keep the unused strands loose.',
-      'NORGE sits in runic letters front and back, outlined by a single stitch of navy — the streaks run right up to the letters and disappear behind them. Below the lettering the pattern carries on unbroken all the way onto the brim; only the last two rounds are worked in white.',
+      'NORGE sits in italics front and back on clean navy — no stripe enters the word. Between the two words there is a twelve-stitch channel where the pattern breaks through, crown to brim; only the last two rounds are worked in white.',
     ],
   },
   'norway26-white': {
@@ -76,11 +76,11 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
       'De marineblå buntene fortsetter fra pullen og nedover sidene, akkurat som på designarket — hold dem løse, ellers trekker den hvite bunnen seg sammen.',
-      'Runisk NORGE i marineblått foran og bak. Mønsteret går ubrutt ned i bremmen, og bare de to siste rundene hekles røde — samme detalj som halslinningen på bortedrakten.',
+      'NORGE i marineblå kursiv foran og bak, på ren hvit bunn. Mellom ordene bryter mønsteret gjennom og fortsetter ned i bremmen; bare de to siste rundene hekles røde — samme detalj som halslinningen på bortedrakten.',
     ],
     tipsEn: [
       'The navy bundles flow from the crown down the sides exactly as on the design sheet — keep them loose or the white ground will pull in.',
-      'Runic NORGE in navy front and back. The pattern runs unbroken onto the brim and only the last two rounds are worked in red — the away shirt\u2019s collar trim.',
+      'NORGE in navy italics front and back on clean white. Between the words the pattern breaks through and carries on onto the brim; only the last two rounds are worked in red — the away shirt\u2019s collar trim.',
     ],
   },
   'norway26-black': {
@@ -89,12 +89,12 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
-      'Svart bunn med bare tre hvite buntstrøk som krysser pull, side og brem — den enkleste i kolleksjonen. Hvit tekst på svart bunn krever jevn heklefasthet for at bokstavene skal stå skarpt.',
-      'Mønsteret fortsetter ubrutt ned i bremmen, og bare de to nederste rundene hekles hvite som kant.',
+      'Svart bunn med seks brede grå strøk i skifer og stein over pull, side og brem — den enkleste gesten i kolleksjonen. Hvitt brukes bare til skriften og kanten, så bokstavene er det eneste rene hvite på hatten.',
+      'NORGE i hvit kursiv foran og bak, på ubrutt svart bunn. Mønsteret fortsetter ned i bremmen gjennom feltet mellom ordene, og bare de to nederste rundene hekles hvite som kant.',
     ],
     tipsEn: [
-      'A black ground crossed by just three white bundles over crown, wall and brim — the simplest in the collection. White lettering on black needs even tension for the letters to stay sharp.',
-      'The pattern carries on unbroken onto the brim, and only the last two rounds are worked in white as the edge.',
+      'A black ground crossed by six broad grey strokes in slate and stone over crown, wall and brim — the simplest gesture in the collection. White is kept for the lettering and the edge, so the letters are the only pure white on the hat.',
+      'NORGE in white italics front and back on unbroken black. The pattern carries on onto the brim through the channel between the words, and only the last two rounds are worked in white as the edge.',
     ],
   },
   'norway26-training': {
@@ -103,12 +103,12 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
-      'Prematch-trøya er kolleksjonens vanskeligste: seksten tette sikksakk-striper i rødt, marineblått, hvitt og lyseblått, uten ensfargede flater noe sted. Regn med fargebytter i nesten hver eneste maske — hold de passive trådene løse, ellers strammer hatten seg.',
-      'Hvitt runisk NORGE foran og bak. Mønsteret går ubrutt helt ut i bremmen, og bare de to siste rundene hekles marineblå.',
+      'Prematch-trøya er kolleksjonens vanskeligste: tolv brede sikksakk-striper i marineblått, hvitt og lyseblått som skjærer over den røde bunnen. Regn med fargebytter i de fleste mønstrede rundene — hold de passive trådene løse, ellers strammer hatten seg.',
+      'Kremhvitt NORGE i kursiv foran og bak, på ren rød bunn. Mellom ordene går sikksakken ubrutt fra pullen og helt ut i bremmen, og bare de to siste rundene hekles marineblå.',
     ],
     tipsEn: [
-      'The pre-match top is the hardest in the collection: sixteen tight zigzag stripes in red, navy, off-white and periwinkle, with no plain area anywhere. Expect a colour change in nearly every stitch — keep the unused strands loose or the hat will pull in.',
-      'White runic NORGE front and back. The pattern runs unbroken all the way onto the brim, and only the last two rounds are worked in navy.',
+      'The pre-match top is the hardest in the collection: twelve broad zigzag stripes in navy, off-white and periwinkle cutting across the red ground. Expect a colour change in most patterned rounds — keep the unused strands loose or the hat will pull in.',
+      'Off-white NORGE in italics front and back on clean red. Between the words the zigzag runs unbroken from the crown all the way onto the brim, and only the last two rounds are worked in navy.',
     ],
   },
   'norway26-keeper': {
@@ -117,12 +117,12 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
-      'Keeperdrakten er varm hele veien: tette sikksakk-striper i mørkere gult, oransje og rosa over den sterke gule bunnen, uten en eneste grå tone. Kolleksjonens mest krevende hatt.',
-      'Svart runisk NORGE foran og bak. Mønsteret går ubrutt ned i bremmen, og bare de to siste rundene hekles svarte.',
+      'Keeperdrakten er varm hele veien: store sikksakk-strøk i gyllent, oransje og rosa over den sterke gule bunnen, uten en eneste grå tone.',
+      'Svart NORGE i kursiv foran og bak, på ubrutt gul bunn — ingen rosa eller oransje kommer inn mellom bokstavene. De varme fargene går i stedet gjennom feltet mellom ordene, fra pullen og ned i bremmen; bare de to siste rundene hekles svarte.',
     ],
     tipsEn: [
-      'The goalkeeper shirt is warm the whole way: tight zigzag stripes in deeper gold, orange and pink over the strong yellow ground, without a single grey tone. The most demanding hat in the collection.',
-      'Black runic NORGE front and back. The pattern runs unbroken onto the brim, and only the last two rounds are worked in black.',
+      'The goalkeeper shirt is warm the whole way: large zigzag strokes in deeper gold, orange and pink over the strong yellow ground, without a single grey tone.',
+      'Black NORGE in italics front and back on unbroken yellow — no pink or orange comes between the letters. The warm colours travel through the channel between the words instead, crown to brim; only the last two rounds are worked in black.',
     ],
   },
   custom: {
@@ -184,12 +184,12 @@ export function welcomeCopy(id: PatternId, locale: 'no' | 'en'): WelcomeCopy {
   if (id === 'norway26') {
     return {
       brandWelcome: "NORWAY'26",
-      brandBy: no ? 'Drakt-kit · MASKLAB' : 'Kit hat · MASKLAB',
+      brandBy: no ? 'Hjemmedrakt · MASKLAB' : 'Kit hat · MASKLAB',
       brandKicker: "NORWAY'26",
       titleEm: 'NORGE',
       lede: no
-        ? "Hekle NORWAY'26 Drakt — diagonale ikat-striper i draktfargene over marineblå bunn, med runisk NORGE foran og bak. Komplett guide, én runde av gangen."
-        : "Crochet the NORWAY'26 kit hat — diagonal ikat streaks in the shirt colours over a navy ground, with runic NORGE front and back. Complete guide, one round at a time.",
+        ? "Hekle NORWAY'26 Hjemme — brede sikksakk-strøk i draktfargene over marineblå bunn, med NORGE i kursiv foran og bak. Komplett guide, én runde av gangen."
+        : "Crochet the NORWAY'26 home kit hat — broad zigzag strokes in the shirt colours over a navy ground, with NORGE in italics front and back. Complete guide, one round at a time.",
       pdfUrl: null,
       footName: 'MASKLAB',
       footUrl: null,
@@ -202,8 +202,8 @@ export function welcomeCopy(id: PatternId, locale: 'no' | 'en'): WelcomeCopy {
       brandKicker: "NORWAY'26",
       titleEm: no ? 'hvit' : 'white',
       lede: no
-        ? "Hekle NORWAY'26 Hvit — hvit bunn med marineblå bunter og runisk NORGE i marineblått. Komplett guide, én runde av gangen."
-        : "Crochet NORWAY'26 White — a white ground with blue brush streaks and runic NORGE in navy. Complete guide, one round at a time.",
+        ? "Hekle NORWAY'26 Hvit — hvit bunn med brede marineblå bånd og NORGE i marineblå kursiv. Komplett guide, én runde av gangen."
+        : "Crochet NORWAY'26 White — a white ground with broad navy bands and NORGE in navy italics. Complete guide, one round at a time.",
       pdfUrl: null,
       footName: 'MASKLAB',
       footUrl: null,
@@ -216,8 +216,8 @@ export function welcomeCopy(id: PatternId, locale: 'no' | 'en'): WelcomeCopy {
       brandKicker: "NORWAY'26",
       titleEm: no ? 'svart' : 'black',
       lede: no
-        ? "Hekle NORWAY'26 Svart — svart bøttehatt med tre hvite buntstrøk, runisk NORGE i hvitt og hvit kant. Den enkleste i kolleksjonen, med komplett guide."
-        : "Crochet NORWAY'26 Black — an all-black bucket hat with runic NORGE in white and a white edge. The simplest in the collection, with a complete guide.",
+        ? "Hekle NORWAY'26 Svart — svart bøttehatt med brede grå strøk, NORGE i hvit kursiv og hvit kant. Den enkleste i kolleksjonen, med komplett guide."
+        : "Crochet NORWAY'26 Black — a black bucket hat with broad grey strokes, NORGE in white italics and a white edge. The simplest in the collection, with a complete guide.",
       pdfUrl: null,
       footName: 'MASKLAB',
       footUrl: null,
@@ -230,8 +230,8 @@ export function welcomeCopy(id: PatternId, locale: 'no' | 'en'): WelcomeCopy {
       brandKicker: "NORWAY'26",
       titleEm: no ? 'trene' : 'train',
       lede: no
-        ? "Hekle NORWAY'26 Trening — lyseblå bunn med rolige diagonaler og runisk NORGE i marineblått. Komplett guide, én runde av gangen."
-        : "Crochet NORWAY'26 Training — a light-blue ground with calm diagonals and runic NORGE in navy. Complete guide, one round at a time.",
+        ? "Hekle NORWAY'26 Trening — rød bunn med brede sikksakk-striper og NORGE i kremhvit kursiv. Komplett guide, én runde av gangen."
+        : "Crochet NORWAY'26 Training — a red ground with broad zigzag stripes and NORGE in off-white italics. Complete guide, one round at a time.",
       pdfUrl: null,
       footName: 'MASKLAB',
       footUrl: null,
@@ -244,8 +244,8 @@ export function welcomeCopy(id: PatternId, locale: 'no' | 'en'): WelcomeCopy {
       brandKicker: "NORWAY'26",
       titleEm: no ? 'keeper' : 'keeper',
       lede: no
-        ? "Hekle NORWAY'26 Keeper — gul bunn med tonale bunter i grått, fersken og rosa, og svart runisk NORGE. Komplett guide, én runde av gangen."
-        : "Crochet NORWAY'26 Keeper — a yellow ground with a peach and golden zigzag, and black runic NORGE. Complete guide, one round at a time.",
+        ? "Hekle NORWAY'26 Keeper — gul bunn med store sikksakk-strøk i gyllent, oransje og rosa, og NORGE i svart kursiv. Komplett guide, én runde av gangen."
+        : "Crochet NORWAY'26 Keeper — a yellow ground with a golden, orange and pink zigzag, and NORGE in black italics. Complete guide, one round at a time.",
       pdfUrl: null,
       footName: 'MASKLAB',
       footUrl: null,

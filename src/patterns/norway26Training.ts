@@ -3,21 +3,23 @@ import { buildNorwayKit } from './norwayKit';
 /**
  * NORWAY'26 — Trening.
  *
- * The pre-match top, and it is the loudest garment Nike has made for this
- * federation: a dense chevron zigzag that covers the whole shirt edge to edge,
- * red on red on red with navy and off-white flaring through it, and navy at the
- * collar and cuffs. There is no plain area anywhere on it.
+ * Rich red ground, off-white NORGE, navy and light blue cutting through it, and
+ * a navy rim like the shirt's collar and cuff bands.
  *
- * COVERED, NOT DECORATED. The other four kits are a ground with strokes across
- * it — you can point at the navy or the yellow and say that is the colour of
- * the hat. This one must not read that way. Nine bundles instead of four, drawn
- * narrow and packed at a spread of 1.4, so the strokes overlap and interlock
- * and the red underneath shows as one more colour in the mix rather than as the
- * background it technically is. Hard slope and deep kink give the chevron.
+ * STRUCTURED, NOT COVERED. The pre-match top is the loudest garment Nike has
+ * made for this federation and the hat used to answer that literally: sixteen
+ * bundles packed at a narrow spread with red in its own stroke rotation as well
+ * as underneath, so no plain ground showed anywhere and the fabric read as one
+ * interlocking mass. It was the hardest hat in the collection to crochet and it
+ * was also the noisiest — four yarns in nearly every round, colour runs down to
+ * a stitch, and a wordmark fighting a field that never let up.
  *
- * This is deliberately the hardest hat in the collection to crochet — four
- * yarns live in nearly every round of it and the colour changes never let up.
- * That is the point: the shirt is the loud one, so the hat is the difficult one.
+ * Twelve bundles now, drawn broad, with red taken OUT of the stroke rotation.
+ * Red is the ground and only the ground; navy, off-white and light blue are
+ * what flare across it. The zigzag stays — this kit still carries the deepest
+ * kink in the collection, which is the shirt's own graphic — but it is a rhythm
+ * you can follow across the hat rather than an all-over texture. Athletic and
+ * geometric, and every stroke at least two stitches wide.
  */
 export const NORWAY26_TRAINING = buildNorwayKit({
   id: 'norway26-training',
@@ -31,18 +33,24 @@ export const NORWAY26_TRAINING = buildNorwayKit({
   edge: 'blue',
   field: {
     seed: 47,
-    // Red twice in the rotation as well as underneath: on the shirt the zigzag
-    // is mostly red-on-red, and the navy and off-white are what flare through
-    // it rather than the other way round.
-    strokes: ['red', 'blue', 'white', 'red', 'lightblue'],
-    count: 16,
-    width: 1.15,
-    companions: 3,
-    spread: 4.6,
-    lenMin: 0.55,
-    slope: 0.95,
-    kinkAmp: 0.9,
-    curve: 0.3,
-    tipSharp: 0.25,
+    // Navy twice: it is the structural colour on the shirt, and the one that
+    // has to carry the corridor from the crown to the rim.
+    strokes: ['blue', 'white', 'lightblue', 'blue'],
+    count: 12,
+    width: 1.35,
+    companions: 2,
+    spread: 4.4,
+    lenMin: 0.62,
+    slope: 0.34,
+    // The deepest kink of the five, and the tightest: this is the shirt's
+    // zigzag, and it is what stops Trening being Drakt in red. Five rows a leg
+    // rather than eight — at eight the same amplitude wanders five stitches
+    // from end to end, which is wider than the transition corridor, so the
+    // stroke that is supposed to carry the crown down to the brim walks out of
+    // it before it gets there.
+    kinkRows: 5,
+    kinkAmp: 0.75,
+    curve: 0.28,
+    tipSharp: 0.3,
   },
 });

@@ -305,6 +305,7 @@ export function buildCrownResolver(
   }
   let slashes: Slash[] | null = null;
   let slashColors: YarnColor[] = [];
+  let slashMinHalfW = 0;
   if (crown.kind === 'slash') {
     const p = {
       ...slashParamsFromLayer(crown.params, bandRows),
@@ -313,6 +314,7 @@ export function buildCrownResolver(
     };
     const table = slashColorList(crown.colorIds ?? [], crown.params);
     slashColors = table.colors;
+    slashMinHalfW = p.minHalfW ?? 0;
     slashes = buildSlashes(cols, p, table.mainCount, table.echoIdx);
   }
 
@@ -358,7 +360,11 @@ export function buildCrownResolver(
       // crown disc narrows. spacing converts one stitch into field columns.
       if (count < crownFieldMinCount && round.phase === 'top') return null;
       const spacing = cols / count;
-      const ci = slashAt(slashes, cols, u, v, spacing);
+      // The floor is whichever is larger: the field's own minimum width, or the
+      // stitch spacing of this round — a narrow crown round spreads one stitch
+      // over several field columns, so without the spacing term a stroke that
+      // is two stitches wide on the wall clips to one on the way in.
+      const ci = slashAt(slashes, cols, u, v, Math.max(slashMinHalfW, spacing));
       return ci >= 0 ? (slashColors[ci] ?? null) : null;
     }
     if (streaks) {
