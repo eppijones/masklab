@@ -3,40 +3,45 @@ import { buildNorwayKit } from './norwayKit';
 /**
  * NORWAY'26 — Svart.
  *
- * Black ground, white NORGE, and a monochrome field in slate and stone that
+ * Black ground, white NORGE, and a warm monochrome field in sand and cream that
  * moves across the crown, through the corridors and out over the brim. White
  * rim.
  *
- * WHITE IS THE TYPE AND THE EDGE. NOTHING ELSE ON THE HAT IS WHITE.
+ * PURE WHITE IS THE TYPE AND THE EDGE. NOTHING ELSE ON THE HAT IS PURE WHITE.
  *
- * This is the one real change of materials in the pass, and it is the change
- * that makes the kit work. The field used to be white strokes on black — the
- * same yarn as the wordmark, at the same maximum contrast — so the letters and
- * the fabric were competing for the same job, and on a black hat the loudest
- * thing was never the word. Two greys from the palette (`slate`, `stone`) carry
- * the field instead. They read as light catching an edge, the letters are the
- * only pure white on the hat, and the strongest contrast in the design lands
- * exactly where the corridor is.
+ * That rule is the kit, and it survived a change of materials. The field used to
+ * be white strokes on black — the same yarn as the wordmark, at the same maximum
+ * contrast — so the letters and the fabric competed for the same job and the
+ * loudest thing on a black hat was never the word. Two greys took the field
+ * instead, and that worked, but grey is not a yarn Espen keeps in stock, so a
+ * hat nobody can actually crochet is not a design.
  *
- * It costs the kit two yarns, from two to four. Svart was the collection's
- * simplest hat by yarn count and it stays its simplest hat by GESTURE — six
- * broad strokes, the fewest of the five, no red, no third colour, no noise.
- * Sophisticated rather than chaotic was the brief, and monochrome camouflage is
- * what a field of white speckle on black actually was.
+ * SO IT IS THREE WHITES NOW, NOT TWO GREYS. `sand` is the mid tone the fabric is
+ * built on, `cream` is the highlight that arrives once per bundle, and `white`
+ * is still reserved for the lettering and the rim. Same three-step ladder the
+ * greys gave — black, mid, light, and then the type a clear step brighter than
+ * any of them — but warm rather than cold, which suits a hat that is otherwise
+ * pure black, and every step of it is on the shelf.
+ *
+ * Svart stays the collection's simplest hat by GESTURE — six broad strokes, the
+ * fewest of the five, no red, no cool colour, no noise. Sophisticated rather
+ * than chaotic was the brief, and monochrome camouflage is what a field of white
+ * speckle on black actually was.
  */
 export const NORWAY26_BLACK = buildNorwayKit({
   id: 'norway26-black',
   title: "NORWAY'26 Svart",
   titleNo: "NORWAY'26 Svart",
-  palette: ['black', 'white', 'slate', 'stone'],
+  palette: ['black', 'white', 'sand', 'cream'],
   ground: 'black',
   textColor: 'white',
   edge: 'white',
   field: {
     seed: 7,
-    // Slate twice: it is the mid tone the hat is built on, and stone is the
-    // highlight that arrives once per bundle.
-    strokes: ['slate', 'stone', 'slate'],
+    // Sand twice: it is the mid tone the hat is built on, and cream is the
+    // highlight that arrives once per bundle. Neither is `white` — that yarn is
+    // the lettering and the rim, and nothing else.
+    strokes: ['sand', 'cream', 'sand'],
     count: 6,
     // The broadest strokes in the collection. Six of them, so there is a clear
     // run of black either side of every one.
