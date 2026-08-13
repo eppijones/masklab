@@ -114,13 +114,31 @@ const G: Record<string, string[]> = {
   P: ['XXXXX.', 'XX..XX', 'XX..XX', 'XX..XX', 'XXXXX.', 'XX....', 'XX....', 'XX....', 'XX....'],
   Q: ['.XXXX.', 'XX..XX', 'XX..XX', 'XX..XX', 'XX..XX', 'XX..XX', 'XX.XXX', 'XX..XX', '.XXXXX'],
   /**
-   * An R that cannot be a P or a B. The bowl closes at row 4 — half height —
-   * and the leg leaves from under it and walks out to the baseline right
-   * corner. A P has no leg. A B closes a second bowl instead of running a
-   * diagonal into the corner, and the giveaway is the bottom row: B ends
-   * `XXXXX.`, this ends `XX...X`.
+   * AN R WHOSE LEG IS TIED TO ITS BOWL, NOT HUNG NEAR IT.
+   *
+   * The leg used to be ONE stitch, stepping 3, 4, 5, 5 in the master. Against a
+   * two-stitch stem and a two-stitch bowl wall that is the only hairline in the
+   * face, and it did not read as a leg — it read as a row of loose stitches
+   * falling away from the letter, with a wedge of ground between them and the
+   * stem that the eye filled in with whatever the field was doing behind it.
+   *
+   * Two stitches wide, and it leaves the bowl SOLID: at row 5 the stem and the
+   * leg are contiguous — absolute columns 1–4 with no gap — so the closing bar
+   * of the bowl, the stem and the top of the leg are one block of yarn, and the
+   * leg then runs free to the baseline right corner. That junction is the whole
+   * fix. An R is a bowl with a leg growing out of it, and the growing-out-of has
+   * to be visible.
+   *
+   * The master steps 2–3, 3–4, 4–5, 4–5 rather than a clean diagonal because
+   * `lean` drops a column between rows 5 and 6: in absolute columns the leg runs
+   * 3–4, 3–4, 4–5, 4–5, which descends. Drawn as a straight master diagonal it
+   * would come out vertical.
+   *
+   * A P has no leg. A B closes a second bowl instead of running out to the
+   * corner, and the giveaway is the bottom row: B ends `XXXXX.`, this ends
+   * `XX..XX`.
    */
-  R: ['XXXXX.', 'XX..XX', 'XX..XX', 'XX..XX', 'XXXXX.', 'XX.X..', 'XX..X.', 'XX...X', 'XX...X'],
+  R: ['XXXXX.', 'XX..XX', 'XX..XX', 'XX..XX', 'XXXXX.', 'XXXX..', 'XX.XX.', 'XX..XX', 'XX..XX'],
   S: ['.XXXXX', 'XX....', 'XX....', 'XX....', '.XXXX.', '....XX', '....XX', '....XX', 'XXXXX.'],
   T: ['XXXXXX', '..XX..', '..XX..', '..XX..', '..XX..', '..XX..', '..XX..', '..XX..', '..XX..'],
   U: ['XX..XX', 'XX..XX', 'XX..XX', 'XX..XX', 'XX..XX', 'XX..XX', 'XX..XX', 'XX..XX', '.XXXX.'],

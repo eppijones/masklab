@@ -119,24 +119,28 @@ const TEXT_REPEAT = 2;
 const TEXT_MARGIN = 1;
 const TEXT_ROW_MARGIN = 1;
 /**
- * How far the field may climb past that clean round, where the letters leave
- * room for it.
+ * ZERO. THE FIELD DOES NOT CLIMB INTO THE WORD AT ALL.
  *
- * The margin above is a straight line; this is what makes the line ragged. Under
- * the open half of an R, in the gap between two letters, under the tail of a G —
- * wherever a column's own ink stops early — the field comes up two rounds
- * further than the straight edge would allow, and the stripes and the lettering
- * visibly interlock instead of meeting at a seam.
+ * This was two, and the idea was good on paper: let the lower edge of the panel
+ * follow the letters, so wherever a column's own ink stopped early the pattern
+ * came up a couple of rounds and the fabric and the lettering interlocked
+ * instead of meeting at a seam.
  *
- * TWO. At one the raggedness is not readable as anything; it is just an
- * irregular edge. At three a stroke arrives beside the letters at letter height
- * and starts tying one letter to the next, which is the exact fault the
- * protected panel exists to stop — colour in the counter of the O, an accent
- * stitch bridging the R and the G. Two rounds is the whole usable range, and it
- * is clamped per column so a letter gap can never open further than a short
- * letter does.
+ * On the hat it read as damage. The place it showed worst was the R, which is
+ * the letter with the most open ground under it — a wedge of field colour
+ * arrived in the angle between the stem and the leg, and because it was the same
+ * two rounds deep as the letter's own gap, the eye could not tell whether it was
+ * pattern behind the letter or part of the letter. Every kit had a differently
+ * shaped R depending on where its bundles happened to fall. A wordmark that is
+ * the same five letters on all seven hats cannot have that.
+ *
+ * So the edge is straight again, and the interlocking comes from the ONE thing
+ * that never touches a letterform: `TEXT_ROW_MARGIN` at 1, which hands the top
+ * round of the wall and the last two before the fold to the field, right through
+ * the word's own columns. Pattern above the word, pattern below it, one clean
+ * round between — and nothing ambiguous anywhere near a stroke.
  */
-const TEXT_MERGE_ROWS = 2;
+const TEXT_MERGE_ROWS = 0;
 /**
  * Where the transition corridor is, as a fraction of the circumference.
  *

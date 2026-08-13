@@ -750,30 +750,38 @@ function checkNorgeHat(hat: NorgeHat): void {
    * its edges FOLLOW the letters: under the open half of an R, under a letter
    * gap, the field is let up two rounds further. Three things have to hold.
    */
-  const rowStarts = zone?.rowStarts ?? [];
-  const rowEnds = zone?.rowEnds ?? [];
-  check(
-    rowStarts.length === metrics.width && rowEnds.length === metrics.width,
-    `${id}: panelkanten er målt per maske (${rowEnds.length} av ${metrics.width})`,
-  );
+  const merge = NORGE_KEEP_OUT.mergeRows;
+  const rowStarts = zone?.rowStarts ?? [zone?.rowStart ?? 0];
+  const rowEnds = zone?.rowEnds ?? [zone?.rowEnd ?? 0];
+  const panelTop = Math.min(...rowStarts);
+  const panelBottom = Math.max(...rowEnds);
   // One clear round above the letters and one below, both inside the wall — so
   // the field crosses the word's own columns at the top and bottom of the wall.
   check(
-    rowStarts.length > 0 &&
-      Math.min(...rowStarts) > 0 &&
-      Math.max(...rowEnds) < hat.bandRows - 1,
-    `${id}: feltet går over og under ordet (rad ${Math.min(...rowStarts)}–${Math.max(...rowEnds)} av ${hat.bandRows})`,
-  );
-  // And the edge is ragged by exactly the allowance — never more, or a stroke
-  // arrives beside the letters at letter height and ties one to the next.
-  const ragged = Math.max(...rowEnds) - Math.min(...rowEnds);
-  check(
-    ragged === NORGE_KEEP_OUT.mergeRows,
-    `${id}: underkanten følger bokstavene ${ragged} rader (skal være ${NORGE_KEEP_OUT.mergeRows})`,
+    panelTop > 0 && panelBottom < hat.bandRows - 1,
+    `${id}: feltet går over og under ordet (panel rad ${panelTop}–${panelBottom} av ${hat.bandRows})`,
   );
   check(
     panelCells < 2 * metrics.width * hat.bandRows,
     `${id}: panelet dekker ikke lenger hele veggen (${panelCells} celler)`,
+  );
+  /**
+   * AND THE EDGE IS STRAIGHT, WHICH IS NOW THE POINT RATHER THAN A LIMITATION.
+   *
+   * `mergeRows` at 0 means no column of the panel is opened further than any
+   * other, so no kit can grow a wedge of field colour in the angle of its own R.
+   * The test tracks the constant rather than hard-coding a shape, so if the
+   * ragged edge is ever tried again this still says what it should be — but at 0
+   * the assertion is the strong one: every column ends on the same round.
+   */
+  const ragged = panelBottom - Math.min(...rowEnds);
+  check(
+    ragged === merge,
+    `${id}: underkanten er ${merge === 0 ? 'rett' : `ujevn ${merge} rader`} (målt ${ragged})`,
+  );
+  check(
+    merge > 0 || zone?.rowStarts == null,
+    `${id}: ingen per-maske-kant når feltet ikke skal klatre inn i ordet`,
   );
 
   // ---- The corridor: wide enough, and NOT masked ----
@@ -788,7 +796,7 @@ function checkNorgeHat(hat: NorgeHat): void {
    * A stroke field marks a ground, so «how much of the corridor is not ground»
    * is a fair measure of it: at thirty per cent or better the gap is visibly
    * carrying the pattern. An OPAQUE field is not that shape at all. Skifer's
-   * bands are black, slate, black, stone, and black IS the hat's ground — so
+   * bands alternate with the hat's own ground colour — so
    * half its corridor is legitimately ground-coloured and a share test reads
    * 22 % on a corridor that is completely full of pattern. What that field has
    * to show instead is that more than one band crosses the gap.
@@ -973,9 +981,10 @@ const NORWAY_KITS: KitExpectation[] = [
   },
   {
     id: 'norway26-black',
-    // White is the type and the rim, and nothing else on the hat is white —
-    // the field is two greys. See the note in `norway26Black.ts`.
-    palette: ['black', 'white', 'slate', 'stone'],
+    // PURE white is the type and the rim, and nothing else on the hat is pure
+    // white — the field is two warmer whites. Grey is not a yarn that gets kept
+    // in stock, which is why it is not here. See the note in `norway26Black.ts`.
+    palette: ['black', 'white', 'sand', 'cream'],
     dominant: 'black',
     patterned: true,
   },
