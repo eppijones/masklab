@@ -289,6 +289,26 @@ export function buildCrownResolver(
   // Crown rounds below this stitch count stay plain — the flat middle of the
   // disc, where there is not enough circumference to hold the motif.
   const crownFieldMinCount = Number(crown.params.crownFieldMinCount ?? 0);
+  /**
+   * HOW MUCH GROUND THE CROWN KEEPS.
+   *
+   * The width floor below is the round's stitch spacing, so a stroke can never
+   * clip to nothing as the disc narrows. Near the centre that over-corrects
+   * badly: a 30-stitch round spreads one stitch over 3.3 field columns, so
+   * every stroke is inflated to 3.3 columns and the ground is squeezed out —
+   * the top of the crown comes out almost entirely covered while the wall,
+   * where spacing is 1, sits at the width it was drawn.
+   *
+   * `crownFieldEase` scales that floor back on crown rounds only. Its effect is
+   * self-tapering: the deeper rounds hit the field's own `minHalfW` and stop
+   * changing, so the ground returns at the top and the wall is untouched.
+   *
+   * `crownFieldEaseFrom` is the smallest round it applies to, in stitches.
+   * Rounds under it keep the full floor — which is what lets a crown be opened
+   * up without recolouring rounds that are already on someone's hook.
+   */
+  const crownFieldEase = Number(crown.params.crownFieldEase ?? 1);
+  const crownFieldEaseFrom = Number(crown.params.crownFieldEaseFrom ?? 0);
 
   let streaks: Streak[] | null = null;
   let streakSeed = 0;
@@ -354,12 +374,18 @@ export function buildCrownResolver(
     if (isBrim && brimSlopeGain !== 1) {
       u += fieldSlope * (v - bandRows) * (1 - brimSlopeGain);
     }
+    // The stitch-spacing floor, eased on crown rounds big enough to qualify.
+    const widthFloor = (spacing: number) =>
+      round.phase === 'top' && count >= crownFieldEaseFrom
+        ? spacing * crownFieldEase
+        : spacing;
+
     if (slashes) {
       // Same trap as the streak field: u is in field columns, but a stroke's
       // width has to stay constant in STITCHES or it clips to nothing as the
       // crown disc narrows. spacing converts one stitch into field columns.
       if (count < crownFieldMinCount && round.phase === 'top') return null;
-      const spacing = cols / count;
+      const spacing = widthFloor(cols / count);
       // The floor is whichever is larger: the field's own minimum width, or the
       // stitch spacing of this round — a narrow crown round spreads one stitch
       // over several field columns, so without the spacing term a stroke that
@@ -373,7 +399,7 @@ export function buildCrownResolver(
       // conversion a streak that is two stitches wide on the wall clips down to
       // a single stitch up on the crown.
       if (count < crownFieldMinCount && round.phase === 'top') return null;
-      const spacing = cols / count;
+      const spacing = widthFloor(cols / count);
       return streakAt(
         streaks,
         cols,
