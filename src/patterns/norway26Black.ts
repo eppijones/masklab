@@ -67,6 +67,31 @@ export const NORWAY26_BLACK = buildNorwayKit({
      * chasing.
      */
     strokes: ['slate', 'white', 'slate', 'white', 'slate'],
+    /**
+     * MORE BLACK ON THE CROWN, AND NOT ONE STITCH OF IT ABOVE ROUND 3.
+     *
+     * The crown was coming out almost solid pattern — rounds 3 to 8 measured
+     * 7–15 % ground where the wall runs near 40 %. That is the width floor:
+     * it is the round's stitch spacing, so a 30-stitch round inflates every
+     * stroke to 3.3 field columns and nothing is left between them. Seen from
+     * directly above, which is how a hat is seen on a head, the black had gone.
+     *
+     * `crownEaseFrom: 25` is the whole reason this is safe. The crown plan is
+     * 10, 20, 30, 30, 40 … so rounds 1 and 2 sit under the threshold and keep
+     * the full floor: their stitches are arithmetically identical before and
+     * after, which matters because they are already crocheted. The ease starts
+     * at round 3 — the next one on the hook.
+     *
+     * 0.8 IS THE FLOOR THE CROCHETABILITY CHECK ALLOWS, not a taste decision.
+     * Thinning the strokes is what lets the ground through, and thin strokes
+     * fragment into one-stitch marks — a yarn change apiece. At 0.45 the crown
+     * reached 51 % black and the single-stitch share hit 36 %, past the 32 %
+     * this kit is held to; 0.75 still measured 32.0 %. Since «the easiest hat
+     * in the collection» is the entire brief for this one, the cap wins and the
+     * crown settles at 30 % black on rounds 3–10, up from 15 %.
+     */
+    crownEase: 0.8,
+    crownEaseFrom: 25,
     /** Home's field geometry, slimmed a notch — see the note at the top. */
     count: 12,
     width: 1.25,
@@ -77,6 +102,12 @@ export const NORWAY26_BLACK = buildNorwayKit({
     curve: 0.28,
     kinkRows: 5,
     kinkAmp: 0.75,
-    tipSharp: 0.3,
+    /**
+     * Pointier at the crown end than Home's 0.3, which buys a little more
+     * ground at the top for free — the taper narrows the stroke where the disc
+     * is small without thinning it on the wall. 0.75 was the next step tried
+     * and it moved round 2, so 0.6 is the ceiling here.
+     */
+    tipSharp: 0.6,
   },
 });

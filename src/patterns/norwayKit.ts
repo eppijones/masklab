@@ -194,6 +194,19 @@ export interface NorwayFieldSpec {
   width?: number;
   /** Every Nth stroke drawn thin, for a thick/thin rhythm. */
   thinEvery?: number;
+  /**
+   * How much of the crown's stitch-spacing width floor to keep (default 1 =
+   * all of it). Lower lets the ground back in at the top of the crown, where
+   * the floor otherwise inflates every stroke to several field columns. See
+   * `crownFieldEase` in `buildCrownResolver`.
+   */
+  crownEase?: number;
+  /**
+   * Smallest crown round, in stitches, that `crownEase` touches. Rounds under
+   * it keep the full floor and so cannot change colour — which is how a crown
+   * gets opened up without altering rounds already crocheted.
+   */
+  crownEaseFrom?: number;
   /** Thin strokes travelling with each core (default 3). */
   companions?: number;
   /** Sideways step between companions, in stitches (default 3.2). */
@@ -361,6 +374,12 @@ function fieldParams(
      * patterned ring around a plain cap.
      */
     crownFieldMinCount: 20,
+    /**
+     * Untouched at 1 for the kits drawn before this existed, so adding the dial
+     * cannot have moved a stitch on any of them.
+     */
+    crownFieldEase: field.crownEase ?? 1,
+    crownFieldEaseFrom: field.crownEaseFrom ?? 0,
 
     /**
      * THE WORDMARK GETS CLEAN GROUND, AND THE WORDMARK IS WHAT SAYS SO.
