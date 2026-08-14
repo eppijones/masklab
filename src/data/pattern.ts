@@ -175,6 +175,66 @@ export function increaseRole(
   return 'plain';
 }
 
+/** A round's shape as far as increases go — the three fields every helper needs. */
+type IncRound = Pick<Round, 'count' | 'increaseEvery' | 'num'>;
+
+/**
+ * The same-V pairs of a round, as 1-based stitch numbers [first, second].
+ * An increase is two stitches worked into one V below; these are the two, and
+ * they are the thing a crocheter loses track of when jumping by colour block.
+ */
+export function increasePairs(round: IncRound): [number, number][] {
+  const k = round.increaseEvery;
+  if (k === null || round.num === 1) return [];
+  const pairs: [number, number][] = [];
+  for (let i = 0; i + 1 < round.count; i++) {
+    if (increaseRole(i, k, round.num) === 'first-of-two') {
+      pairs.push([i + 1, i + 2]);
+    }
+  }
+  return pairs;
+}
+
+export interface RunIncreases {
+  /** Same-V pairs that live entirely inside this colour field. */
+  inside: [number, number][];
+  /** This field's first stitch shares its V with the last stitch of the field before. */
+  opensInSameV: boolean;
+  /** This field's last stitch shares its V with the first stitch of the next field. */
+  closesIntoNextV: boolean;
+  /** How many V's below the field consumes — stitches minus the doubled ones. */
+  holes: number;
+}
+
+/**
+ * Where the increases fall inside one colour field.
+ *
+ * The two boundary flags matter most: when a pair straddles a colour change,
+ * two *different* colours go into the same V, and nothing in a plain
+ * "1 blå / 1 hvit" chip list would ever tell you that.
+ */
+export function runIncreases(run: StitchRun, round: IncRound): RunIncreases {
+  const k = round.increaseEvery;
+  if (k === null || round.num === 1) {
+    return { inside: [], opensInSameV: false, closesIntoNextV: false, holes: run.count };
+  }
+  const inside: [number, number][] = [];
+  let doubles = 0;
+  for (let n = run.from; n <= run.to; n++) {
+    const role = increaseRole(n - 1, k, round.num);
+    if (role === 'second-of-two') doubles++;
+    if (role === 'first-of-two' && n < run.to) inside.push([n, n + 1]);
+  }
+  return {
+    inside,
+    opensInSameV: increaseRole(run.from - 1, k, round.num) === 'second-of-two',
+    closesIntoNextV:
+      run.to < round.count &&
+      increaseRole(run.to - 1, k, round.num) === 'first-of-two',
+    holes: run.count - doubles,
+  };
+}
+
 export function rhythmCells(increaseEvery: number): string[] {
   if (increaseEvery === 1) return ['2 i samme'];
   return [

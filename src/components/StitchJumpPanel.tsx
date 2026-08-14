@@ -1,5 +1,6 @@
 import { useApp, getModel, isPatterned } from '../store';
-import { roundRuns, increaseRole, runText } from '../data/pattern';
+import { roundRuns, increaseRole } from '../data/pattern';
+import FieldChips from './FieldChips';
 import { t } from '../i18n/ui';
 
 /**
@@ -26,7 +27,6 @@ export default function StitchJumpPanel({ onPicked }: { onPicked?: () => void })
   const before = step.roundIdx! > 0 ? model.cumCounts[step.roundIdx! - 1] : 0;
   const runs = patterned ? roundRuns(model.stitches, step.roundIdx!) : [];
   const role = c < round.count ? increaseRole(c, round.increaseEvery, round.num) : null;
-  const curRun = runs.find((r) => c + 1 >= r.from && c + 1 <= r.to);
   const hasIncreases = round.increaseEvery !== null && round.num !== 1;
 
   const nextColorBoundary = (() => {
@@ -99,22 +99,13 @@ export default function StitchJumpPanel({ onPicked }: { onPicked?: () => void })
       </div>
 
       {runs.length > 1 && (
-        <div className="runs stitch-runs">
-          {runs.map((r, i) => (
-            <button
-              key={i}
-              type="button"
-              className={`run-chip ${r.color} ${r === curRun ? 'current' : ''} ${c + 1 > r.to ? 'done' : ''}`}
-              title={`${locale === 'en' ? 'Stitch' : 'Maske'} ${r.from}–${r.to}`}
-              onClick={() => pick(r.from - 1)}
-            >
-              {runText(r, locale)}
-              <span className="run-range">
-                {r.from === r.to ? r.from : `${r.from}–${r.to}`}
-              </span>
-            </button>
-          ))}
-        </div>
+        <FieldChips
+          runs={runs}
+          round={round}
+          cursor={c}
+          locale={locale}
+          onPick={pick}
+        />
       )}
     </section>
   );

@@ -130,7 +130,7 @@ export default function RecipeDrawer() {
                 }
               }}
             >
-              Hekle med guide →
+              Start →
             </a>
             <button
               type="button"

@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useApp, getModel, isPatterned } from '../store';
 import { YARN_NAME } from '../data/types';
-import { roundRuns, increaseRole, runText } from '../data/pattern';
+import { roundRuns, increaseRole } from '../data/pattern';
+import FieldChips from './FieldChips';
 
 /** One repeat of the increase rhythm — matches the written recipe. */
 function rhythmChip(round: { increaseEvery: number | null; count: number; num: number }) {
@@ -45,7 +46,6 @@ export default function StitchOverlay({ hiddenOnMobile = false }: { hiddenOnMobi
   const runs = patterned ? roundRuns(model.stitches, step.roundIdx!) : [];
   const nextStitch = c < round.count ? model.stitches[before + c] : null;
   const role = nextStitch ? increaseRole(c, round.increaseEvery, round.num) : null;
-  const curRun = runs.find((r) => c + 1 >= r.from && c + 1 <= r.to);
   const hasIncreases = round.increaseEvery !== null && round.num !== 1;
 
   const nextColorBoundary = (() => {
@@ -168,22 +168,13 @@ export default function StitchOverlay({ hiddenOnMobile = false }: { hiddenOnMobi
           )}
 
           {runs.length > 1 && (
-            <div className="runs stitch-runs">
-              {runs.map((r, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  className={`run-chip ${r.color} ${r === curRun ? 'current' : ''} ${c + 1 > r.to ? 'done' : ''}`}
-                  title={`Maske ${r.from}–${r.to}`}
-                  onClick={() => setCursor(r.from - 1)}
-                >
-                  {runText(r, locale)}
-                  <span className="run-range">
-                    {r.from === r.to ? r.from : `${r.from}–${r.to}`}
-                  </span>
-                </button>
-              ))}
-            </div>
+            <FieldChips
+              runs={runs}
+              round={round}
+              cursor={c}
+              locale={locale}
+              onPick={setCursor}
+            />
           )}
         </div>
       )}

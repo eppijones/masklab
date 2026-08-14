@@ -87,11 +87,14 @@ function PlatformRouter() {
 }
 
 function Root() {
+  // Subscribing to the path here (not just inside PlatformRouter) is what makes
+  // leaving the studio work: a client-side /studio → /oppskrifter has to
+  // re-render Root, or the studio stays mounted under a platform URL.
+  const path = usePath();
   const guide = isGuideEntry() || isHeleneEntry();
   const studio = isStudioEntry();
 
   useEffect(() => {
-    const path = window.location.pathname.replace(/\/+$/, '') || '/';
     document.documentElement.dataset.app = guide
       ? 'guide'
       : studio
@@ -105,7 +108,7 @@ function Root() {
       : guide
         ? `${customTitle ?? patternIdFromUrl()} — MASKLAB`
         : 'MASKLAB* — Interaktive 3D-heklemønstre';
-  }, [guide, studio]);
+  }, [guide, studio, path]);
 
   if (guide) {
     return (

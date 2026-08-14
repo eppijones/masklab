@@ -127,7 +127,22 @@ const no = {
   hudSetMarkerHint: (n: number) => `— i V-en på masken du nettopp laget (nr. ${n}).`,
   hudMarkerOf: (a: number, b: number) => `Markør ${a} av ${b} i denne runden.`,
   plusOneStitch: '+1 maske',
+  minusOneStitchShort: '−1 maske',
   sc: 'fastmaske',
+  stitchWord: 'Maske',
+  // Same-V wording. "V" is the stitch head you put the hook through, so
+  // "samme V" is the phrase a crocheter checks against the work in her hands.
+  chipPairSameV: (a: number, b: number) => `nr. ${a} + ${b} i samme V`,
+  chipOpensSameV: (prev: number, n: number) =>
+    `nr. ${n} går i samme V som nr. ${prev} i feltet før`,
+  chipClosesSameV: (n: number, next: number) =>
+    `nr. ${next} i neste felt går i samme V som nr. ${n}`,
+  chipHoles: (n: number) => `dekker ${n} V`,
+  legendPair: 'begge maskene i samme V',
+  legendLink: 'deler V med feltet ved siden av',
+  hudSameV: 'Samme V:',
+  hudPairAcross: (n: number, next: number, color: string) =>
+    `Obs: nr. ${next} (${color}) skal i samme V som nr. ${n}.`,
 } as const;
 
 type UiDict = {
@@ -242,7 +257,20 @@ const en: UiDict = {
   hudSetMarkerHint: (n: number) => `— in the V of the stitch you just made (no. ${n}).`,
   hudMarkerOf: (a: number, b: number) => `Marker ${a} of ${b} in this round.`,
   plusOneStitch: '+1 stitch',
+  minusOneStitchShort: '−1 stitch',
   sc: 'single crochet',
+  stitchWord: 'Stitch',
+  chipPairSameV: (a: number, b: number) => `no. ${a} + ${b} into the same V`,
+  chipOpensSameV: (prev: number, n: number) =>
+    `no. ${n} goes into the same V as no. ${prev} in the block before`,
+  chipClosesSameV: (n: number, next: number) =>
+    `no. ${next} in the next block goes into the same V as no. ${n}`,
+  chipHoles: (n: number) => `covers ${n} V`,
+  legendPair: 'both stitches into the same V',
+  legendLink: 'shares a V with the block next to it',
+  hudSameV: 'Same V:',
+  hudPairAcross: (n: number, next: number, color: string) =>
+    `Note: no. ${next} (${color}) goes into the same V as no. ${n}.`,
 };
 
 export const UI = { no, en } as const;

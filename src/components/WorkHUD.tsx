@@ -9,6 +9,7 @@ import {
   nextRhythmStep,
   nextRunStep,
   prevRunCursor,
+  runIncreases,
   runText,
   rhythmProgress,
 } from '../data/pattern';
@@ -99,6 +100,21 @@ export default function WorkHUD({ hideControls = false }: { hideControls?: boole
   const runs = patterned ? roundRuns(model.stitches, step.roundIdx) : [];
   const curRun = !done ? runs.find((r) => c + 1 >= r.from && c + 1 <= r.to) : undefined;
 
+  /**
+   * Same-V pairs still ahead in this colour field. Advancing a whole field in
+   * one press would otherwise hide them: "4 røde" is four stitches but only
+   * three V's, and the crocheter has to know which two share one.
+   */
+  const curInc = curRun ? runIncreases(curRun, round) : null;
+  const aheadPairs = curInc
+    ? curInc.inside.filter(([a]) => a >= c + 1)
+    : [];
+  // The pair that straddles the end of this field: its second stitch is the
+  // first stitch of the NEXT field, so two colours land in one V.
+  const crossesOut = !!curInc?.closesIntoNextV && curRun !== undefined;
+  const crossColor =
+    crossesOut && curRun ? model.stitches[before + curRun.to]?.color ?? null : null;
+
   let belowColor: YarnColor | null = null;
   if (!done && step.roundIdx > 0) {
     const prevStart = step.roundIdx > 1 ? model.cumCounts[step.roundIdx - 2] : 0;
@@ -115,13 +131,18 @@ export default function WorkHUD({ hideControls = false }: { hideControls?: boole
   const repeats = k !== null ? Math.floor(round.count / (k + 1)) : 0;
   const showMarker = !done && c > 0 && c % 10 === 0;
   const showJump = !hideControls && patterned && !done && jumpTo !== null;
-  const nowClass = changeIsNow
-    ? 'change'
-    : role === 'second-of-two'
+  // A colour change and an increase can land on the SAME stitch. The increase
+  // decides which hole the hook goes in, so it owns the box; the colour change
+  // still gets its own alert row inside it. Showing only one of the two is how
+  // a pair used to disappear mid-round.
+  const nowClass =
+    role === 'second-of-two'
       ? 'inc'
       : role === 'first-of-two'
         ? 'pair'
-        : '';
+        : changeIsNow
+          ? 'change'
+          : '';
 
   const useBlocks = patterned && runs.length > 1 && !done;
   const runStep = useBlocks ? nextRunStep(c, runs, round.count) : null;
@@ -185,43 +206,48 @@ export default function WorkHUD({ hideControls = false }: { hideControls?: boole
               </div>
             ) : (
               <div className={`workhud-now ${nowClass}`}>
-                {changeIsNow && newColor ? (
-                  <>
-                    <span className="workhud-alert">{ui.hudColorChange}</span>
-                    <span className="workhud-line">
-                      {locale === 'en' ? 'Crochet with' : 'Hekle med'}{' '}
-                      <Dot color={nextStitch!.color} big /> {NAME_UPPER[nextStitch!.color]},{' '}
-                      {locale === 'en' ? 'pull' : 'trekk'} <Dot color={newColor} big />{' '}
-                      <strong>{NAME_UPPER[newColor]}</strong>{' '}
-                      {locale === 'en'
-                        ? 'through the last two loops.'
-                        : 'gjennom siste to løkker.'}
-                    </span>
-                  </>
-                ) : role === 'second-of-two' ? (
-                  <>
-                    <span className="workhud-alert inc">
-                      <span className="workhud-frac">2/2</span>
-                      {ui.hudIncSame}
-                    </span>
-                    <span className="workhud-line">{ui.hudIncSecond(c + 1, c)}</span>
-                  </>
+                {role === 'second-of-two' && (
+                  <span className="workhud-alert inc">
+                    <span className="workhud-frac">2/2</span>
+                    {ui.hudIncSame}
+                  </span>
+                )}
+                {role === 'first-of-two' && (
+                  <span className="workhud-alert pair">
+                    <span className="workhud-frac">1/2</span>
+                    {ui.hudPairFirst}
+                  </span>
+                )}
+                {changeIsNow && newColor && (
+                  <span className="workhud-alert">{ui.hudColorChange}</span>
+                )}
+
+                {role === 'second-of-two' ? (
+                  <span className="workhud-line">{ui.hudIncSecond(c + 1, c)}</span>
                 ) : role === 'first-of-two' ? (
-                  <>
-                    <span className="workhud-alert pair">
-                      <span className="workhud-frac">1/2</span>
-                      {ui.hudPairFirst}
-                    </span>
-                    <span className="workhud-line">
-                      {locale === 'en' ? 'No.' : 'Nr.'} {c + 1}:{' '}
-                      <Dot color={nextStitch!.color} big />{' '}
-                      <strong>{NAME_UPPER[nextStitch!.color]}</strong>{' '}
-                      {locale === 'en' ? 'in the next V. Next = same hole.' : 'i neste V. Neste = samme hull.'}
-                    </span>
-                  </>
+                  <span className="workhud-line">
+                    {locale === 'en' ? 'No.' : 'Nr.'} {c + 1}:{' '}
+                    <Dot color={nextStitch!.color} big />{' '}
+                    <strong>{NAME_UPPER[nextStitch!.color]}</strong>{' '}
+                    {locale === 'en'
+                      ? `in the next V. No. ${c + 2} goes into that same hole.`
+                      : `i neste V. Nr. ${c + 2} skal i samme hull.`}
+                  </span>
                 ) : (
                   <span className="workhud-line">
                     {ui.hudPlain(c + 1, NAME_UPPER[nextStitch!.color])}
+                  </span>
+                )}
+
+                {changeIsNow && newColor && (
+                  <span className="workhud-line">
+                    {locale === 'en' ? 'Crochet with' : 'Hekle med'}{' '}
+                    <Dot color={nextStitch!.color} big /> {NAME_UPPER[nextStitch!.color]},{' '}
+                    {locale === 'en' ? 'pull' : 'trekk'} <Dot color={newColor} big />{' '}
+                    <strong>{NAME_UPPER[newColor]}</strong>{' '}
+                    {locale === 'en'
+                      ? 'through the last two loops.'
+                      : 'gjennom siste to løkker.'}
                   </span>
                 )}
               </div>
@@ -271,6 +297,22 @@ export default function WorkHUD({ hideControls = false }: { hideControls?: boole
                     <strong>{NAME_UPPER[belowColor]} V</strong>
                   </span>
                 )}
+                {aheadPairs.length > 0 && (
+                  <span className="workhud-samev">
+                    {' · '}
+                    {ui.hudSameV}{' '}
+                    <strong>
+                      {aheadPairs.map(([a, b]) => `${a}+${b}`).join(', ')}
+                    </strong>
+                  </span>
+                )}
+              </div>
+            )}
+
+            {!done && crossesOut && crossColor && curRun && (
+              <div className="workhud-cross">
+                <Dot color={crossColor} />{' '}
+                {ui.hudPairAcross(curRun.to, curRun.to + 1, NAME_UPPER[crossColor])}
               </div>
             )}
           </div>
@@ -321,6 +363,13 @@ export default function WorkHUD({ hideControls = false }: { hideControls?: boole
               {useBlocks && runStep && (
                 <span className="workhud-unit-meta">
                   {ui.fieldOf(runStep.runIndex + 1, runStep.runsTotal)}
+                  {aheadPairs.length > 0 && (
+                    <>
+                      {' · '}
+                      {aheadPairs.map(([a, b]) => `${a}+${b}`).join(' ')}{' '}
+                      {locale === 'en' ? 'same V' : 'i samme V'}
+                    </>
+                  )}
                 </span>
               )}
               {useRhythm && rProgress && (
@@ -330,15 +379,30 @@ export default function WorkHUD({ hideControls = false }: { hideControls?: boole
               )}
             </button>
           )}
+          {/* Single-stitch steps, both ways. The big button moves a whole
+              field or rhythm unit; these are how you walk an increase pair
+              one stitch at a time, or undo a miscount without losing the
+              field you are in. */}
           {unitMode && !done && (
-            <button
-              type="button"
-              className="workhud-pm fine"
-              onClick={() => setCursor(Math.min(round.count, c + 1))}
-              title={ui.plusOneStitchShort}
-            >
-              {ui.plusOneStitchShort}
-            </button>
+            <span className="workhud-fine-group">
+              <button
+                type="button"
+                className="workhud-pm fine"
+                onClick={() => setCursor(Math.max(0, c - 1))}
+                disabled={c === 0}
+                title={ui.minusOneStitchShort}
+              >
+                {ui.minusOneStitchShort}
+              </button>
+              <button
+                type="button"
+                className="workhud-pm fine"
+                onClick={() => setCursor(Math.min(round.count, c + 1))}
+                title={ui.plusOneStitchShort}
+              >
+                {ui.plusOneStitchShort}
+              </button>
+            </span>
           )}
           {showJump && !useBlocks && (
             <button
