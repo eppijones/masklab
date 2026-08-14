@@ -1095,3 +1095,21 @@
     padding: 16px 20px;
   }
 }
+
+/* Small phones: the wordmark and three links have to share 375px without the
+   last one falling off the edge. Tightening the tracking and the gaps buys
+   ~20px, which is enough — the nav font stays readable. */
+@media (max-width: 430px) {
+  .ml-topnav {
+    padding: 0 10px;
+    gap: 6px;
+  }
+
+  .ml-topnav .ml-wordmark {
+    letter-spacing: 0.07em;
+  }
+
+  .ml-navlinks {
+    gap: 10px;
+  }
+}
