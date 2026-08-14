@@ -71,7 +71,7 @@ export default function CollectionPage() {
               </div>
               <div className="ml-coll-actions">
                 <a href={`/oppskrift/${p.id}`} className="ml-btn primary">
-                  Hekle med guide →
+                  Start →
                 </a>
                 {HELENE_PDFS[p.id] && (
                   <a

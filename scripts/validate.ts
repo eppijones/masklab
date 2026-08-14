@@ -982,9 +982,9 @@ const NORWAY_KITS: KitExpectation[] = [
   {
     id: 'norway26-black',
     // PURE white is the type and the rim, and nothing else on the hat is pure
-    // white — the field is two warmer whites. Grey is not a yarn that gets kept
-    // in stock, which is why it is not here. See the note in `norway26Black.ts`.
-    palette: ['black', 'white', 'sand', 'cream'],
+    // white — the field is one true grey, which is now the yarn in stock. Three
+    // colours total, the shortest list of the five. See `norway26Black.ts`.
+    palette: ['black', 'white', 'slate'],
     dominant: 'black',
     patterned: true,
   },

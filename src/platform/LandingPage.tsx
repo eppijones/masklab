@@ -3,7 +3,6 @@ import { navigate } from '../lib/router';
 import { CATALOG } from './catalog';
 import HatCard3D from './HatCard3D';
 import HeroHat from './HeroHat';
-import PixelMarquee from './PixelMarquee';
 import { hasStudioDraft } from '../studio/store';
 
 const SHAPES: { id: string; label: string; active?: boolean }[] = [
@@ -89,7 +88,6 @@ export default function LandingPage() {
         <HeroHat />
       </div>
 
-      <PixelMarquee />
 
       <div className="ml-landing-body">
         <div className="ml-block">

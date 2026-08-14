@@ -177,15 +177,29 @@ export default function MobileDock({
         </div>
       )}
 
+      {/* The big button moves a whole field or rhythm unit. These walk one
+          stitch at a time — the only way to take an increase pair in two
+          presses, or to back out of a miscount without losing the field. */}
       {counting && unitMode && !done && (
-        <button
-          type="button"
-          className="mobile-dock-fine"
-          onClick={() => setCursor(Math.min(roundCount, c + 1))}
-          title={ui.plusOneStitchShort}
-        >
-          {ui.plusOneStitchShort}
-        </button>
+        <div className="mobile-dock-fine-row">
+          <button
+            type="button"
+            className="mobile-dock-fine"
+            onClick={() => setCursor(Math.max(0, c - 1))}
+            disabled={c === 0}
+            title={ui.minusOneStitchShort}
+          >
+            {ui.minusOneStitchShort}
+          </button>
+          <button
+            type="button"
+            className="mobile-dock-fine"
+            onClick={() => setCursor(Math.min(roundCount, c + 1))}
+            title={ui.plusOneStitchShort}
+          >
+            {ui.plusOneStitchShort}
+          </button>
+        </div>
       )}
 
       <div className="mobile-dock-nav">

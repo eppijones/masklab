@@ -407,18 +407,6 @@
   justify-content: center;
 }
 
-.ml-landing > .pixel-marquee {
-  margin: 8px auto 34px;
-}
-
-.pixel-marquee {
-  width: min(920px, 92%);
-  height: auto;
-  display: block;
-  margin-top: 26px;
-  image-rendering: pixelated;
-}
-
 .ml-landing-body {
   max-width: 1360px;
   margin: 0 auto;

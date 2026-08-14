@@ -55,7 +55,7 @@ function Card({
         </div>
         <div className="ml-card-actions">
           <a href={`/oppskrift/${p.id}`} className="ml-btn primary">
-            Hekle med guide →
+            Start →
           </a>
           <a href={`/studio?pattern=${p.id}`} className="ml-btn ghost">
             Åpne i studio

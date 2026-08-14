@@ -89,11 +89,11 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
-      'Svart bunn med seks brede strøk i sand og krem over pull, side og brem — den enkleste gesten i kolleksjonen. Rent hvitt brukes bare til skriften og kanten, så bokstavene er det eneste rene hvite på hatten.',
+      'Svart bunn med seks brede grå strøk over pull, side og brem — den enkleste gesten i kolleksjonen. Du trenger bare tre garn: svart, grått og hvitt. Rent hvitt brukes bare til skriften og kanten, så bokstavene er det eneste rene hvite på hatten.',
       'NORGE i hvit kursiv foran og bak, på ubrutt svart bunn. Mønsteret fortsetter ned i bremmen gjennom feltet mellom ordene, og bare de to nederste rundene hekles hvite som kant.',
     ],
     tipsEn: [
-      'A black ground crossed by six broad strokes in sand and cream over crown, wall and brim — the simplest gesture in the collection. Pure white is kept for the lettering and the edge, so the letters are the only pure white on the hat.',
+      'A black ground crossed by six broad grey strokes over crown, wall and brim — the simplest gesture in the collection. Three yarns in all: black, grey and white. Pure white is kept for the lettering and the edge, so the letters are the only pure white on the hat.',
       'NORGE in white italics front and back on unbroken black. The pattern carries on onto the brim through the channel between the words, and only the last two rounds are worked in white as the edge.',
     ],
   },
@@ -216,8 +216,8 @@ export function welcomeCopy(id: PatternId, locale: 'no' | 'en'): WelcomeCopy {
       brandKicker: "NORWAY'26",
       titleEm: no ? 'svart' : 'black',
       lede: no
-        ? "Hekle NORWAY'26 Svart — svart bøttehatt med brede strøk i sand og krem, NORGE i hvit kursiv og hvit kant. Den enkleste i kolleksjonen, med komplett guide."
-        : "Crochet NORWAY'26 Black — a black bucket hat with broad grey strokes, NORGE in white italics and a white edge. The simplest in the collection, with a complete guide.",
+        ? "Hekle NORWAY'26 Svart — svart bøttehatt med brede grå strøk, NORGE i hvit kursiv og hvit kant. Tre garn, den enkleste i kolleksjonen, med komplett guide."
+        : "Crochet NORWAY'26 Black — a black bucket hat with broad grey strokes, NORGE in white italics and a white edge. Three yarns, the simplest in the collection, with a complete guide.",
       pdfUrl: null,
       footName: 'MASKLAB',
       footUrl: null,
