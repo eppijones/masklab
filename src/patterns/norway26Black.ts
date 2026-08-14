@@ -28,10 +28,10 @@ import { buildNorwayKit } from './norwayKit';
  * This hat used to run six broad bundles against the others' twelve, which
  * measured 23 colour fields per round where every other kit sits between 33 and
  * 36 — it had stopped being the same fabric in monochrome and become a few clean
- * diagonal sweeps. It takes Home's field geometry now, a touch slimmer (1.25
- * against 1.35, so more ground shows between the marks and black stays the
- * largest colour), and lets the palette do the quietening: 32.9 fields per round
- * and a 2.59-stitch mean patch, both Keeper's numbers to the decimal.
+ * diagonal sweeps. It takes Home's field geometry now, opened out — slimmer
+ * strokes, wider gaps inside each bundle, companions that stop short — so black
+ * shows between the marks the way it does on the other four: 33.8 fields per
+ * round and a 2.52-stitch mean patch, between Keeper's and Home's.
  *
  * AND IT IS STILL THE EASY HAT. Three yarns — black, grey, white — the shortest
  * list in the collection, no red and no cool colour. The pattern is busy; the
@@ -61,10 +61,10 @@ export const NORWAY26_BLACK = buildNorwayKit({
      * rounds of the hat repeat the same bundle-to-ink mapping) while leaving
      * grey the majority of the strokes.
      *
-     * Measured: field 62 grey / 38 white, whole hat black 39 %, white 37 %,
-     * grey 24 %. Mean pattern patch 2.59 stitches and 32.9 colour fields per
-     * round — both exactly Keeper's numbers, which is the texture this is
-     * chasing.
+     * Measured: field 64 grey / 36 white, whole hat black 48 %, white 33 %,
+     * grey 20 %. Mean pattern patch 2.52 stitches against Keeper's 2.59 and
+     * Home's 2.37, and 33.8 colour fields per round against their 32.9 and
+     * 35.9 — the texture this is chasing, sitting between the two.
      */
     strokes: ['slate', 'white', 'slate', 'white', 'slate'],
     /**
@@ -87,17 +87,41 @@ export const NORWAY26_BLACK = buildNorwayKit({
      * fragment into one-stitch marks — a yarn change apiece. At 0.45 the crown
      * reached 51 % black and the single-stitch share hit 36 %, past the 32 %
      * this kit is held to; 0.75 still measured 32.0 %. Since «the easiest hat
-     * in the collection» is the entire brief for this one, the cap wins and the
-     * crown settles at 30 % black on rounds 3–10, up from 15 %.
+     * in the collection» is the entire brief for this one, the cap wins. With
+     * the bundle opened out below, rounds 3–10 land at 35 % black, up from 15 %.
      */
     crownEase: 0.8,
     crownEaseFrom: 25,
-    /** Home's field geometry, slimmed a notch — see the note at the top. */
+    /**
+     * BLACK BETWEEN THE MARKS, ON THE WALL AND THE BRIM TOO.
+     *
+     * By the numbers this hat already sat inside the collection — 49 % ground
+     * on the wall against Hjemme's 51 and Keeper's 47 — and it still read as
+     * the heavy one. The averages miss why: white on black is the highest
+     * contrast pair in the whole collection, so a light mark carries further
+     * here than periwinkle on navy does, and with only two field inks a grey
+     * stroke and the white companion beside it merge into one wide pale band
+     * with no ground breaking it up. Three inks hide that; two do not.
+     *
+     * So the bundle is opened out rather than recoloured. `spread` 4.4 → 5.5
+     * puts ground between the core and its companions, `lenMin` 0.62 → 0.40
+     * lets the companions stop short so a bundle reads as travelling marks
+     * instead of a solid band, and `width` 1.25 → 1.15 trims what is left.
+     * Measured: crown 38 → 44 %, wall 49 → 52 %, brim 37 → 45 % ground, which
+     * puts the brim above every other kit and the wall alongside Hjemme.
+     *
+     * NONE OF THE THREE MOVES ROUNDS 1 AND 2 — verified by fingerprint. Width
+     * cannot: those rounds are floored by their own stitch spacing, five field
+     * columns against a stroke of one. Spread and length can in principle, so
+     * both were walked up and checked; 5.5 and 0.40 are inside the range that
+     * leaves the fingerprint identical, and the next steps out (7.5, and 0.25)
+     * are the ones that break it.
+     */
     count: 12,
-    width: 1.25,
+    width: 1.15,
     companions: 2,
-    spread: 4.4,
-    lenMin: 0.62,
+    spread: 5.5,
+    lenMin: 0.4,
     slope: 0.34,
     curve: 0.28,
     kinkRows: 5,
