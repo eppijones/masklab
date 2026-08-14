@@ -6,12 +6,13 @@ import { derivePattern } from '../patterns/buildFromDefinition';
 import { buildRecipeText } from '../studio/RecipeText';
 import HatCard3D from './HatCard3D';
 
-type Filter = 'alle' | 'helene' | 'norway26';
+type Filter = 'alle' | 'helene' | 'norway26' | 'arkiv';
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: 'alle', label: 'Alle' },
   { id: 'helene', label: 'Helene Spilling-kolleksjonen' },
   { id: 'norway26', label: "NORWAY'26-kolleksjonen" },
+  { id: 'arkiv', label: 'Arkivet' },
 ];
 
 function Card({
@@ -78,10 +79,20 @@ export default function GalleryPage() {
   const [recipe, setRecipe] = useState<{ title: string; text: string } | null>(
     null,
   );
-  const groups: { id: Exclude<Filter, 'alle'>; title: string }[] = [
-    { id: 'helene', title: 'Helene Spilling-kolleksjonen' },
-    { id: 'norway26', title: "NORWAY'26-kolleksjonen" },
-  ];
+  const groups: { id: Exclude<Filter, 'alle'>; title: string; note?: string }[] =
+    [
+      { id: 'helene', title: 'Helene Spilling-kolleksjonen' },
+      {
+        id: 'norway26',
+        title: "NORWAY'26-kolleksjonen",
+        note: 'Home, Away og Keeper — de tre hattene i kolleksjonen.',
+      },
+      {
+        id: 'arkiv',
+        title: 'Arkivet',
+        note: 'Tidligere utkast. Fortsatt komplette oppskrifter med guide og 3D.',
+      },
+    ];
   const shown = groups.filter((g) => filter === 'alle' || filter === g.id);
 
   const openRecipe = (p: CatalogEntry) => {
@@ -118,6 +129,7 @@ export default function GalleryPage() {
       {shown.map((g) => (
         <section key={g.id} className="ml-group">
           <h2 className="ml-group-title">{g.title}</h2>
+          {g.note && <p className="ml-group-note">{g.note}</p>}
           <div className="ml-grid">
             {CATALOG.filter((p) => p.collection === g.id).map((p) => (
               <Card key={p.id} p={p} onRecipe={openRecipe} />

@@ -25,7 +25,7 @@ const SECTIONS = [
   {
     nr: '02',
     title: 'Bøttehatt-oppskrifter',
-    desc: 'Åtte ferdige mønstre — Helene Spilling-originalene og NORWAY26-kolleksjonen. Velg én, hekle med guide, bli ferdig.',
+    desc: "Ferdige mønstre — Helene Spilling-originalene og NORWAY'26: Home, Away og Keeper. Velg én, følg guiden, bli ferdig.",
     cta: 'Bla i galleriet →',
     to: '/oppskrifter',
   },
@@ -38,7 +38,13 @@ const SECTIONS = [
   },
 ];
 
-const PRESETS = ['ro-ro-ro', 'norway26', 'norway26-white', 'martin'] as const;
+/** The three NORGE hats plus the Helene original everything else grew from. */
+const PRESETS = [
+  'ro-ro-ro',
+  'norway26-training',
+  'norway26-black',
+  'norway26-keeper',
+] as const;
 
 function go(e: MouseEvent<HTMLAnchorElement>, to: string) {
   if (to === '/studio') return; // full load — studio boots its own state

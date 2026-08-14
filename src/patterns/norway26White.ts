@@ -20,8 +20,8 @@ import { buildNorwayKit } from './norwayKit';
  */
 export const NORWAY26_WHITE = buildNorwayKit({
   id: 'norway26-white',
-  title: "NORWAY'26 Hvit",
-  titleNo: "NORWAY'26 Hvit",
+  title: "NORGE Hvit",
+  titleNo: "NORGE Hvit",
   palette: ['white', 'blue', 'lightblue', 'red'],
   ground: 'white',
   textColor: 'blue',

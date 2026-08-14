@@ -24,8 +24,8 @@ import { buildNorwayKit } from './norwayKit';
  */
 export const NORWAY26_KEEPER = buildNorwayKit({
   id: 'norway26-keeper',
-  title: "NORWAY'26 Keeper",
-  titleNo: "NORWAY'26 Keeper",
+  title: "NORGE Keeper",
+  titleNo: "NORGE Keeper",
   palette: ['yellow', 'gold', 'orange', 'pink', 'black'],
   ground: 'yellow',
   textColor: 'black',

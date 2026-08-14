@@ -30,8 +30,8 @@ import { buildNorwayKit } from './norwayKit';
  */
 export const NORWAY26 = buildNorwayKit({
   id: 'norway26',
-  title: "NORWAY'26 Hjemme",
-  titleNo: "NORWAY'26 Hjemme",
+  title: "NORGE Marineblå",
+  titleNo: "NORGE Marineblå",
   palette: ['blue', 'white', 'red', 'lightblue'],
   ground: 'blue',
   textColor: 'white',
