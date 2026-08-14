@@ -717,6 +717,14 @@
   margin: 0 0 18px;
 }
 
+.ml-group-note {
+  margin: -12px 0 18px;
+  max-width: 60ch;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ml-muted);
+}
+
 .ml-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));

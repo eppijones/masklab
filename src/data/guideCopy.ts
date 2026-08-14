@@ -56,8 +56,8 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     ],
   },
   norway26: {
-    nameNo: "NORWAY'26 Hjemme-hatten",
-    nameEn: "the NORWAY'26 kit hat",
+    nameNo: "NORGE Marineblå-hatten",
+    nameEn: "the NORGE Navy hat",
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
@@ -70,8 +70,8 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     ],
   },
   'norway26-white': {
-    nameNo: "NORWAY'26 Hvit-hatten",
-    nameEn: "the NORWAY'26 White hat",
+    nameNo: "NORGE Hvit-hatten",
+    nameEn: "the NORGE White hat",
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
@@ -84,22 +84,22 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     ],
   },
   'norway26-black': {
-    nameNo: "NORWAY'26 Svart-hatten",
-    nameEn: "the NORWAY'26 Black hat",
+    nameNo: "NORGE Away-hatten",
+    nameEn: "the NORGE Away hat",
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
-      'Svart bunn med seks brede grå strøk over pull, side og brem — den enkleste gesten i kolleksjonen. Du trenger bare tre garn: svart, grått og hvitt. Rent hvitt brukes bare til skriften og kanten, så bokstavene er det eneste rene hvite på hatten.',
+      'Svart bunn med tolv sikksakk-strøk der grått og hvitt veksler annenhver, over pull, side og brem — samme kamuflasje som Home og Keeper, men i bare tre garn: svart, grått og hvitt. Du har aldri mer enn to farger i gang samtidig.',
       'NORGE i hvit kursiv foran og bak, på ubrutt svart bunn. Mønsteret fortsetter ned i bremmen gjennom feltet mellom ordene, og bare de to nederste rundene hekles hvite som kant.',
     ],
     tipsEn: [
-      'A black ground crossed by six broad grey strokes over crown, wall and brim — the simplest gesture in the collection. Three yarns in all: black, grey and white. Pure white is kept for the lettering and the edge, so the letters are the only pure white on the hat.',
+      'A black ground crossed by twelve zigzag strokes alternating grey and white over crown, wall and brim — the same camouflage as Home and Keeper, in three yarns only: black, grey and white. You never have more than two colours running at once.',
       'NORGE in white italics front and back on unbroken black. The pattern carries on onto the brim through the channel between the words, and only the last two rounds are worked in white as the edge.',
     ],
   },
   'norway26-training': {
-    nameNo: "NORWAY'26 Trening-hatten",
-    nameEn: "the NORWAY'26 Training hat",
+    nameNo: "NORGE Home-hatten",
+    nameEn: "the NORGE Home hat",
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
@@ -112,8 +112,8 @@ export const GUIDE_COPY: Record<Exclude<PatternId, 'ro-ro-ro'>, GuideCopy> = {
     ],
   },
   'norway26-keeper': {
-    nameNo: "NORWAY'26 Keeper-hatten",
-    nameEn: "the NORWAY'26 Goalkeeper hat",
+    nameNo: "NORGE Keeper-hatten",
+    nameEn: "the NORGE Keeper hat",
     creditNo: NORWAY_CREDIT_NO,
     creditEn: NORWAY_CREDIT_EN,
     tipsNo: [
@@ -183,13 +183,13 @@ export function welcomeCopy(id: PatternId, locale: 'no' | 'en'): WelcomeCopy {
   }
   if (id === 'norway26') {
     return {
-      brandWelcome: "NORWAY'26",
-      brandBy: no ? 'Hjemmedrakt · MASKLAB' : 'Kit hat · MASKLAB',
+      brandWelcome: "NORGE Marineblå",
+      brandBy: no ? 'Arkiv · MASKLAB' : 'Archive · MASKLAB',
       brandKicker: "NORWAY'26",
       titleEm: 'NORGE',
       lede: no
-        ? "Hekle NORWAY'26 Hjemme — brede sikksakk-strøk i draktfargene over marineblå bunn, med NORGE i kursiv foran og bak. Komplett guide, én runde av gangen."
-        : "Crochet the NORWAY'26 home kit hat — broad zigzag strokes in the shirt colours over a navy ground, with NORGE in italics front and back. Complete guide, one round at a time.",
+        ? 'Hekle NORGE Marineblå — brede sikksakk-strøk i draktfargene over marineblå bunn, med NORGE i kursiv foran og bak. Komplett guide, én runde av gangen.'
+        : 'Crochet NORGE Navy — broad zigzag strokes in the shirt colours over a navy ground, with NORGE in italics front and back. Complete guide, one round at a time.',
       pdfUrl: null,
       footName: 'MASKLAB',
       footUrl: null,
@@ -197,8 +197,8 @@ export function welcomeCopy(id: PatternId, locale: 'no' | 'en'): WelcomeCopy {
   }
   if (id === 'norway26-white') {
     return {
-      brandWelcome: "NORWAY'26 Hvit",
-      brandBy: no ? 'Hvit kit · MASKLAB' : 'White kit · MASKLAB',
+      brandWelcome: "NORGE Hvit",
+      brandBy: no ? 'Arkiv · MASKLAB' : 'Archive · MASKLAB',
       brandKicker: "NORWAY'26",
       titleEm: no ? 'hvit' : 'white',
       lede: no
@@ -211,13 +211,13 @@ export function welcomeCopy(id: PatternId, locale: 'no' | 'en'): WelcomeCopy {
   }
   if (id === 'norway26-black') {
     return {
-      brandWelcome: "NORWAY'26 Svart",
-      brandBy: no ? 'Svart kit · MASKLAB' : 'Black kit · MASKLAB',
+      brandWelcome: "NORGE Away",
+      brandBy: no ? 'Away-kit · MASKLAB' : 'Away kit · MASKLAB',
       brandKicker: "NORWAY'26",
-      titleEm: no ? 'svart' : 'black',
+      titleEm: no ? 'borte' : 'away',
       lede: no
-        ? "Hekle NORWAY'26 Svart — svart bøttehatt med brede grå strøk, NORGE i hvit kursiv og hvit kant. Tre garn, den enkleste i kolleksjonen, med komplett guide."
-        : "Crochet NORWAY'26 Black — a black bucket hat with broad grey strokes, NORGE in white italics and a white edge. Three yarns, the simplest in the collection, with a complete guide.",
+        ? "Hekle NORGE Away — svart bøttehatt med sikksakk-strøk i grått og hvitt, NORGE i hvit kursiv og hvit kant. Tre garn, den enkleste i kolleksjonen, med komplett guide."
+        : "Crochet NORGE Away — a black bucket hat with zigzag strokes in grey and white, NORGE in white italics and a white edge. Three yarns, the simplest in the collection, with a complete guide.",
       pdfUrl: null,
       footName: 'MASKLAB',
       footUrl: null,
@@ -225,13 +225,13 @@ export function welcomeCopy(id: PatternId, locale: 'no' | 'en'): WelcomeCopy {
   }
   if (id === 'norway26-training') {
     return {
-      brandWelcome: "NORWAY'26 Trening",
-      brandBy: no ? 'Trening-kit · MASKLAB' : 'Training kit · MASKLAB',
+      brandWelcome: "NORGE Home",
+      brandBy: no ? 'Home-kit · MASKLAB' : 'Home kit · MASKLAB',
       brandKicker: "NORWAY'26",
-      titleEm: no ? 'trene' : 'train',
+      titleEm: no ? 'hjemme' : 'home',
       lede: no
-        ? "Hekle NORWAY'26 Trening — rød bunn med brede sikksakk-striper og NORGE i kremhvit kursiv. Komplett guide, én runde av gangen."
-        : "Crochet NORWAY'26 Training — a red ground with broad zigzag stripes and NORGE in off-white italics. Complete guide, one round at a time.",
+        ? "Hekle NORGE Home — rød bunn med brede sikksakk-striper og NORGE i kremhvit kursiv. Komplett guide, én runde av gangen."
+        : "Crochet NORGE Home — a red ground with broad zigzag stripes and NORGE in off-white italics. Complete guide, one round at a time.",
       pdfUrl: null,
       footName: 'MASKLAB',
       footUrl: null,
@@ -239,7 +239,7 @@ export function welcomeCopy(id: PatternId, locale: 'no' | 'en'): WelcomeCopy {
   }
   if (id === 'norway26-keeper') {
     return {
-      brandWelcome: "NORWAY'26 Keeper",
+      brandWelcome: "NORGE Keeper",
       brandBy: no ? 'Keeper-kit · MASKLAB' : 'Goalkeeper kit · MASKLAB',
       brandKicker: "NORWAY'26",
       titleEm: no ? 'keeper' : 'keeper',

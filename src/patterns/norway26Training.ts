@@ -23,8 +23,8 @@ import { buildNorwayKit } from './norwayKit';
  */
 export const NORWAY26_TRAINING = buildNorwayKit({
   id: 'norway26-training',
-  title: "NORWAY'26 Trening",
-  titleNo: "NORWAY'26 Trening",
+  title: "NORGE Home",
+  titleNo: "NORGE Home",
   palette: ['red', 'blue', 'white', 'lightblue'],
   ground: 'red',
   textColor: 'white',
