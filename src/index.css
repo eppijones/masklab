@@ -709,7 +709,7 @@ a { color: var(--red); }
 }
 .stepper-next strong { color: var(--red); }
 
-.runs { display: flex; flex-wrap: wrap; gap: 4px; }
+.runs { display: flex; flex-wrap: wrap; gap: 3px; }
 .run-chip {
   font-family: 'Karla', sans-serif;
   font-size: 11.5px; font-weight: 800; border-radius: 4px; padding: 3px 7px;
@@ -742,25 +742,31 @@ a { color: var(--red); }
   letter-spacing: 0.04em; text-transform: none; font-weight: 700;
   color: var(--ink-faint);
 }
+/* Every stitch is a numbered cell. The number lives INSIDE the cell: a label
+   row under each line of cells cost 11px a row and pushed a 144-stitch round
+   off the panel, and the number on the yarn colour is easier to find anyway. */
 .vmap {
-  display: flex; flex-wrap: wrap; gap: 2px 5px;
-  --vcell: 15px;
+  display: flex; flex-wrap: wrap; gap: 3px 4px;
+  --vcell: 16px;
 }
-.vmap.dense { --vcell: 11px; }
-.vmap.xdense { --vcell: 8px; }
+/* 100+ stitch rounds carry three-digit numbers. The gap between holes is the
+   expensive part at this length — 130 holes pay it — so it tightens instead
+   of the cells, which still have to hold "144". */
+.vmap.wide { --vcell: 18px; gap: 3px 3px; }
+.vmap.flat { gap: 3px 3px; }
 .vmap-hole { display: flex; flex-direction: column; align-items: stretch; }
 .vmap-cells { display: flex; gap: 1px; }
 .vmap-cell {
-  width: var(--vcell); height: 20px; padding: 0;
+  width: var(--vcell); height: 19px; padding: 0;
   border: none; border-radius: 3px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   font-family: 'Karla', sans-serif; font-size: 9px; font-weight: 800;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
   box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12);
   transition: transform 0.1s, filter 0.12s;
 }
-.vmap.xdense .vmap-cell { font-size: 0; height: 18px; }
 .vmap-cell:hover { filter: brightness(1.1); transform: translateY(-1px); }
-.vmap-cell.done { opacity: 0.38; }
+.vmap-cell.done { opacity: 0.4; }
 .vmap-cell.next {
   box-shadow: inset 0 0 0 2px #D8342C, 0 0 0 2px rgba(216, 52, 44, 0.22);
 }
@@ -772,12 +778,6 @@ a { color: var(--red); }
   content: ''; position: absolute; left: 22%; right: 22%; top: 2.5px;
   border-top: 1.5px solid #CFC6B4;
 }
-.vmap-num {
-  display: block; height: 11px; text-align: center;
-  font-family: 'Karla', sans-serif; font-size: 8.5px; font-weight: 800;
-  letter-spacing: 0.02em; color: var(--ink-faint);
-}
-.vmap-hole.here .vmap-num { color: #D8342C; }
 .vmap-legend {
   margin: 6px 0 0; font-size: 10.5px; font-weight: 700; line-height: 1.45;
   color: var(--ink-soft);
@@ -893,11 +893,14 @@ a { color: var(--red); }
 
 /* ---------- stitch overlay on 3D stage ---------- */
 .stitch-overlay {
-  position: absolute; top: 12px; left: 12px; z-index: 5;
-  /* Wide enough that a 40-stitch round's fields land in four rows, and free
-     to use nearly the whole stage height rather than an inner scrollbar. */
-  width: min(400px, calc(100% - 24px));
-  max-height: calc(100% - 24px);
+  position: absolute; top: 8px; left: 8px; z-index: 5;
+  /* Sized so the longest round in the collection — 144 stitches, 38 colour
+     fields — lands entirely on screen. The panel is translucent and folds
+     away on its own header, which is the better trade against covering some
+     of the hat: the whole point of it is that you never scroll to find your
+     place mid-round. */
+  width: min(540px, calc(100% - 16px));
+  max-height: calc(100% - 16px);
   display: flex; flex-direction: column;
   background: rgba(253, 250, 243, 0.92);
   border: 1px solid var(--card-border);
@@ -918,7 +921,7 @@ a { color: var(--red); }
 .stitch-overlay-count { margin-left: auto; color: var(--ink); letter-spacing: 0.02em; font-size: 13px; }
 .stitch-overlay-chevron { color: var(--ink-faint); font-size: 12px; }
 .stitch-overlay-body {
-  padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px;
+  padding: 0 12px 10px; display: flex; flex-direction: column; gap: 7px;
   overflow-y: auto; min-height: 0;
 }
 .stitch-overlay-start { align-items: stretch; }
@@ -1564,7 +1567,7 @@ html[data-screen="welcome"][data-device="tablet"][data-orientation="portrait"] .
 }
 .mobile-dock-nav {
   display: grid;
-  grid-template-columns: auto auto 1fr 1.25fr;
+  grid-template-columns: auto 1fr 1.25fr;
   gap: 8px;
 }
 .mobile-dock-nav-btn {
@@ -1613,16 +1616,23 @@ html[data-device="phone"] .app {
   padding-right: max(10px, env(safe-area-inset-right));
   gap: 8px;
 }
-[data-device="phone"] .brand { flex: 1 1 auto; min-width: 0; gap: 8px; }
+[data-device="phone"] .brand {
+  flex: 1 1 auto; min-width: 0; gap: 8px; overflow: hidden;
+}
+/* Four icons on a 375px bar. The decorative flag dots are what gives way —
+   the recipe name is the one thing up here that tells you where you are. */
+[data-device="phone"] .brand .dots { display: none; }
+[data-device="phone"] .topbar-tools { gap: 6px; }
 [data-device="phone"] .kicker-full { display: none; }
 [data-device="phone"] .kicker-short {
-  display: inline;
+  display: block;
   font-size: 11px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   color: var(--ink);
   font-weight: 800;
-  overflow: visible;
-  max-width: none;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 [data-device="tablet"][data-orientation="portrait"] .kicker-full { display: none; }
 [data-device="tablet"][data-orientation="portrait"] .kicker-short {
