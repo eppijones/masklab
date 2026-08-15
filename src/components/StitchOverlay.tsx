@@ -3,6 +3,7 @@ import { useApp, getModel, isPatterned } from '../store';
 import { YARN_NAME } from '../data/types';
 import { roundRuns, increaseRole } from '../data/pattern';
 import FieldChips from './FieldChips';
+import VMap from './VMap';
 
 /** One repeat of the increase rhythm — matches the written recipe. */
 function rhythmChip(round: { increaseEvery: number | null; count: number; num: number }) {
@@ -176,6 +177,14 @@ export default function StitchOverlay({ hiddenOnMobile = false }: { hiddenOnMobi
               onPick={setCursor}
             />
           )}
+
+          <VMap
+            round={round}
+            stitches={model.stitches.slice(before, before + round.count)}
+            cursor={c}
+            locale={locale}
+            onPick={setCursor}
+          />
         </div>
       )}
     </div>

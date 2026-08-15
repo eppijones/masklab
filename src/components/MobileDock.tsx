@@ -9,6 +9,7 @@ import {
   runText,
 } from '../data/pattern';
 import { t } from '../i18n/ui';
+import { BookmarkButton } from './BookmarkControls';
 
 /**
  * Fixed bottom control bar for phone (and portrait tablet).
@@ -181,28 +182,45 @@ export default function MobileDock({
           stitch at a time — the only way to take an increase pair in two
           presses, or to back out of a miscount without losing the field. */}
       {counting && unitMode && !done && (
-        <div className="mobile-dock-fine-row">
+        <div
+          className="mobile-dock-fine-row"
+          role="group"
+          aria-label={ui.fineStepperAria}
+        >
           <button
             type="button"
-            className="mobile-dock-fine"
+            className="mobile-dock-fine minus"
             onClick={() => setCursor(Math.max(0, c - 1))}
             disabled={c === 0}
             title={ui.minusOneStitchShort}
+            aria-label={ui.minusOneStitchShort}
           >
-            {ui.minusOneStitchShort}
+            <span className="fine-sign" aria-hidden>
+              −
+            </span>
+            <span className="fine-label" aria-hidden>
+              {ui.oneStitchWord}
+            </span>
           </button>
           <button
             type="button"
-            className="mobile-dock-fine"
+            className="mobile-dock-fine plus"
             onClick={() => setCursor(Math.min(roundCount, c + 1))}
             title={ui.plusOneStitchShort}
+            aria-label={ui.plusOneStitchShort}
           >
-            {ui.plusOneStitchShort}
+            <span className="fine-sign" aria-hidden>
+              +
+            </span>
+            <span className="fine-label" aria-hidden>
+              {ui.oneStitchWord}
+            </span>
           </button>
         </div>
       )}
 
       <div className="mobile-dock-nav">
+        <BookmarkButton compact />
         <button
           type="button"
           className={`mobile-dock-nav-btn jump ${pulseRecipe ? 'pulse' : ''}`}

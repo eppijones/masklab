@@ -384,23 +384,39 @@ export default function WorkHUD({ hideControls = false }: { hideControls?: boole
               one stitch at a time, or undo a miscount without losing the
               field you are in. */}
           {unitMode && !done && (
-            <span className="workhud-fine-group">
+            <span
+              className="workhud-fine-group"
+              role="group"
+              aria-label={ui.fineStepperAria}
+            >
               <button
                 type="button"
-                className="workhud-pm fine"
+                className="workhud-pm fine minus"
                 onClick={() => setCursor(Math.max(0, c - 1))}
                 disabled={c === 0}
                 title={ui.minusOneStitchShort}
+                aria-label={ui.minusOneStitchShort}
               >
-                {ui.minusOneStitchShort}
+                <span className="fine-sign" aria-hidden>
+                  −
+                </span>
+                <span className="fine-label" aria-hidden>
+                  {ui.oneStitchWord}
+                </span>
               </button>
               <button
                 type="button"
-                className="workhud-pm fine"
+                className="workhud-pm fine plus"
                 onClick={() => setCursor(Math.min(round.count, c + 1))}
                 title={ui.plusOneStitchShort}
+                aria-label={ui.plusOneStitchShort}
               >
-                {ui.plusOneStitchShort}
+                <span className="fine-sign" aria-hidden>
+                  +
+                </span>
+                <span className="fine-label" aria-hidden>
+                  {ui.oneStitchWord}
+                </span>
               </button>
             </span>
           )}

@@ -411,14 +411,17 @@ function InsertTargetMarker({
     arrow.visible = true;
     ring.position.copy(vPos);
     ring.quaternion.copy(t.quaternion);
-    const pulse = 1 + 0.1 * Math.sin(clock.elapsedTime * 5);
-    ring.scale.setScalar(pulse);
+    // A V is wider than it is tall, so the ring is squashed along the stitch's
+    // own axis. A circle big enough to be seen was reading as "somewhere in
+    // these two stitches"; this one sits inside a single V.
+    const pulse = 1 + 0.08 * Math.sin(clock.elapsedTime * 5);
+    ring.scale.set(pulse, pulse * 0.76, pulse);
     // Arrow hovers outside/above the target V and points straight at it.
     const radial = Math.hypot(vPos.x, vPos.z) || 1;
     const out = new THREE.Vector3(vPos.x / radial, 0, vPos.z / radial);
-    const bob = 0.15 * Math.sin(clock.elapsedTime * 5);
-    const tip = vPos.clone().addScaledVector(out, 0.8);
-    tip.y += 1.0 + bob;
+    const bob = 0.09 * Math.sin(clock.elapsedTime * 5);
+    const tip = vPos.clone().addScaledVector(out, 0.42);
+    tip.y += 0.62 + bob;
     arrow.position.copy(tip);
     const dir = vPos.clone().sub(tip).normalize();
     arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
@@ -436,8 +439,11 @@ function InsertTargetMarker({
 
   return (
     <group>
+      {/* One stitch is 1.0 unit wide (STITCH_W), so the old r=0.72 ring was
+          1.6 units across the outside — wider than the stitch it was meant to
+          point at. r=0.33 keeps the whole marker inside one V. */}
       <mesh ref={ringRef} visible={false}>
-        <torusGeometry args={[0.72, 0.085, 10, 40]} />
+        <torusGeometry args={[0.33, 0.055, 10, 36]} />
         <meshStandardMaterial
           color={INSERT_COLOR}
           emissive={INSERT_COLOR}
@@ -448,7 +454,7 @@ function InsertTargetMarker({
         />
       </mesh>
       <mesh ref={arrowRef} visible={false}>
-        <coneGeometry args={[0.28, 0.85, 14]} />
+        <coneGeometry args={[0.15, 0.46, 14]} />
         <meshStandardMaterial
           color={INSERT_COLOR}
           emissive={INSERT_COLOR}
@@ -656,10 +662,14 @@ function Hat({ preview = false }: { preview?: boolean }) {
         />
       </instancedMesh>
 
-      {/* small fabric plug closing the very centre of the crown (luftmaske 1) */}
+      {/* Small fabric plug closing the very centre of the crown (luftmaske 1).
+          It still has to span the hole left by round 1, so the width stays —
+          but it is now a flat closed centre rather than a bead. In sy-visning
+          the crown points at you, and the old dome stood ~0.48 units proud of
+          the fabric, right where the counter wants you to look. */}
       <mesh
-        position={[0, crownY - 0.12, 0]}
-        scale={[1.1, 0.36, 1.1]}
+        position={[0, crownY - 0.04, 0]}
+        scale={[1.02, 0.16, 1.02]}
         visible={shown > 0}
       >
         <sphereGeometry args={[1, 32, 16]} />
@@ -698,8 +708,10 @@ function Hat({ preview = false }: { preview?: boolean }) {
       {/* Flag on the exact stitch where the next colour change happens */}
       {changeIdx !== null && changeStitch?.changeColorAfter && (
         <group>
+          {/* r=0.27 against a 1.0-unit stitch: a bead sitting ON the stitch
+              that changes, not a ball spanning it and its neighbour. */}
           <mesh position={transforms[changeIdx].position}>
-            <sphereGeometry args={[0.62, 18, 18]} />
+            <sphereGeometry args={[0.27, 16, 16]} />
             <meshStandardMaterial
               color={YARN_HEX[changeStitch.changeColorAfter]}
               emissive={YARN_HEX[changeStitch.changeColorAfter]}
@@ -755,8 +767,10 @@ function Hat({ preview = false }: { preview?: boolean }) {
         />
       </mesh>
 
+      {/* Same rule as the colour-change bead: it names one stitch, so it has
+          to be narrower than one stitch. */}
       <mesh ref={markerRef} visible={false}>
-        <sphereGeometry args={[0.55, 18, 18]} />
+        <sphereGeometry args={[0.26, 16, 16]} />
         <meshStandardMaterial
           ref={markerMat}
           color="#00205B"
@@ -1011,21 +1025,32 @@ function CameraDirector({
 function StudioLights({ card }: { card: boolean }) {
   return (
     <>
+      {/* Near-neutral sky and a light, barely-cool ground bounce. The old rig
+          was warm at both ends, which is what turned the cream yarn khaki:
+          a tint applied by every light is a tint nothing in the scene can
+          correct for. Raised well above the old 0.62 so the side of the hat
+          facing away from the key still reads as its own colour. */}
       <hemisphereLight
-        args={card ? ['#f4f1ea', '#6f6a62', 0.5] : ['#fff6e6', '#a89a86', 0.62]}
+        args={card ? ['#fbfaf7', '#96948f', 0.76] : ['#fdfcf8', '#9d9a94', 0.95]}
       />
       <directionalLight
         position={card ? [-34, 46, 30] : [-30, 44, 28]}
-        intensity={card ? 2.15 : 2.0}
+        intensity={card ? 1.85 : 1.7}
+        color="#fffdf6"
       />
       {/* Cool fill from the opposite side — opens the shadows, adds no shine. */}
       <directionalLight
         position={[38, 14, -26]}
-        intensity={card ? 0.42 : 0.4}
-        color="#cfd8ea"
+        intensity={card ? 0.5 : 0.48}
+        color="#dae2f0"
       />
       {/* Low bounce off the sweep, so the underside of the brim is not a void. */}
-      <directionalLight position={[6, -18, 14]} intensity={0.22} color="#efe6d6" />
+      <directionalLight position={[6, -18, 14]} intensity={0.34} color="#f4efe6" />
+      {/* Straight down. In sy-visning the hat is a bowl opening at the camera,
+          and the key alone leaves the near wall — the part you are actually
+          crocheting into — reading as a silhouette. Weak enough not to flatten
+          the relief the key builds on the worn hat. */}
+      <directionalLight position={[0, 50, 2]} intensity={0.42} color="#fdfbf6" />
     </>
   );
 }
@@ -1153,6 +1178,14 @@ export default function HatScene({
             alpha: false,
             powerPreference: card ? 'low-power' : 'high-performance',
             preserveDrawingBuffer: card,
+            // r3f defaults to ACES Filmic, which is a *film* curve: it pulls
+            // saturated colour toward the neutral axis as it brightens, so
+            // #00205B came out black, #BA0C2F came out oxblood and the cream
+            // came out khaki — none of which is what the yarn looks like in
+            // the hand. Khronos PBR Neutral was written for exactly this case
+            // (show the material's own colour, only roll off the very top end).
+            toneMapping: THREE.NeutralToneMapping,
+            toneMappingExposure: 1.0,
           }}
           style={card ? { pointerEvents: 'none' } : undefined}
         >

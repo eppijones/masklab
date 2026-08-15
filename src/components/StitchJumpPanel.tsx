@@ -1,6 +1,7 @@
 import { useApp, getModel, isPatterned } from '../store';
 import { roundRuns, increaseRole } from '../data/pattern';
 import FieldChips from './FieldChips';
+import VMap from './VMap';
 import { t } from '../i18n/ui';
 
 /**
@@ -107,6 +108,14 @@ export default function StitchJumpPanel({ onPicked }: { onPicked?: () => void })
           onPick={pick}
         />
       )}
+
+      <VMap
+        round={round}
+        stitches={model.stitches.slice(before, before + round.count)}
+        cursor={c}
+        locale={locale}
+        onPick={pick}
+      />
     </section>
   );
 }

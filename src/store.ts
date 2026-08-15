@@ -7,6 +7,7 @@ import { buildStepsGeneric } from './data/stepsGeneric';
 import { GUIDE_COPY } from './data/guideCopy';
 import type { Round, Stitch, YarnColor } from './data/types';
 import { patternIdFromUrl, progressStorageKey } from './lib/entry';
+import { dropBookmark, putBookmark, resumeHref } from './lib/bookmarks';
 import type { Locale } from './i18n/locale';
 import type { PatternDefinition, PatternId } from './patterns/types';
 import { getPattern } from './patterns/registry';
@@ -128,6 +129,26 @@ export function modelFromParts(
   return { rounds, stitches, steps, cumCounts, patternId };
 }
 
+/**
+ * A place you chose to come back to. Unlike `stepIndex`, this only moves when
+ * the bookmark button is pressed — see lib/bookmarks.
+ */
+export interface Bookmark {
+  stepId: string;
+  stepIndex: number;
+  cursor: number | null;
+  roundNum: number | null;
+  /** "Runde 6 · maske 10", built when it was saved. */
+  label: string;
+  savedAt: number;
+}
+
+/** Position order within a recipe, for "is the bookmark ahead of me?". */
+function isAhead(b: Bookmark, stepIndex: number, cursor: number | null): boolean {
+  if (b.stepIndex !== stepIndex) return b.stepIndex > stepIndex;
+  return (b.cursor ?? 0) > (cursor ?? 0);
+}
+
 interface AppState {
   stepIndex: number;
   /** Bumped when the encoded recipe changes so mid-project users can resume. */
@@ -165,6 +186,8 @@ interface AppState {
   welcomeDone: boolean;
   /** UI + recipe language. */
   locale: Locale;
+  /** The place you marked to come back to (null = none). */
+  bookmark: Bookmark | null;
 
   /** `remember` = quick jump: remembers where you came from so you can hop back. */
   setStep: (i: number, remember?: boolean) => void;
@@ -187,6 +210,13 @@ interface AppState {
   setStitchPanelOpen: (v: boolean) => void;
   setWelcomeDone: (v: boolean) => void;
   setLocale: (v: Locale) => void;
+  /** Mark the current step + stitch as the place to come back to. */
+  saveBookmark: (recipeTitle: string) => void;
+  clearBookmark: () => void;
+  /** Jump to the bookmark (no-op when there is none). */
+  goToBookmark: () => void;
+  /** Restore the bookmark on boot, but only when it is ahead of live progress. */
+  restoreBookmarkIfAhead: () => void;
 }
 
 export const useApp = create<AppState>()(
@@ -213,6 +243,7 @@ export const useApp = create<AppState>()(
       stitchPanelOpen: false,
       welcomeDone: false,
       locale: 'no',
+      bookmark: null,
 
       setStep: (i, remember = false) => {
         const { steps } = getModel();
@@ -284,6 +315,81 @@ export const useApp = create<AppState>()(
         activeLocale = v;
         set({ locale: v });
       },
+
+      saveBookmark: (recipeTitle) => {
+        const s = get();
+        const { steps, rounds } = getModel();
+        const step = steps[s.stepIndex];
+        if (!step) return;
+        const round = step.roundIdx !== null ? rounds[step.roundIdx] : null;
+        const cursor = step.kind === 'round' ? (s.stitchCursor ?? 0) : null;
+        const en = s.locale === 'en';
+        const label = round
+          ? `${en ? 'Round' : 'Runde'} ${round.num}${
+              cursor !== null
+                ? ` · ${en ? 'stitch' : 'maske'} ${Math.min(cursor, round.count)}/${round.count}`
+                : ''
+            }`
+          : step.title;
+        const bookmark: Bookmark = {
+          stepId: step.id,
+          stepIndex: s.stepIndex,
+          cursor,
+          roundNum: round?.num ?? null,
+          label,
+          savedAt: Date.now(),
+        };
+        set({ bookmark });
+        if (typeof window !== 'undefined') {
+          putBookmark(progressStorageKey(), {
+            patternId: getActivePatternId(),
+            title: recipeTitle,
+            href: resumeHref(
+              window.location.pathname,
+              window.location.search,
+              step.id,
+              cursor,
+            ),
+            label,
+            stepId: step.id,
+            cursor,
+            savedAt: bookmark.savedAt,
+          });
+        }
+      },
+
+      clearBookmark: () => {
+        set({ bookmark: null });
+        if (typeof window !== 'undefined') dropBookmark(progressStorageKey());
+      },
+
+      goToBookmark: () => {
+        const s = get();
+        const b = s.bookmark;
+        if (!b) return;
+        const { steps } = getModel();
+        // Prefer the id: step indices shift whenever the recipe gains a step.
+        const idx = steps.findIndex((st) => st.id === b.stepId);
+        const target = idx >= 0 ? idx : Math.min(b.stepIndex, steps.length - 1);
+        s.setStep(target);
+        if (b.cursor !== null && steps[target]?.kind === 'round') {
+          s.setStitchCursor(b.cursor);
+        }
+      },
+
+      restoreBookmarkIfAhead: () => {
+        const s = get();
+        const b = s.bookmark;
+        if (!b) return;
+        const { steps } = getModel();
+        const idx = steps.findIndex((st) => st.id === b.stepId);
+        const at: Bookmark = idx >= 0 ? { ...b, stepIndex: idx } : b;
+        // Live progress that has moved PAST the bookmark is the newer truth —
+        // being thrown back ten rounds on every reload is worse than not
+        // restoring at all. The pill still offers the jump.
+        if (!isAhead(at, s.stepIndex, s.stitchCursor)) return;
+        s.goToBookmark();
+      },
     }),
     {
       name: progressStorageKey(),
@@ -301,6 +407,7 @@ export const useApp = create<AppState>()(
         schoolOpen: s.schoolOpen,
         welcomeDone: s.welcomeDone,
         locale: s.locale,
+        bookmark: s.bookmark,
       }),
       onRehydrateStorage: () => (state) => {
         if (state?.locale) activeLocale = state.locale;
