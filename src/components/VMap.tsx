@@ -79,27 +79,30 @@ export default function VMap({
 }) {
   const ui = t(locale);
   const holes = useMemo(() => roundHoles(round), [round]);
-  if (!hasSameVPairs(round)) return null;
+  const pairs = hasSameVPairs(round);
 
-  // Long rounds get smaller cells rather than a scrollbar — the whole round
-  // has to be on screen at once for this to be worth the space it takes.
-  const density =
-    round.count > 96 ? 'xdense' : round.count > 60 ? 'dense' : '';
+  // Every stitch carries its own number, so a cell has to be wide enough for
+  // the widest number in the round. Three digits need the room; two do not.
+  const wide = round.count >= 100;
+  // A round with no increases has nothing to bracket — one stitch, one V all
+  // the way round — so the bracket row is dropped and the map gets shorter.
+  const cls = ['vmap', wide ? 'wide' : '', pairs ? '' : 'flat']
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className="vmap-wrap">
       <p className="vmap-head">
         <span>{ui.vmapTitle}</span>
-        <span className="vmap-head-sub">{ui.vmapLead}</span>
+        <span className="vmap-head-sub">
+          {pairs ? ui.vmapLead : ui.vmapLeadPlain}
+        </span>
       </p>
-      <div className={`vmap ${density}`}>
+      <div className={cls}>
         {holes.map((hole) => {
           const pair = hole.length === 2;
           const last = hole[hole.length - 1];
           const holdsNext = cursor + 1 >= hole[0] && cursor + 1 <= last;
-          // A number under every fifth stitch, plus wherever the counter is,
-          // so a number can always be found within a couple of cells.
-          const label = holdsNext ? cursor + 1 : last % 5 === 0 ? last : null;
           return (
             <span
               key={hole[0]}
@@ -130,23 +133,24 @@ export default function VMap({
                           : ui.vmapSingleTitle(n)
                       }
                     >
-                      {pair ? j + 1 : ''}
+                      {n}
                     </button>
                   );
                 })}
               </span>
-              {pair ? <VBracket /> : <span className="vmap-tick" aria-hidden />}
-              <span className="vmap-num">{label ?? ''}</span>
+              {pairs && (pair ? <VBracket /> : <span className="vmap-tick" aria-hidden />)}
             </span>
           );
         })}
       </div>
-      <p className="vmap-legend">
-        <span className="vmap-legend-key" aria-hidden>
-          <VBracket />
-        </span>
-        {ui.vmapLegend}
-      </p>
+      {pairs && (
+        <p className="vmap-legend">
+          <span className="vmap-legend-key" aria-hidden>
+            <VBracket />
+          </span>
+          {ui.vmapLegend}
+        </p>
+      )}
     </div>
   );
 }

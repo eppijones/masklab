@@ -145,7 +145,9 @@ const no = {
   legendLink: 'deler V med feltet ved siden av',
   vmapTitle: 'V-kart',
   vmapLead: 'én gruppe = ett hull',
-  vmapLegend: 'To masker under samme bue skal i det SAMME hullet — 1 først, så 2.',
+  vmapLeadPlain: 'én maske = ett hull · trykk for å hoppe',
+  vmapLegend:
+    'To masker under samme bue skal i det SAMME hullet — det laveste nummeret først.',
   vmapPairTitle: (a: number, b: number, which: number) =>
     `Maske ${a} og ${b} i samme V — dette er nr. ${which} av de to.`,
   vmapSingleTitle: (n: number) => `Maske ${n} — egen V.`,
@@ -292,7 +294,9 @@ const en: UiDict = {
   legendLink: 'shares a V with the block next to it',
   vmapTitle: 'V map',
   vmapLead: 'one group = one hole',
-  vmapLegend: 'Two stitches under one bracket go into the SAME hole — 1 first, then 2.',
+  vmapLeadPlain: 'one stitch = one hole · tap to jump',
+  vmapLegend:
+    'Two stitches under one bracket go into the SAME hole — lower number first.',
   vmapPairTitle: (a: number, b: number, which: number) =>
     `Stitches ${a} and ${b} share a V — this is no. ${which} of the two.`,
   vmapSingleTitle: (n: number) => `Stitch ${n} — its own V.`,

@@ -48,12 +48,7 @@ function MenuIcon() {
   );
 }
 
-/**
- * `hideBookmark` on phone / portrait tablet: the dock already carries the
- * bookmark down where the thumb is, and a fourth icon up here pushes the
- * recipe name off the bar.
- */
-function TopBar({ hideBookmark = false }: { hideBookmark?: boolean }) {
+function TopBar() {
   const locale = useApp((s) => s.locale);
   const ui = t(locale);
   const brand = welcomeCopy(getActivePatternId(), locale);
@@ -106,7 +101,7 @@ function TopBar({ hideBookmark = false }: { hideBookmark?: boolean }) {
       <div className="topbar-tools" ref={toolsRef}>
         {/* Flags only — language was chosen on welcome; frees space for the title */}
         <LanguageSwitcher flagsOnly />
-        {!hideBookmark && <BookmarkButton />}
+        <BookmarkButton />
         <button
           type="button"
           className="icon-btn"
@@ -510,7 +505,7 @@ export default function App() {
 
   return (
     <div className={`app ${needsDock ? 'has-mobile-dock' : ''}`}>
-      <TopBar hideBookmark={needsDock} />
+      <TopBar />
       <BookmarkPill />
       <ReturnPill />
       <div

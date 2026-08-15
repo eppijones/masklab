@@ -9,7 +9,6 @@ import {
   runText,
 } from '../data/pattern';
 import { t } from '../i18n/ui';
-import { BookmarkButton } from './BookmarkControls';
 
 /**
  * Fixed bottom control bar for phone (and portrait tablet).
@@ -220,7 +219,6 @@ export default function MobileDock({
       )}
 
       <div className="mobile-dock-nav">
-        <BookmarkButton compact />
         <button
           type="button"
           className={`mobile-dock-nav-btn jump ${pulseRecipe ? 'pulse' : ''}`}
