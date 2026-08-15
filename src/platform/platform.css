@@ -677,6 +677,77 @@
   text-wrap: pretty;
 }
 
+/* ---------- pick up where you left off ---------- */
+.ml-resume {
+  margin-top: 30px;
+  padding: 16px 18px;
+  border: 1.5px solid var(--ml-line);
+  border-left: 4px solid var(--ml-red);
+  border-radius: 8px;
+  background: var(--ml-paper);
+}
+
+.ml-resume-title {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ml-red);
+}
+
+.ml-resume-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ml-resume-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 190px;
+  padding: 11px 14px;
+  border: 1px solid var(--ml-line);
+  border-radius: 6px;
+  background: var(--ml-paper-2);
+  text-decoration: none;
+  transition: border-color 0.14s, transform 0.14s;
+}
+
+.ml-resume-card:hover {
+  border-color: var(--ml-red);
+  transform: translateY(-1px);
+}
+
+.ml-resume-name {
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: var(--ml-ink);
+}
+
+.ml-resume-place {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ml-red);
+}
+
+.ml-resume-ago {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ml-faint);
+}
+
+.ml-btn.primary.bookmarked {
+  background: var(--ml-ink);
+  box-shadow: 0 14px 26px -12px rgba(26, 26, 23, 0.5);
+}
+
+.ml-btn.primary.bookmarked:hover {
+  background: var(--ml-red);
+}
+
 .ml-filters {
   display: flex;
   gap: 8px;

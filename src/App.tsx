@@ -12,6 +12,7 @@ import ConfettiBurst from './components/ConfettiBurst';
 import MobileDock from './components/MobileDock';
 import RecipeSheet from './components/RecipeSheet';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import { BookmarkButton, BookmarkPill } from './components/BookmarkControls';
 import { useApp, getModel, getActivePatternId } from './store';
 import { useDeviceClass, useNeedsMobileDock } from './hooks/useDeviceClass';
 import { hasSavedProgress, isHeleneEntry } from './lib/entry';
@@ -47,7 +48,12 @@ function MenuIcon() {
   );
 }
 
-function TopBar() {
+/**
+ * `hideBookmark` on phone / portrait tablet: the dock already carries the
+ * bookmark down where the thumb is, and a fourth icon up here pushes the
+ * recipe name off the bar.
+ */
+function TopBar({ hideBookmark = false }: { hideBookmark?: boolean }) {
   const locale = useApp((s) => s.locale);
   const ui = t(locale);
   const brand = welcomeCopy(getActivePatternId(), locale);
@@ -100,6 +106,7 @@ function TopBar() {
       <div className="topbar-tools" ref={toolsRef}>
         {/* Flags only — language was chosen on welcome; frees space for the title */}
         <LanguageSwitcher flagsOnly />
+        {!hideBookmark && <BookmarkButton />}
         <button
           type="button"
           className="icon-btn"
@@ -352,14 +359,15 @@ export default function App() {
           welcomeDone: hasSavedProgress(st),
           recipeVersion: 2,
         });
-        return;
-      }
-
-      // Migration: only move mid-project users; never skip intro for fresh sessions.
-      if (st.recipeVersion < 2) {
+      } else if (st.recipeVersion < 2) {
+        // Migration: only move mid-project users; never skip intro for fresh sessions.
         if (hasSavedProgress(st)) jump('round-14');
         useApp.setState({ recipeVersion: 2 });
       }
+
+      // Last word, because it is the only position the user chose by hand.
+      // It stands down when live progress has already gone past it.
+      useApp.getState().restoreBookmarkIfAhead();
     };
 
     // Wait for localStorage rehydrate so /helene resume is based on real progress.
@@ -502,7 +510,8 @@ export default function App() {
 
   return (
     <div className={`app ${needsDock ? 'has-mobile-dock' : ''}`}>
-      <TopBar />
+      <TopBar hideBookmark={needsDock} />
+      <BookmarkPill />
       <ReturnPill />
       <div
         className={`layout ${needsDock ? 'mobile-work' : ''} ${recipeFirst ? 'recipe-first' : ''}`}

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CATALOG, type CatalogEntry } from './catalog';
 import { YARN_HEX, YARN_NAME } from '../data/types';
 import { getPattern } from '../patterns/registry';
 import { derivePattern } from '../patterns/buildFromDefinition';
 import { buildRecipeText } from '../studio/RecipeText';
+import { listBookmarks, savedAgo, type StoredBookmark } from '../lib/bookmarks';
 import HatCard3D from './HatCard3D';
 
 type Filter = 'alle' | 'helene' | 'norway26' | 'arkiv';
@@ -17,9 +18,12 @@ const FILTERS: { id: Filter; label: string }[] = [
 
 function Card({
   p,
+  bookmark,
   onRecipe,
 }: {
   p: CatalogEntry;
+  /** Set when this recipe has a bookmarked place on this device. */
+  bookmark?: StoredBookmark;
   onRecipe: (p: CatalogEntry) => void;
 }) {
   return (
@@ -55,9 +59,15 @@ function Card({
           <span>ca {p.time}</span>
         </div>
         <div className="ml-card-actions">
-          <a href={`/oppskrift/${p.id}`} className="ml-btn primary">
-            Start →
-          </a>
+          {bookmark ? (
+            <a href={bookmark.href} className="ml-btn primary bookmarked">
+              Fortsett · {bookmark.label} →
+            </a>
+          ) : (
+            <a href={`/oppskrift/${p.id}`} className="ml-btn primary">
+              Start →
+            </a>
+          )}
           <a href={`/studio?pattern=${p.id}`} className="ml-btn ghost">
             Åpne i studio
           </a>
@@ -95,6 +105,15 @@ export default function GalleryPage() {
     ];
   const shown = groups.filter((g) => filter === 'alle' || filter === g.id);
 
+  // Bookmarks live in localStorage on this device, so they are read once at
+  // mount rather than tracked — nothing else on this page can change them.
+  const bookmarks = useMemo(() => listBookmarks(), []);
+  const byPattern = useMemo(() => {
+    const m = new Map<string, StoredBookmark>();
+    for (const b of bookmarks) if (!m.has(b.patternId)) m.set(b.patternId, b);
+    return m;
+  }, [bookmarks]);
+
   const openRecipe = (p: CatalogEntry) => {
     const derived = derivePattern(getPattern(p.id));
     setRecipe({ title: p.name, text: buildRecipeText(derived) });
@@ -114,6 +133,23 @@ export default function GalleryPage() {
           eneste har komplett runde-for-runde-guide i 3D.
         </p>
       </div>
+      {bookmarks.length > 0 && (
+        <section className="ml-resume" aria-label="Fortsett der du slapp">
+          <h2 className="ml-resume-title">Fortsett der du slapp</h2>
+          <div className="ml-resume-row">
+            {bookmarks.map((b) => (
+              <a key={b.href + b.savedAt} className="ml-resume-card" href={b.href}>
+                <span className="ml-resume-name">{b.title}</span>
+                <span className="ml-resume-place">{b.label}</span>
+                <span className="ml-resume-ago">
+                  Bokmerket {savedAgo(b.savedAt, 'no')}
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="ml-filters">
         {FILTERS.map((f) => (
           <button
@@ -132,7 +168,12 @@ export default function GalleryPage() {
           {g.note && <p className="ml-group-note">{g.note}</p>}
           <div className="ml-grid">
             {CATALOG.filter((p) => p.collection === g.id).map((p) => (
-              <Card key={p.id} p={p} onRecipe={openRecipe} />
+              <Card
+                key={p.id}
+                p={p}
+                bookmark={byPattern.get(p.id)}
+                onRecipe={openRecipe}
+              />
             ))}
           </div>
         </section>
