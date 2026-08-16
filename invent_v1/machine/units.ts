@@ -34,25 +34,56 @@ export const YARN_DIA_MM = 2.1;
 /* ------------------------------------------------------------ the gates --- */
 
 /**
- * Gate throat width. HEKLO used 4.2 mm (invent/heklo/cad/primitives.ts:60).
- * The throat must clear the needle plus two yarn thicknesses plus a working
- * margin, and that inequality is asserted by the verification harness rather
- * than trusted:
+ * Gate throat width — and the constraint that reshaped the comb.
+ *
+ * The throat has to pass the needle with both legs of the stitch mouth beside
+ * it, so the harness asserts:
  *
  *   throat >= needleDia + 2 * yarnDia + THROAT_MARGIN_MM
  *
- * The bench rig prints five variants around this value; whichever wins at T2
- * becomes the constant. Until then 4.2 is a starting point, not a result.
+ * With a 3.0 mm ryanal and DK cotton that is 3.0 + 4.2 + 0.6 = 7.8 mm. HEKLO
+ * inherited 4.2 mm (invent/heklo/cad/primitives.ts:60) — which was already
+ * marginal for its own assumption of a 1.8 mm machine needle, and is nowhere
+ * near enough for a needle you can buy on a high street.
+ *
+ * That created a real contradiction, found by the verification harness rather
+ * than by a printed part that did not work: a gate must be narrower than the
+ * stitch pitch (5.6 mm) so gates can sit one per stitch, which caps the throat
+ * at 5.6 - 2*wall = 3.0 mm. Less than the diameter of the needle alone.
+ *
+ * Resolved by STAGGERING the comb into two rows. Alternate gates sit on an
+ * inner and an outer row, so each gate may be up to two pitches wide while the
+ * mouths it holds stay one pitch apart. That buys 11.2 mm of width and makes
+ * the whole mechanism dimensionally possible.
+ *
+ * The sweep now brackets the requirement instead of sitting below it. Whichever
+ * width wins at T2 becomes the constant; until then none of these is a result.
  */
-export const GATE_THROAT_MM = 4.2;
-export const GATE_THROAT_SWEEP_MM = [3.8, 4.0, 4.2, 4.6, 5.0] as const;
+/**
+ * Nominal is 8.0 mm, which is also the geometric CEILING for a two-row comb:
+ * gate width 10.6 less two 1.3 mm walls. The requirement with a ryanal is
+ * 7.8 mm. There is 0.2 mm in hand.
+ *
+ * That is uncomfortably tight and worth stating plainly rather than burying.
+ * If T2 shows the V is held too loosely at 8.0, the fix is NOT a wider throat —
+ * there is no room. It is a thinner needle: a knitting-machine latch needle at
+ * 1.8 mm drops the requirement to 6.6 mm and restores real margin. That is why
+ * the collet is a separate 10 g print and why woolen.no, stanett.no and akeb.no
+ * are already in the vendor list.
+ */
+export const GATE_THROAT_MM = 8.0;
+export const GATE_THROAT_SWEEP_MM = [6.0, 7.0, 7.5, 8.0] as const;
 export const THROAT_MARGIN_MM = 0.6;
 
-/** Printed gate body, from HEKLO's gateClip(w, d, h, thick). */
-export const GATE_W_MM = 5.4;
-export const GATE_D_MM = 7.2;
+/** Two-row stagger: a gate may be two pitches wide, less a running clearance. */
+export const COMB_ROWS = 2;
+export const GATE_W_MM = COMB_ROWS * STITCH_W_MM - 0.6; // 10.6
+export const GATE_D_MM = 9.0;
 export const GATE_H_MM = 9.5;
 export const GATE_WALL_MM = 1.3;
+
+/** Radial offset between the inner and outer comb rows. */
+export const COMB_ROW_OFFSET_MM = GATE_D_MM + 1.2;
 
 /** Teeth on the presentation wheel. Eight, inherited from HEKLOMAT. */
 export const WHEEL_TEETH = 8;

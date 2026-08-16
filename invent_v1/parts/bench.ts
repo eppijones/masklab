@@ -42,6 +42,7 @@ import {
   CLEARANCE,
   INSERT_BORE,
   INSERT_DEPTH,
+  MG90S,
   MGN9,
   MGN9_HOLES,
   NEMA17,
@@ -50,8 +51,10 @@ import {
 } from './dims.ts';
 import {
   COMB_GATES_BENCH,
+  COMB_ROW_OFFSET_MM,
   GATE_D_MM,
   GATE_H_MM,
+  GATE_THROAT_MM,
   GATE_THROAT_SWEEP_MM,
   GATE_W_MM,
   GATE_WALL_MM,
@@ -88,11 +91,10 @@ const petg = (overrides: Partial<PartDef['print']> = {}) =>
  * known pose. Taken from HEKLO, which is the one genuinely good mechanism in
  * the four dossiers.
  *
- * The throat is printed in five widths (3.8 / 4.0 / 4.2 / 4.6 / 5.0 mm) so T2
- * can find the one that actually holds cotton. That sweep is a `for` loop over
- * dims, and it produces five validated STLs, five BOM rows and five guide
- * lines for free — which is the entire argument for building a registry
- * instead of hand-modelling parts.
+ * The throat is printed across a sweep of widths so T2 can find the one that
+ * actually holds cotton. That sweep is a `map` over dims, and it produces a
+ * validated STL, a BOM row and a guide line per variant for free — which is
+ * the entire argument for building a registry instead of hand-modelling parts.
  */
 function gateThroat(d: Record<string, number>): Solid {
   const { throat, w, dep, h, wall } = d;
@@ -136,15 +138,18 @@ function gateThroat(d: Record<string, number>): Solid {
   );
 }
 
-const gateVariants: PartDef[] = GATE_THROAT_SWEEP_MM.map((throat, i) => ({
-  id: `gate-${String(throat).replace('.', 'p')}`,
+/** Stable id for a gate of a given throat width. Shared so mates can derive it. */
+export const gateId = (throat: number): string => `gate-${String(throat).replace('.', 'p')}`;
+
+const gateVariants: PartDef[] = GATE_THROAT_SWEEP_MM.map((throat) => ({
+  id: gateId(throat),
   name: `Stitch gate — ${throat.toFixed(1)} mm throat`,
   nameNo: `Maskeport — ${throat.toFixed(1)} mm hals`,
   kind: 'printed',
   group: 'comb',
-  tracks: ['bench', ...(throat === 4.2 ? (['full'] as const) : [])],
+  tracks: ['bench', ...(throat === GATE_THROAT_MM ? (['full'] as const) : [])],
   dims: { throat, w: GATE_W_MM, dep: GATE_D_MM, h: GATE_H_MM, wall: GATE_WALL_MM },
-  qty: i === 2 ? 12 : 4, // print more of the nominal; 4 each of the others
+  qty: throat === GATE_THROAT_MM ? 12 : 4, // more of the nominal, 4 of each sweep step
   mount: { frame: 'W', position: [0, 0, 0] },
   build: gateThroat,
   print: petg({
@@ -156,9 +161,19 @@ const gateVariants: PartDef[] = GATE_THROAT_SWEEP_MM.map((throat, i) => ({
   }),
   interfaces: [
     { kind: 'throat', id: 'throat', width: throat, depth: GATE_D_MM, at: [0, 2.4, 0] },
+    // The tongue is what seats in the comb rail and in a wheel tooth. It is a
+    // different feature from the throat, and conflating the two is how a mate
+    // check ends up comparing a socket against an aperture.
+    {
+      kind: 'throat',
+      id: 'tongue',
+      width: GATE_W_MM - 2 * GATE_WALL_MM,
+      depth: 2 * GATE_WALL_MM,
+      at: [0, -GATE_D_MM / 2 + GATE_WALL_MM, -1.5],
+    },
   ],
   note:
-    throat === 4.2
+    throat === GATE_THROAT_MM
       ? 'Nominal. Carried into the full machine unless T2 says otherwise.'
       : 'Sweep variant — printed so T2 can find the throat that actually holds DK cotton.',
 }));
@@ -181,13 +196,14 @@ const gateVariants: PartDef[] = GATE_THROAT_SWEEP_MM.map((throat, i) => ({
  * it to the primary mechanism.
  */
 function combSegment(d: Record<string, number>): Solid {
-  const { gates, pitch, wall, h, seatW, seatD, ear } = d;
+  const { gates, pitch, wall, h, seatW, seatD, ear, rowOffset } = d;
   // Gate section plus a mounting ear at each end. The ears exist because the
-  // three-gate bench comb is only 21 mm of gate rail — nowhere near enough
-  // material to also carry two M3 slots without cutting the rail in half.
+  // bench comb is a short rail — nowhere near enough material to also carry
+  // two M3 slots without cutting it in half.
   const gateLen = gates * pitch + 2 * wall;
   const len = gateLen + 2 * ear;
-  const depth = seatD + 2 * wall;
+  // Deep enough for two staggered rows plus walls.
+  const depth = rowOffset + seatD + 2 * wall;
 
   const rail = extrude(roundedRect(len, depth, 1.5), h);
 
@@ -195,12 +211,18 @@ function combSegment(d: Record<string, number>): Solid {
   const pocket = 5; // matches the gate tongue
   for (let i = 0; i < gates; i++) {
     const x = -gateLen / 2 + wall + pitch * (i + 0.5);
+    // THE STAGGER. Alternate gates sit on an inner and an outer row. The stitch
+    // mouths they hold stay one pitch apart, but each gate body gets two
+    // pitches of width — which is the only reason a throat wide enough to pass
+    // the needle and both legs of the V can exist at all. See units.ts.
+    const y = (i % 2 === 0 ? -1 : +1) * (rowOffset / 2);
+
     // A BLIND pocket from the top face, so the gate has a shoulder to sit on
     // rather than dropping straight through...
-    seats.push(at(cube(seatW, seatD, pocket + 2, true), [x, 0, h - pocket / 2 + 1]));
+    seats.push(at(cube(seatW, seatD, pocket + 2, true), [x, y, h - pocket / 2 + 1]));
     // ...and a through hole, so a seized gate comes out with a 2 mm pin from
     // below instead of a knife from above. You will do this a lot during T2.
-    seats.push(at(cyl(h + 4, 1.1, 24), [x, 0, h / 2]));
+    seats.push(at(cyl(h + 4, 1.1, 24), [x, y, h / 2]));
   }
 
   // Slotted mounts on the ears, clear of the gate pockets. Slotted rather than
@@ -226,6 +248,7 @@ const comb: PartDef = {
     wall: 2.4,
     h: 10,
     ear: 16,
+    rowOffset: COMB_ROW_OFFSET_MM,
     seatW: GATE_W_MM - 2 * GATE_WALL_MM + 0.25,
     seatD: 2 * GATE_WALL_MM + 0.25,
   },
@@ -237,15 +260,21 @@ const comb: PartDef = {
     orientationWhy: 'Flat on the bed. The seats are the accurate feature and want no support.',
   }),
   interfaces: [
-    { kind: 'throat', id: 'seat', width: GATE_W_MM - 2 * GATE_WALL_MM + 0.25, depth: 10, at: [0, 0, 0] },
+    {
+      kind: 'throat',
+      id: 'seat',
+      width: GATE_W_MM - 2 * GATE_WALL_MM + 0.25,
+      depth: 10,
+      at: [0, 0, 0],
+    },
     {
       kind: 'boltPattern',
       id: 'feet',
       thread: 'M3',
       holeDia: CLEARANCE.M3,
       positions: [
-        [-(COMB_GATES_BENCH * STITCH_W_MM) / 2 - 0.4, -3.9],
-        [+(COMB_GATES_BENCH * STITCH_W_MM) / 2 + 0.4, -3.9],
+        [-(COMB_GATES_BENCH * STITCH_W_MM) / 2 - 8, 0],
+        [+(COMB_GATES_BENCH * STITCH_W_MM) / 2 + 8, 0],
       ],
       at: [0, 0, 0],
       normal: [0, 0, 1],
@@ -288,6 +317,15 @@ function wheelTooth(d: Record<string, number>): Solid {
   return subtract(at(arm, [0, 0, 0]), seat, hubBore, grubHole);
 }
 
+const TOOTH_DIMS = {
+  len: 34,
+  w: GATE_W_MM + 3, // must carry the full-width staggered gate
+  h: 6,
+  seatW: GATE_W_MM - 2 * GATE_WALL_MM + 0.25,
+  seatD: 2 * GATE_WALL_MM + 0.25,
+  hubDia: 8.25,
+};
+
 const tooth: PartDef = {
   id: 'wheel-tooth',
   name: 'Gate wheel tooth',
@@ -295,14 +333,7 @@ const tooth: PartDef = {
   kind: 'printed',
   group: 'wheel',
   tracks: ['bench', 'full'],
-  dims: {
-    len: 30,
-    w: 9,
-    h: 6,
-    seatW: GATE_W_MM - 2 * GATE_WALL_MM + 0.25,
-    seatD: 2 * GATE_WALL_MM + 0.25,
-    hubDia: 8.25,
-  },
+  dims: TOOTH_DIMS,
   qty: 8,
   mount: { frame: 'W', position: [0, 0, 0] },
   build: wheelTooth,
@@ -313,8 +344,24 @@ const tooth: PartDef = {
       'Flat, arm in the XY plane. The bending load is in-plane, so layer lines never see peel.',
   }),
   interfaces: [
-    { kind: 'bore', id: 'hub', dia: 8.25, depth: 6, at: [0, 0, 0], axis: [0, 0, 1], fit: 'slip' },
-    { kind: 'throat', id: 'seat', width: GATE_W_MM - 2 * GATE_WALL_MM + 0.25, depth: 6, at: [24, 0, 0] },
+    // Derived from TOOTH_DIMS, never retyped. A second copy of a number is a
+    // second thing that can be wrong, and only one of them gets printed.
+    {
+      kind: 'bore',
+      id: 'hub',
+      dia: TOOTH_DIMS.hubDia,
+      depth: TOOTH_DIMS.h,
+      at: [0, 0, 0],
+      axis: [0, 0, 1],
+      fit: 'slip',
+    },
+    {
+      kind: 'throat',
+      id: 'seat',
+      width: TOOTH_DIMS.seatW,
+      depth: TOOTH_DIMS.h,
+      at: [TOOTH_DIMS.len - 6, 0, 0],
+    },
   ],
   fasteners: [{ sku: 'M3x10-SHCS', qty: 1 }],
   note: 'Carries one gate. Eight per wheel; the bench runs two so pickup and release can both be watched.',
@@ -615,6 +662,79 @@ const dancer: PartDef = {
 };
 
 /* ------------------------------------------------------------------------- */
+/* 7b. Yarn-over finger — rides axis F                                        */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Lays yarn into the hook throat, twice per stitch. On the second yarn-over it
+ * is also the colour-change moment, which happens up to 1328 times in a single
+ * hat — so this little arm moves more than anything else on the machine.
+ *
+ * Printed as a servo horn adapter plus a wire finger: the finger itself is a
+ * length of 1.75 mm filament or spring steel, because a printed tip at that
+ * diameter snaps and a metal one costs nothing.
+ */
+function yarnFinger(d: Record<string, number>): Solid {
+  const { armLen, w, t, hornDia, wireDia } = d;
+
+  const arm = extrude(roundedRect(armLen, w, 2), t);
+  const hornPocket = at(cyl(t + 2, hornDia / 2, 32), [-armLen / 2 + 8, 0, 0]);
+  const hornScrew = at(cyl(t + 4, 1.2, 16), [-armLen / 2 + 8, 0, 0]);
+  // Cross-drilled seat for the wire finger, with a grub screw to pinch it.
+  const wireSeat = at(cyl(20, wireDia / 2 + 0.05, 16), [armLen / 2 - 6, 0, t / 2], [0, 90, 0]);
+  const grub = at(cyl(w + 4, CLEARANCE.M3 / 2, 16), [armLen / 2 - 6, 0, t / 2], [90, 0, 0]);
+
+  return subtract(arm, hornPocket, hornScrew, wireSeat, grub);
+}
+
+const finger: PartDef = {
+  id: 'yarn-finger',
+  name: 'Yarn-over finger arm',
+  nameNo: 'Garnfingerarm',
+  kind: 'printed',
+  group: 'head',
+  tracks: ['bench', 'full'],
+  dims: { armLen: 46, w: 12, t: 5, hornDia: MG90S.hornDia, wireDia: 1.75 },
+  qty: 1,
+  mount: { frame: 'F', position: [0, 0, 0] },
+  build: yarnFinger,
+  print: petg({
+    infillPct: 50,
+    orientationWhy: 'Flat. This part reverses direction twice per stitch — keep layers out of the bending plane.',
+  }),
+  interfaces: [
+    { kind: 'bore', id: 'horn', dia: MG90S.hornDia, depth: 5, at: [-15, 0, 0], axis: [0, 0, 1], fit: 'slip' },
+  ],
+  fasteners: [{ sku: 'M3x10-SHCS', qty: 1 }],
+  note: 'The wire tip is 1.75 mm filament or spring steel. A printed tip at that diameter snaps within a round.',
+};
+
+/* ------------------------------------------------------------------------- */
+/* 7c. Wheel shaft — bought, not printed                                      */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * An 8 mm ground steel rod through two 608 bearings. Declared as a part with
+ * no geometry of its own because it is bought stock — but it carries a `shaft`
+ * interface, which is the whole point: without something for the wheel hub bore
+ * to be checked AGAINST, a wrong bore diameter sails through the harness. It
+ * did, once, which is why this exists.
+ */
+const shaft: PartDef = {
+  id: 'wheel-shaft',
+  name: 'Wheel shaft, 8 mm ground rod',
+  nameNo: 'Hjulaksel 8 mm',
+  kind: 'cots',
+  group: 'wheel',
+  tracks: ['bench', 'full'],
+  dims: { dia: 8, len: 60 },
+  qty: 1,
+  mount: { frame: 'W', position: [0, 0, 0] },
+  interfaces: [{ kind: 'shaft', id: 'journal', dia: 8, len: 60, at: [0, 0, 0], axis: [0, 0, 1] }],
+  note: '608 bearings have an 8 mm bore, so the shaft is set by the bearing, not by preference.',
+};
+
+/* ------------------------------------------------------------------------- */
 /* 8. Bench base — the one deliberately throwaway printed part                */
 /* ------------------------------------------------------------------------- */
 
@@ -663,6 +783,8 @@ export const BENCH_PARTS: readonly PartDef[] = [
   motorMount,
   camera,
   dancer,
+  finger,
+  shaft,
   base,
 ];
 
