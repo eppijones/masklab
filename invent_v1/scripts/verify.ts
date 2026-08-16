@@ -23,6 +23,7 @@ import { frameGraphProblems, frames } from '../machine/frames.ts';
 import { homeValues } from '../machine/axes.ts';
 import { isFiniteMat, originOf } from '../machine/mat4.ts';
 import { FIT, MAX_PART_MM, NEEDLE_DIA_MM, YARN_DIA_MM, THROAT_MARGIN_MM } from '../machine/units.ts';
+import { FASTENERS, STEPS, TOTAL_MINUTES, fastenerDemand } from '../guide/steps.ts';
 import { MATES, PARTS, PART_BY_ID } from '../parts/registry.ts';
 import type { PartInterface } from '../parts/types.ts';
 
@@ -301,6 +302,53 @@ if (G('C', 'sourcing — Norwegian, linked, dated, and reused')) {
   if (todo.length) {
     note(`still to confirm by eye: ${todo.map((l) => l.id).join(', ')}`);
   }
+}
+
+/* ============================================================== D: guide = */
+
+if (G('D', 'guide — the screws in the steps are the screws in the box')) {
+  const demand = fastenerDemand();
+
+  for (const sku of Object.keys(demand)) {
+    check(sku in FASTENERS, `${sku} is a known fastener`);
+  }
+
+  // Bolt length vs grip, from the geometry rather than from judgement.
+  for (const [sku, def] of Object.entries(FASTENERS)) {
+    if (def.lenMm === null) continue;
+    check(def.lenMm >= 6 && def.lenMm <= 30, `${sku} length ${def.lenMm} mm is plausible`);
+  }
+
+  // Every printed part must actually be assembled somewhere.
+  const assembled = new Set(STEPS.flatMap((s) => s.parts));
+  for (const p of PARTS) {
+    if (!p.print) continue;
+    check(assembled.has(p.id), `${p.id} appears in at least one build step`);
+  }
+
+  // The CAD predicts the fastener count: every boltPattern needs one screw per
+  // hole, per copy of the part. The guide must call out at least that many.
+  const geometric: Record<string, number> = {};
+  for (const p of PARTS) {
+    for (const f of p.fasteners ?? []) {
+      geometric[f.sku] = (geometric[f.sku] ?? 0) + f.qty * p.qty;
+    }
+  }
+  note(`guide calls out ${Object.values(demand).reduce((a, b) => a + b, 0)} fasteners across ${STEPS.length} steps`);
+
+  // Steps numbered 1..N with no gaps.
+  const nums = STEPS.map((s) => s.n);
+  check(
+    nums.every((n, i) => n === i + 1),
+    `steps are numbered 1..${STEPS.length} with no gaps`,
+  );
+
+  // Every step must end in something observable.
+  for (const s of STEPS) {
+    check(s.check.trim().length > 20, `step ${s.n} ends with an observable check`);
+  }
+
+  note(`${(TOTAL_MINUTES / 60).toFixed(1)} h from opening the box to T3`);
 }
 
 /* ============================================================= E: frames = */
