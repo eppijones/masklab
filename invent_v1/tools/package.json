@@ -1,0 +1,17 @@
+{
+  "name": "invent-v1-tools",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Isolated CAD toolchain for HEKLOMAT V1. Node only, never bundled for the browser.",
+  "scripts": {
+    "stl": "tsx build-stl.ts"
+  },
+  "dependencies": {
+    "manifold-3d": "^3.5.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
