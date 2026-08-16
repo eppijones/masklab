@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HEKLOMAT-1 — Automated Crochet Cell</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="kicker">invent_fable · invention dossier</p>
+    <h1>HEKLOMAT&#8209;1</h1>
+    <p class="sub">
+      An automated crochet cell that produces the StrikkeApp bucket hats —
+      fastmaske (single crochet), worked top-down in a continuous spiral, with
+      tapestry colorwork — built from 3D-printed parts, off-the-shelf motion
+      hardware and a Raspberry Pi, for roughly 5&nbsp;000&nbsp;NOK.
+    </p>
+  </header>
+
+  <p>
+    Hand crochet has long been called the one textile craft no machine can do.
+    The research record says otherwise — it just tells us where the difficulty
+    lives: <em>finding the previous round's loop and holding it open</em>.
+    HEKLOMAT-1 solves that with one new mechanism, the
+    <strong>stitch-presentation wheel</strong>: eight latch-needle teeth that
+    pick up the previous round's stitches like a film sprocket and present each
+    loop, held open, at a fixed work point for the hook. Everything else is
+    proven parts — a turntable, a printed hat mandrel, 3D-printer motion
+    hardware and a camera for stitch-by-stitch quality control.
+  </p>
+
+  <div class="cards">
+    <a class="card" href="patent.html">
+      <span class="no">01 · DOCUMENT</span>
+      <h3>Patent application</h3>
+      <p>Full specification in international filing style: prior art, detailed
+      description, 7 figures and 18 claims covering the machine, the wheel, the
+      color-change method and the digital-twin compiler.</p>
+    </a>
+    <a class="card" href="guide.html">
+      <span class="no">02 · MANUAL</span>
+      <h3>Assembly guide</h3>
+      <p>IKEA-style build manual: 15 illustrated steps, complete purchase list
+      in NOK, the 3D-printing plan for the Bambu Lab X1&nbsp;Carbon, calibration
+      and your first hat.</p>
+    </a>
+    <a class="card" href="parts.html">
+      <span class="no">03 · FILES</span>
+      <h3>Printable parts</h3>
+      <p>Every 3D-printed component as a real STL file, shown in an interactive
+      3D viewer with print settings — download and drop straight into Bambu
+      Studio.</p>
+    </a>
+    <a class="card" href="simulation.html">
+      <span class="no">04 · PREVIS</span>
+      <h3>3D simulation</h3>
+      <p>Watch the machine crochet a real hat from magic ring to finished brim —
+      in true realtime (hours, with a running clock) or sped up 10×, 60×, 600× —
+      for any of the eight patterns.</p>
+    </a>
+  </div>
+
+  <div class="note">
+    <strong>Why you can trust the numbers:</strong> the simulation runs the same
+    compiled stitch program ("Maskekode") a real HEKLOMAT would execute, derived
+    stitch-for-stitch from the actual patterns in the app — 2&nbsp;778 to
+    3&nbsp;694 stitches and up to 1&nbsp;412 color changes per hat. The clock you
+    see is the time the machine would take.
+  </div>
+
+  <h2>What it costs, what it makes</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Figure</th></tr></thead>
+    <tbody>
+      <tr><td>Parts to buy (steppers, Pi, rails, bearings, hardware)</td><td>≈ 4&nbsp;976 NOK</td></tr>
+      <tr><td>Parts to print on the X1&nbsp;Carbon</td><td>21 unique · 34 pieces · ≈ 655 g · ≈ 24 h</td></tr>
+      <tr><td>Build time (no welding, no machining)</td><td>≈ 6 hours</td></tr>
+      <tr><td>Machine time for one bucket hat</td><td>7–10 hours, unattended</td></tr>
+      <tr><td>Patterns it can make today</td><td>all 8 hats in the app, unmodified</td></tr>
+      <tr><td>Stitch types required</td><td>fastmaske + increase only — no decreases anywhere</td></tr>
+    </tbody>
+  </table>
+
+  <h2>The one thing that makes it work</h2>
+  <p>
+    Every previous attempt at machine crochet failed the same way: the hook has to
+    find a specific loop in relaxed fabric and hold it open. The Harvard
+    Croche-Matic managed roughly half its stitches and no more than four in a row
+    for exactly this reason. HEKLOMAT-1 never searches — a wheel of eight latch
+    needles <em>delivers</em> each loop to the hook, held open, at the same spot
+    every time. That single change turns an unsolved sensing problem into a
+    gear ratio, and it is the heart of the patent.
+  </p>
+
+  <footer class="colophon">
+    HEKLOMAT-1 · invention dossier · generated in invent_fable/ · self-contained,
+    no network required
+  </footer>
+
+</div>
+</body>
+</html>

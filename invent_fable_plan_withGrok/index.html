@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HEKLOMAT-1 — automated crochet for bucket hats</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <strong>HEKLOMAT-1</strong>
+    <nav>
+      <a href="index.html" aria-current="page">Hub</a>
+      <a href="patent.html">Patent</a>
+      <a href="guide.html">Build guide</a>
+      <a href="parts.html">Parts</a>
+      <a href="simulation.html">Simulation</a>
+    </nav>
+  </div>
+  <div class="wrap">
+    <p class="kicker">Invention pack · not the Masklab app</p>
+    <h1>HEKLOMAT-1</h1>
+    <p class="lede">A ~5&nbsp;000&nbsp;NOK machine that crochets the eight MASKLAB bucket hats — magic ring to brim — using a stitch-presentation wheel so the hook never has to hunt for the last round’s loops. This folder is a standalone evaluation kit: patent, IKEA-style build, printable STLs, and a digital twin driven by the same Maskekode stream as the hats.</p>
+    <p class="note">Served only from the concept static server (<span class="meta">http://127.0.0.1:8899/invent_fable_plan_withGrok/</span>). It is not on masklab.vercel.app and does not share the Vite app on port 5173.</p>
+    <div class="cards">
+      <a class="card" href="patent.html">
+        <h2>Patent application</h2>
+        <p>English international-style filing: field, prior art, 7 figures, 18 claims. The money figure is the presentation wheel’s pick-up / present / release zones.</p>
+      </a>
+      <a class="card" href="guide.html">
+        <h2>IKEA-style build guide</h2>
+        <p>Fifteen assembly steps, calibration, first-hat procedure, and a complete purchased BOM in NOK (~5&nbsp;050–5&nbsp;320).</p>
+      </a>
+      <a class="card" href="parts.html">
+        <h2>3D-printable parts</h2>
+        <p>21 STLs for the Bambu Lab X1 Carbon Combo. Click a card to inspect; download the file into Bambu Studio.</p>
+      </a>
+      <a class="card" href="simulation.html">
+        <h2>Realtime previs</h2>
+        <p>Three.js twin of the machine making a hat. 1× is ~8&nbsp;s per stitch (a NORGE hat is ~9&nbsp;h&nbsp;48&nbsp;m). 600× and “To the end” for investors.</p>
+      </a>
+    </div>
+    <h2>Why this is feasible</h2>
+    <p>Crochet is the craft machines supposedly cannot do. Two research machines show where it actually fails: <strong>Croche-Matic</strong> (Harvard GSD, ICRA 2023) can chain, single crochet, increase and decrease in the round, but only at ~50% stitch success — it cannot reliably <em>find and hold open</em> the previous round’s loops. <strong>CroMat</strong> (HSBI / TU Dresden) solved holding: a row of latch needles keeps the last row open, but only for flat fabric.</p>
+    <p>HEKLOMAT-1 bends CroMat’s latch row into a circle and keeps Croche-Matic’s radial spiral, via a mechanism neither has: an eight-tooth <strong>stitch-presentation wheel</strong> that, like a film sprocket, picks up the previous round, presents one loop held open at a fixed work point, and releases it behind the hook. Increases are two hook cycles on one tooth. Diameter can grow from 10 to 144 stitches without searching.</p>
+    <p>All eight hats in the app are 100% <em>fastmaske</em> / single crochet, top-down spiral, tapestry colourwork, no decreases. The machine only needs MR, FM, INC, COL, SLST, FO — the Maskekode already compiled from each pattern.</p>
+    <table>
+      <thead><tr><th>Need</th><th>Answer</th></tr></thead>
+      <tbody>
+        <tr><td>Budget</td><td>≈ 5&nbsp;000 NOK hardware + ~1&nbsp;kg filament</td></tr>
+        <tr><td>Printer</td><td>Bambu Lab X1 Carbon Combo, parts ≤ 250&nbsp;mm</td></tr>
+        <tr><td>Opcodes</td><td>MR · FM · INC · COL n · SLST · FO</td></tr>
+        <tr><td>NORGE hat at 1×</td><td>~9&nbsp;h 48&nbsp;m (8&nbsp;s/stitch + colour-change penalty)</td></tr>
+      </tbody>
+    </table>
+    <footer class="doc">Standalone concept folder. The MASKLAB production site is untouched.</footer>
+  </div>
+</body>
+</html>
