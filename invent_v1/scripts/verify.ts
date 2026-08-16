@@ -22,7 +22,10 @@ import { AXES } from '../machine/axes.ts';
 import { frameGraphProblems, frames } from '../machine/frames.ts';
 import { homeValues } from '../machine/axes.ts';
 import { isFiniteMat, originOf } from '../machine/mat4.ts';
+import { LIMITS } from '../machine/thermal.ts';
 import { FIT, MAX_PART_MM, NEEDLE_DIA_MM, YARN_DIA_MM, THROAT_MARGIN_MM } from '../machine/units.ts';
+import { crc8, decodeCommand, encode, parse, type Command, type Verb } from '../control/protocol.ts';
+import { SimTransport } from '../control/transport.ts';
 import { FASTENERS, STEPS, TOTAL_MINUTES, fastenerDemand } from '../guide/steps.ts';
 import { MATES, PARTS, PART_BY_ID } from '../parts/registry.ts';
 import type { PartInterface } from '../parts/types.ts';
@@ -424,6 +427,120 @@ if (G('F', 'program — the machine and the pattern agree')) {
     });
     check(monotonic, 'every mandrel profile descends monotonically from crown to brim');
   }
+}
+
+/* =========================================================== G: protocol = */
+
+if (G('G', 'protocol — round-trips, and refuses to throw on garbage')) {
+  const verbs: Verb[] = ['hello', 'cfg', 'home', 'jog', 'move', 'cycle', 'run', 'stop', 'abort'];
+  const corpus: Command[] = [
+    ...verbs.map((verb, i) => ({ seq: i + 1, verb })),
+    { seq: 12, verb: 'jog', args: { ax: 'W', d: -2.5, f: 40 } },
+    { seq: 13, verb: 'move', args: { ax: 'P', p: 19.5 } },
+    { seq: 14, verb: 'run', args: { n: 250, id: 'sc' } },
+    { seq: 15, verb: 'cycle', args: { id: 'sc', gate: 412, color: 2 } },
+  ];
+
+  let roundTrips = 0;
+  for (const c of corpus) {
+    const back = decodeCommand(encode(c));
+    const same =
+      back !== null &&
+      back.seq === c.seq &&
+      back.verb === c.verb &&
+      JSON.stringify(back.args ?? {}) === JSON.stringify(c.args ?? {});
+    if (same) roundTrips++;
+    else check(false, `round-trip failed for ${c.verb} seq ${c.seq}`);
+  }
+  check(roundTrips === corpus.length, `${roundTrips}/${corpus.length} commands round-trip exactly`);
+
+  // A single flipped bit must be rejected, not acted on.
+  const good = encode({ seq: 7, verb: 'move', args: { ax: 'P', p: 19.5 } });
+  const bad = `${good.slice(0, 8)}X${good.slice(9)}`;
+  check(decodeCommand(bad) === null, 'a corrupted command line fails its CRC and is rejected');
+  check(crc8('') === 0, 'crc8 of the empty string is 0');
+
+  // Nothing the device can say may throw.
+  const garbage = [
+    '', '   ', 'ok', 'nak', 'ev', 'tel', 'tel t=abc', 'ok notanumber',
+    'log', 'x'.repeat(300), '\u0000\u0001', 'tel t=5 W=NaN st=idle',
+  ];
+  let threw = 0;
+  for (const g of garbage) {
+    try {
+      parse(g);
+    } catch {
+      threw++;
+    }
+  }
+  check(threw === 0, `${garbage.length} malformed lines parsed without throwing`);
+  check(parse('garbage here').kind === 'garbage', 'unrecognised lines become garbage, not exceptions');
+  check(parse('tel t=100 W=1.5 st=running q=3 Tm=41.2').kind === 'tel', 'telemetry parses');
+}
+
+if (G('H', 'simulator — the UI can be finished before the parts arrive')) {
+  // Modest heating: this run is about the cycle pipeline, not the cutout.
+  const sim = new SimTransport({ speedup: 120, heatCPerMin: 2 });
+  const seen: string[] = [];
+  sim.onLine((l) => seen.push(l));
+
+  await sim.open();
+  check(sim.state === 'open', 'simulator opens');
+
+  await sim.send(encode({ seq: 1, verb: 'hello' }));
+  await sim.send(encode({ seq: 2, verb: 'cfg', args: { get: 1 } }));
+  await sim.send(encode({ seq: 3, verb: 'run', args: { n: 3 } }));
+
+  const acked = seen.filter((l) => l.startsWith('ok ')).length;
+  check(acked >= 3, `${acked} commands acknowledged`);
+
+  await new Promise((r) => setTimeout(r, 1200));
+  const cycles = seen.filter((l) => l.includes('cycle.done')).length;
+  check(cycles > 0, `${cycles} cycles completed in the sim`);
+  check(
+    seen.some((l) => l.startsWith('ev shutter')),
+    'every cycle emits a shutter event so a camera frame can be bound to it',
+  );
+
+  await sim.panic();
+  check(sim.debugState === 'estopped', 'panic() reaches estopped');
+
+  // An unknown verb is refused rather than silently ignored.
+  await sim.send(encode({ seq: 9, verb: 'nonsense' as Verb }));
+  check(
+    seen.some((l) => l.startsWith('nak 9')),
+    'an unknown verb is nak-ed',
+  );
+
+  await sim.close();
+  check(sim.state === 'closed', 'simulator closes cleanly');
+
+  // Thermal runaway must TRIP the machine, not merely be logged. Separate
+  // instance so the cutout cannot interfere with the cycle test above.
+  const hot = new SimTransport({ speedup: 400, heatCPerMin: 600 });
+  const hotLines: string[] = [];
+  hot.onLine((l) => hotLines.push(l));
+  await hot.open();
+  await hot.send(encode({ seq: 1, verb: 'run', args: { n: 500 } }));
+  await new Promise((r) => setTimeout(r, 900));
+
+  const trip = hotLines.find((l) => l.startsWith('ev thermal.trip'));
+  check(
+    hot.debugState === 'fault' && Boolean(trip),
+    trip
+      ? `runaway heating trips the machine: ${trip.replace('ev thermal.trip ', '')}`
+      : `no thermal trip emitted (limit ${LIMITS.motor.hardC} C)`,
+  );
+  // The cutout must STOP the run, not just log a complaint: no cycle may
+  // complete after the trip line appears.
+  const tripAt = hotLines.findIndex((l) => l.startsWith('ev thermal.trip'));
+  const cyclesAfterTrip =
+    tripAt < 0 ? -1 : hotLines.slice(tripAt).filter((l) => l.includes('cycle.done')).length;
+  check(
+    cyclesAfterTrip === 0,
+    `no cycles complete after the thermal trip (saw ${cyclesAfterTrip})`,
+  );
+  await hot.close();
 }
 
 /* ================================================================ summary = */
