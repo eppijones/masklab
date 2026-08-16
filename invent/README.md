@@ -1,50 +1,48 @@
-# HATTEBLOKK — automated crochet bucket-hat machine
+# invent/ — archived concept dossiers
 
-R&D sub-project. **Nothing outside `invent/` is created or modified.**
+Four independent designs for a machine that crochets the MASKLAB bucket hats.
+All four are **superseded by `invent_v1/`**, which merges the two best ideas.
+They are kept because each one proved something the successor relies on.
 
-## Run it
+> **Do not deploy these publicly.** They contain unfiled patent disclosures, and
+> Norway follows the EPC — which has no grace period. Publishing destroys the
+> novelty on the day it goes up. `invent` and `invent_v1` are both in
+> `.vercelignore` for this reason.
 
-From the repo root (`StrikkeApp/`):
+| Folder | Machine | What it contributed | Why superseded |
+|---|---|---|---|
+| [`heklomat/`](heklomat/) | **HEKLOMAT-1** — 8-tooth stitch-presentation wheel on a rotating hat mandrel | The only dossier that shipped a buildable package: 21 watertight STLs, an illustrated 15-step manual, a Norwegian shopping list, a realtime simulation and a working 3D parts viewer. Its manifold-3d STL toolchain is the direct ancestor of `invent_v1/tools`. | The wheel still lifts loops out of relaxed fabric — it presents, but never *holds*. No bench-test gate, and its BOM dropped the fuse and E-stop. |
+| [`heklo/`](heklo/) | **HEKLO** — closed chain of printed stitch gates, one per live stitch | The best mechanism of the four: every live stitch mouth clamped open in a printed throat at a known pose. Also the best process — a €305 bench ladder with an explicit kill gate at P2. | Ships zero printable files, and needs 180 identical gates plus an injector that must add a link in 0.6 s without dropping a neighbour. |
+| [`hatteblokk/`](hatteblokk/) | **HATTEBLOKK** — rotating hat block, compliant V-presenter, worked rim-first | The best engineering method: seven architectures scored before choosing, every claim tagged by evidence strength, a ten-risk register, documented fallbacks, and a patent section that marks one of its own claims as probably anticipated. Its rim-first self-start is still the v2 path. Its rule *no printed part on the critical tolerance path* is carried into `invent_v1`. | Never got past phase 1. No STLs, no build manual — and its own risk register rates the compliant presenter's core assumption as High likelihood of failure. |
+| [`heklomat-draft/`](heklomat-draft/) | HEKLOMAT-1, earlier draft | Its BOM is the only one that budgeted a fuse, XT60 and 16 AWG wire. That line is carried forward. | Strictly dominated by `heklomat/`: 7× coarser meshes, three parts with open edges, and a simulation that renders black. |
+
+## What `invent_v1` takes from them
+
+The successor puts HEKLO's gate throat **on** HEKLOMAT's wheel tooth, and adds a
+fixed ten-gate retention comb so the wheel picks up from a known pose instead of
+from relaxed fabric. That deletes HEKLO's injector and its 180-gate print run,
+and gives HEKLOMAT the deterministic hold it lacked.
+
+## Running them
+
+All four still work. From the repo root:
 
 ```bash
-./node_modules/.bin/vite --config invent/vite.config.ts
+./node_modules/.bin/vite --config invent/hatteblokk/vite.config.ts   # :5273
 ```
 
-Then open <http://localhost:5273>. Build with `vite build --config invent/vite.config.ts`
-(output lands in `invent/dist/`). Type-check with `npx tsc -p invent/tsconfig.json --noEmit`.
+```bash
+./node_modules/.bin/vite --config invent/heklo/vite.config.ts        # :5373
+```
 
-## Never run `npm install` in this directory
+`heklomat/` and `heklomat-draft/` are static — serve the repo root and open
+`/invent/heklomat/` or `/invent/heklomat-draft/`:
 
-`invent/` has **zero dependencies** by design and resolves react, three, `@react-three/*`,
-vite and typescript by walking up to the parent repo's `node_modules`. Installing here
-creates `invent/node_modules` and therefore a second copy of React (→ "invalid hook call")
-and a second copy of THREE (→ every `instanceof` fails, the R3F catalogue splits). A
+```bash
+python3 -m http.server 8899 --bind 127.0.0.1
+```
+
+Never run `npm install` inside any of these folders. They resolve react, three
+and vite from the parent repo by design; a second copy of React causes an
+"invalid hook call" and a second copy of THREE breaks every `instanceof`. A
 `preinstall` guard blocks it.
-
-The `package.json` must still exist: without it, Vite resolves `cacheDir` against the
-nearest package.json and writes into the **parent's** `node_modules/.vite` — a write
-outside `invent/`, and a collision with the parent dev server.
-
-## Layout
-
-| Path | What |
-|---|---|
-| `machine/` | **Source of truth.** `units.ts` (stitch→mm, and the former profile derived from stitch counts), `axes.ts` (8 DOF + frame chain), `cycle.ts` (per-axis keyframes for one fastmaske), `kinematics.ts` (forward kinematics), `program.ts` (progress → axis values), `parts.ts` (parametric part library) |
-| `cad/` | Geometry primitives. Everything is built additively — no CSG library is installed, so the cutaway uses `THREE.Plane` clipping |
-| `twin/` | The digital twin. Parts ride axis frames, so the animation cannot show motion the machine could not perform |
-| `app/` | Shell, hash router, 14 sections, `DataTable` (the only table markup in the project) |
-| `data/` | Prior art, architectures, BOM, experiments, risks, novelty claims — typed arrays rendered by generic components |
-
-## Coupling to the parent app
-
-`app/**` and `twin/**` may use **`import type` only** from `../src` — type imports are
-erased at build, so Vite's `fs.allow` never sees them. Runtime imports from `../src` belong
-only in `invent/scripts/*`, which run under the parent's `tsx`. Leaving `server.fs.allow` at
-its default makes an accidental runtime import fail loudly rather than silently welding this
-deliverable to the parent product.
-
-## Status
-
-Phase 1 (twin) is built. Phase 2 replaces the inlined round schedule in `machine/units.ts`
-with compiler output from a frozen snapshot of the app's `derivePattern()`, and wires the
-real per-stitch colours into the workpiece.

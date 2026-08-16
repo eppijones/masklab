@@ -1,0 +1,14 @@
+{
+  "name": "invent-grok-heklo",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "HEKLO gate-chain crochet engine. Isolated R&D site; resolves packages from the parent repo.",
+  "scripts": {
+    "preinstall": "node scripts/guard-install.js",
+    "dev": "vite",
+    "build": "vite build",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "snapshot": "tsx scripts/snapshot-hats.ts"
+  }
+}
