@@ -7,3 +7,9 @@ scripts
 .backup-*
 .git
 node_modules
+
+# R&D machine dossiers. Keep these OFF the public deploy until a patent is
+# filed: Norway follows the EPC, which has no grace period, so publishing the
+# disclosure destroys its own novelty on the day it goes up.
+invent
+invent_v1

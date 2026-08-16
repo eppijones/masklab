@@ -12,6 +12,6 @@
 console.error(
   '\n  invent/ has no dependencies by design. Do not run npm install here.\n' +
     '  It resolves everything from the parent repo. Run commands from the repo root:\n\n' +
-    '    ./node_modules/.bin/vite --config invent/vite.config.ts\n',
+    '    ./node_modules/.bin/vite --config invent/hatteblokk/vite.config.ts\n',
 );
 process.exit(1);

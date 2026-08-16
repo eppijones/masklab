@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HEKLOMAT-1 — Printable Parts</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  body { overflow: hidden; }
+  .parts-layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    height: calc(100vh - 92px);
+    gap: 0;
+  }
+  .parts-top {
+    padding: 14px 20px 10px;
+    border-bottom: 2px solid var(--ink);
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .parts-top h1 { font-family: var(--serif); font-size: 24px; margin: 0; }
+  .parts-top .crumb { font-family: var(--mono); font-size: 12px; }
+  .parts-top .crumb a { color: var(--accent); text-decoration: none; }
+  #parts-summary { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+  #part-list {
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--card);
+  }
+  .part-card {
+    text-align: left;
+    font-family: var(--sans);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .part-card:hover { border-color: var(--ink); }
+  .part-card.active { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .pc-name { font-weight: 650; font-size: 13px; }
+  .pc-no { font-size: 11px; color: var(--ink-soft); font-style: italic; }
+  .pc-specs, .pc-print { font-family: var(--mono); font-size: 10px; color: var(--ink-soft); }
+  .viewer-pane { position: relative; }
+  #part-canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+  .viewer-info {
+    position: absolute;
+    left: 16px;
+    bottom: 14px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 14px;
+    max-width: 70%;
+  }
+  #v-name { font-weight: 650; font-size: 13px; }
+  #v-dims { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); margin: 3px 0 8px; }
+  #v-download {
+    font: 12px var(--mono);
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 999px;
+    display: inline-block;
+  }
+  @media (max-width: 860px) {
+    .parts-layout { grid-template-columns: 1fr; grid-template-rows: 45% 55%; }
+    #part-list { border-right: none; border-bottom: 1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+
+<div class="parts-top">
+  <span class="crumb"><a href="index.html">← HEKLOMAT-1</a></span>
+  <h1>Printable parts</h1>
+  <span id="parts-summary"></span>
+</div>
+
+<div class="parts-layout">
+  <nav id="part-list" aria-label="Printable parts"></nav>
+  <div class="viewer-pane">
+    <canvas id="part-canvas"></canvas>
+    <div class="viewer-info">
+      <div id="v-name">—</div>
+      <div id="v-dims">—</div>
+      <a id="v-download" href="#" download>Download .stl</a>
+    </div>
+  </div>
+</div>
+
+<script src="vendor/three.js"></script>
+<script src="data/parts.js"></script>
+<script src="js/stlparse.js"></script>
+<script src="js/parts-main.js"></script>
+</body>
+</html>
