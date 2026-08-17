@@ -62,6 +62,34 @@ function labelRounds(rounds: Omit<Round, 'label'>[]): Round[] {
 }
 
 /**
+ * How many rows of field space hang below the crown seam — the `vMax` every
+ * motif field is drawn against.
+ *
+ * By default it is the hat itself: the wall's rounds plus everything under them,
+ * so a stroke's length is measured against the fabric it actually has to cross.
+ *
+ * `fieldRows` PINS IT, AND THE REASON IS SOMEONE'S HOOK. A stroke's entire
+ * geometry — length, taper, where the kink falls — is relative to this number,
+ * so changing it redraws every stroke on the hat. That includes the nineteen
+ * rounds of the pull, which are worked before the wall exists and which someone
+ * may already have finished: shortening the wall by two rounds moved 21 stitches
+ * on Hjemme's crown and 33 on Away's, in rounds 2 through 19. Pinning the row
+ * space separates the FABRIC from the hat's DEPTH, so the collection can be made
+ * shallower without a stitch of the crown changing colour. See `FIELD_ROWS` in
+ * `norwayKit.ts`.
+ */
+function fieldVMax(
+  params: Record<string, number | string | boolean>,
+  bandRows: number,
+  coverBrim: boolean,
+  tailRounds: number,
+): number {
+  const pin = params.fieldRows;
+  if (typeof pin === 'number' && pin > 0) return pin;
+  return coverBrim ? bandRows + tailRounds : bandRows;
+}
+
+/**
  * Classic bucket brim (no wave), in three parts from the fold out to the rim:
  *
  *   BREAK  one straight round in `spec.breakColor`, if the kit asks for one.
@@ -310,6 +338,8 @@ export function buildCrownResolver(
   const crownFieldEase = Number(crown.params.crownFieldEase ?? 1);
   const crownFieldEaseFrom = Number(crown.params.crownFieldEaseFrom ?? 0);
 
+  const vMax = fieldVMax(crown.params, bandRows, coverBrim, tailRounds);
+
   let streaks: Streak[] | null = null;
   let streakSeed = 0;
   let streakMinHalfW = 0.28;
@@ -317,7 +347,7 @@ export function buildCrownResolver(
     const p = {
       ...streakParamsFromLayer(crown.params, bandRows),
       vMin: -crownRounds,
-      vMax: coverBrim ? bandRows + tailRounds : bandRows,
+      vMax,
     };
     streaks = buildStreaks(cols, p);
     streakSeed = p.seed;
@@ -330,7 +360,7 @@ export function buildCrownResolver(
     const p = {
       ...slashParamsFromLayer(crown.params, bandRows),
       vMin: -crownRounds,
-      vMax: coverBrim ? bandRows + tailRounds : bandRows,
+      vMax,
     };
     const table = slashColorList(crown.colorIds ?? [], crown.params);
     slashColors = table.colors;
@@ -482,7 +512,7 @@ function layersWithFieldExtent(
       params: {
         ...l.params,
         vMin: -crownRounds,
-        vMax: coverBrim ? bandRows + tailRounds : bandRows,
+        vMax: fieldVMax(l.params, bandRows, coverBrim, tailRounds),
       },
     };
   });
