@@ -755,11 +755,21 @@ function checkNorgeHat(hat: NorgeHat): void {
   const rowEnds = zone?.rowEnds ?? [zone?.rowEnd ?? 0];
   const panelTop = Math.min(...rowStarts);
   const panelBottom = Math.max(...rowEnds);
-  // One clear round above the letters and one below, both inside the wall — so
-  // the field crosses the word's own columns at the top and bottom of the wall.
+  /**
+   * THE FIELD CROSSES THE WORD'S COLUMNS AT THE FOLD, AND THAT IS NOW THE WHOLE
+   * OF THE CLAIM.
+   *
+   * It used to be both ends — `panelTop > 0` as well — and that round is gone
+   * with the wall's two: see `TEXT_ROW`. What replaced it above the word is not
+   * nothing, it is the crown, which is patterned to its last round and joins the
+   * wall without a visible seam. What CANNOT go is the round below: the panel
+   * has to stop short of the fold, or the wordmark's columns arrive at the brim
+   * on clean ground and the field appears to start over on the other side of the
+   * corner instead of running through.
+   */
   check(
-    panelTop > 0 && panelBottom < hat.bandRows - 1,
-    `${id}: feltet går over og under ordet (panel rad ${panelTop}–${panelBottom} av ${hat.bandRows})`,
+    panelTop === 0 && panelBottom < hat.bandRows - 1,
+    `${id}: feltet går under ordet, og panelet starter på veggens topprad (panel rad ${panelTop}–${panelBottom} av ${hat.bandRows})`,
   );
   check(
     panelCells < 2 * metrics.width * hat.bandRows,
@@ -1017,7 +1027,23 @@ for (const kit of NORWAY_KITS) {
   // Helene's 19-round domed crown, a 12-round wall, and a brim flaring to the
   // same 1.44× the body RO reaches through its wave.
   check(d.bodyCount === 100, `${id}: dame/4,0 mm pinnet til 100 masker`);
-  check(d.bandRows === 14, `${id}: 14 diagramrader på veggen`);
+  check(
+    d.bandRows === NORGE_TEXT.bandRows,
+    `${id}: ${NORGE_TEXT.bandRows} diagramrader på veggen`,
+  );
+  /**
+   * FORTY ROUNDS, AND THE COUNT IS PART OF THE DESIGN.
+   *
+   * The kits used to run to forty-two against RO's thirty-eight, which is four
+   * rounds of extra depth on a silhouette that is otherwise Helene's stitch for
+   * stitch. The wall gave two of them back — see `NORWAY_BAND_ROWS`. This pins
+   * the total so no later change to the wall, the brim or the pull can quietly
+   * put them back on.
+   */
+  check(
+    d.rounds.length === 40,
+    `${id}: hatten er 40 runder (${d.rounds.length}) — RO + ${d.rounds.length - 38} vegg`,
+  );
   check(d.chart.cols === d.bodyCount, `${id}: chart.cols = bodyCount (${d.bodyCount})`);
   const roCrown = deriveRoDefault().rounds.filter((r) => r.phase === 'top');
   const crownRounds = d.rounds.filter((r) => r.phase === 'top');
@@ -1030,8 +1056,8 @@ for (const kit of NORWAY_KITS) {
     `${id}: samme pull som RO-hatten (${crownRounds.length} runder, runde for runde)`,
   );
   check(
-    d.rounds.filter((r) => r.phase === 'text').length === 14,
-    `${id}: 14 tekstrunder`,
+    d.rounds.filter((r) => r.phase === 'text').length === NORGE_TEXT.bandRows,
+    `${id}: ${NORGE_TEXT.bandRows} tekstrunder`,
   );
   // THE BREM IS HELENE'S, ROUND FOR ROUND — counts and increases both. The
   // kits used to approximate it with a plain bucket brim tuned to the same
@@ -1324,7 +1350,7 @@ for (const [label, design] of [
   const d = deriveDesign(design);
   check(
     d.bandRows === NORGE_TEXT.bandRows,
-    `${label}: samme fjortenradersvegg som kolleksjonen (${d.bandRows})`,
+    `${label}: samme tolvradersvegg som kolleksjonen (${d.bandRows})`,
   );
   checkNorgeHat({
     id: label,

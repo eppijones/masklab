@@ -36,30 +36,62 @@ import { keepOutFromTextPlacement } from '../data/textKeepOut';
  * Graphic crown, lettered wall, colour breaking through at the E→N gap, graphic
  * brim. That is the collection.
  *
- * The panel no longer runs the full height of the wall. It stops one round
- * above the letters and one below, and its lower edge FOLLOWS them — see
- * `TEXT_MERGE_ROWS`. So the field also crosses the word's own columns, top and
- * bottom, and climbs into the open ground under the short letters. The
- * lettering sits in the fabric rather than on it.
+ * The panel does not run the full height of the wall. It stops one round below
+ * the letters, so the field crosses the word's own columns at the fold and the
+ * lettering sits in the fabric rather than on it. Above the word there is no
+ * wall round left to give — the clean round IS the top of the wall — and none is
+ * needed: the pull is patterned to its last round and the crown/wall seam is
+ * invisible in the fabric, so what stands over the word is the crown's own
+ * field. See `NORWAY_BAND_ROWS` for why the wall is twelve rounds and not
+ * fourteen.
  */
 
 /**
+ * TWELVE, AND THE WALL IS THE ONLY PLACE A ROUND COULD HAVE COME FROM.
+ *
  * The collection is RO's hat in our colours: Helene's 19-round domed crown, a
  * 12-round wall, and — from this cut on — her brim schedule round for round,
  * 100 → 110 → 120 → 132 → 144. Only the colourwork is ours. Her blue wave
  * chart is not: see `brimFinish` below.
- */
-export const NORWAY_BAND_ROWS = 14;
-/**
- * Top row of the ten-row wordmark block.
  *
- * Two rows of wall above it and two below, which is what makes the arithmetic
- * of the protected panel come out exactly at the wall: see `TEXT_ROW_MARGIN`.
- * The wall stays fourteen rows — the published stitch count of every hat in the
- * collection — and the face was drawn to fit that, rather than the wall being
- * grown to fit a face.
+ * IT WAS FOURTEEN, and that made the hat FORTY-TWO rounds against the RO-hatt's
+ * thirty-eight — four rounds deeper than the silhouette it is drafted from,
+ * which on a head is the better part of two centimetres further down. Nothing
+ * else on the hat could give them back. The pull and the brem are Helene's
+ * stitch for stitch and `validate.ts` compares them round by round against
+ * `deriveRoDefault()`, so the whole of the difference was wall — and a wall
+ * round is a straight hundred masker, so taking one out cannot touch the
+ * silhouette. It only stops the hat sitting low.
+ *
+ * TWELVE IS WHAT THE WORDMARK LEAVES. «NorgeKursiv26» is nine rows and keeps one
+ * clean round above and one below (see `TEXT_ROW_MARGIN`), which is eleven that
+ * cannot move. The twelfth is the field's, and it is the round at the fold —
+ * the one that carries the pattern round the corner onto the brim. Eleven would
+ * be a wall of nothing but letters and their margins, with the fabric stopping
+ * dead at both ends of it.
  */
-const TEXT_ROW = 2;
+export const NORWAY_BAND_ROWS = 12;
+/**
+ * Top row of the nine-row wordmark block — ONE, and it was two.
+ *
+ * Both rounds the wall gave up came off the word's margins, and the top one went
+ * for a reason beyond the arithmetic: at row 2 the round above the letters was
+ * the busiest round on the hat, a full-field round of getting on for forty
+ * colour changes, and it was doing work the crown had already done. The pull is
+ * patterned to its last round and the crown/wall seam is invisible in the
+ * fabric, so a field round on the wall's top row is the crown's own pattern
+ * continuing under a different name — you pay four dozen yarn changes for a
+ * round nobody can tell from the one above it.
+ *
+ * WHAT IT COSTS IS THE SHOULDER, and the cost is real. The wall's first rounds
+ * are where the hat turns from top to side: measured off `buildProfile`, the old
+ * row 1 stood at 22° off vertical, row 2 at 11°, and the first letter row at 4°.
+ * At row 1 the top of NORGE starts on the tail of that curve instead of clear of
+ * it, so it foreshortens a little seen face-on. Watch the first hat off the
+ * hook. If the N leans away from you, the fix is row 2 and a thirteen-round
+ * wall — not a shorter face.
+ */
+const TEXT_ROW = 1;
 /**
  * ITALIC, BUT NOT SHEARED HERE. AND STILL NO CLIMB.
  *
@@ -111,10 +143,12 @@ const TEXT_REPEAT = 2;
  * Read on the hat rather than on the chart, that is a label laid over the hat.
  * Nothing in the fabric ever reached the lettering.
  *
- * Nine rows of letter at row 2 with ONE row of margin protects rows 1–11, so the
- * top round of the wall and the last two before the fold are the field's, right
- * through the word's own columns. One clear round above the letters and one
- * below, and then the pattern. `TEXT_MERGE_ROWS` does the rest.
+ * Nine rows of letter at row 1 with ONE row of margin protects rows 0–10 of
+ * twelve, so the ONE round left below the word is the field's, right through the
+ * word's own columns — and it is the round at the fold, where the pattern turns
+ * the corner onto the brim. There is no round above the word to hand over any
+ * more; the clean round is the top of the wall, and what sits over it is the
+ * crown's own field. `TEXT_MERGE_ROWS` does the rest.
  */
 const TEXT_MARGIN = 1;
 const TEXT_ROW_MARGIN = 1;
@@ -135,10 +169,10 @@ const TEXT_ROW_MARGIN = 1;
  * the same five letters on all seven hats cannot have that.
  *
  * So the edge is straight again, and the interlocking comes from the ONE thing
- * that never touches a letterform: `TEXT_ROW_MARGIN` at 1, which hands the top
- * round of the wall and the last two before the fold to the field, right through
- * the word's own columns. Pattern above the word, pattern below it, one clean
- * round between — and nothing ambiguous anywhere near a stroke.
+ * that never touches a letterform: `TEXT_ROW_MARGIN` at 1, which hands the round
+ * at the fold to the field, right through the word's own columns. The crown's
+ * field above, one clean round, the word, one clean round, and the fabric again
+ * — and nothing ambiguous anywhere near a stroke.
  */
 const TEXT_MERGE_ROWS = 0;
 /**
@@ -150,15 +184,52 @@ const TEXT_MERGE_ROWS = 0;
  */
 const CORRIDOR_CENTER_FRAC = TEXT_CENTER_FRAC + 1 / (2 * TEXT_REPEAT);
 /**
- * The row the corridor lock is solved at: the middle of the wall.
+ * THE CANVAS THE FIELD IS DRAWN ON, WHICH IS NO LONGER THE HAT.
+ *
+ * Fourteen rounds of wall and the brem's nine below it — the hat the collection
+ * was drawn against, before `NORWAY_BAND_ROWS` came down to twelve. The hat now
+ * samples the top forty rows of a forty-two-row canvas.
+ *
+ * WHY THEY HAD TO COME APART. A stroke's length, taper, kink phase and ring
+ * rotation are all relative to the field's height and to the row the corridor
+ * lock is solved at. Both used to be read off `NORWAY_BAND_ROWS`, so shortening
+ * the hat by two rounds redrew every stroke on it — including the nineteen rounds
+ * of the PULL, which are worked before the wall exists and are the first thing
+ * anyone finishes. Measured: 21 stitches moved on Hjemme's crown and 33 on
+ * Away's, in rounds 2 through 19, with Espen on round 16 at the time.
+ *
+ * There is no version of «make the hat shallower» worth reprinting someone's
+ * finished crown for, so depth is a round count now and the fabric is its own
+ * thing. The three canvas rows the hat no longer reaches are the very ends of the
+ * strokes, and `tipSharpEnd` at 0.06 keeps those nearly blunt — the rim reads a
+ * shade wider than it did, and that is the whole of the cost.
+ *
+ * TO REDRAW THE FABRIC ON PURPOSE, move this. To change how deep the hat sits,
+ * move `NORWAY_BAND_ROWS` and this stays where it is.
+ */
+const FIELD_CANVAS_WALL_ROWS = 14;
+/** The brem: two increase rounds, Helene's six wave rounds, and the final round. */
+const BREM_ROUNDS = 9;
+const FIELD_ROWS = FIELD_CANVAS_WALL_ROWS + BREM_ROUNDS;
+/**
+ * The row the corridor lock is solved at: the middle of the CANVAS wall.
  *
  * Not the crown and not the brim. A stroke drifts as it falls, so it can only
  * be pinned at one depth, and the depth that matters is the one where the gap
  * between the two words is narrowest in the eye — level with the letters. Pin
  * it at the crown instead and the stroke has drifted into the back of the E by
  * the time it reaches the wall.
+ *
+ * IT IS SOLVED ON `FIELD_CANVAS_WALL_ROWS`, NOT ON THE WALL. `anchorFrac` and
+ * this row together ROTATE the whole ring of bundles to put a core through the
+ * corridor, so moving this by half a row turns every stroke on the hat — the
+ * pull included. That is the same trap `FIELD_ROWS` is pinned against, and it
+ * has to be pinned against the same number or the pin does nothing. The cost is
+ * that the lock is now solved at row 6.5 of a twelve-round wall rather than its
+ * true middle of 5.5, which at `slope` 0.34 is a sixth of a stitch of drift on a
+ * twelve-stitch corridor.
  */
-const CORRIDOR_ANCHOR_ROW = (NORWAY_BAND_ROWS - 1) / 2;
+const CORRIDOR_ANCHOR_ROW = (FIELD_CANVAS_WALL_ROWS - 1) / 2;
 /**
  * NOTHING NARROWER THAN TWO STITCHES. The strokes used to feather away at the
  * tips through every width between full and nothing, and the widths under a
@@ -346,6 +417,9 @@ function fieldParams(
     seed: field.seed,
     coverBrim: true,
     edgeSolid: true,
+    // The strokes are drawn on a fixed canvas, so the hat's depth can change
+    // without redrawing a crocheted round. See `FIELD_ROWS`.
+    fieldRows: FIELD_ROWS,
     // The field runs the whole brim and stops exactly at the rim — the same
     // two rounds `brimFinish` works solid, so the fabric and the edge agree.
     edgeSolidRounds: EDGE_ROUNDS,

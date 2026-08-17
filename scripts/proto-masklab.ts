@@ -171,13 +171,11 @@ const HAT_A: StudioDesign = {
   brimColor: 'cream',
   brimStyle: 'wave',
   /**
-   * Fourteen rows, the collection's wall — it was sixteen.
-   *
-   * The extra two paid for a climbing baseline and a contour, and the master
-   * pass dropped both: the face is upright, so the block is exactly its own ten
-   * rows, and the protected panel does what the contour used to. Fourteen puts
-   * two rows of ground above the word and two below, and the panel covers all
-   * of them, which is what makes the wall read as clean where the word is.
+   * The collection's wall, whatever it currently is — sixteen rows once,
+   * fourteen for most of the collection's life, twelve since the kits were cut
+   * back to forty rounds so they stop sitting lower than the RO-hatt they are
+   * drafted from. Read, never typed: the drafts exist to be checked against the
+   * five kits, so a wall of their own is the one thing they must not have.
    */
   bandRows: NORWAY_BAND_ROWS,
   hookMm: 4.0,
@@ -232,7 +230,8 @@ const SKIFER_FIELD = shared(WORDMARK_B, {
    * Shallow, where the photo leans hard — and this is the one place the draft
    * gives ground to the collection.
    *
-   * At 1.1 a band drifted twelve stitches across the fourteen rows of the wall,
+   * At 1.1 a band drifted twelve stitches across the wall's rows (fourteen of
+   * them when this was measured),
    * which is more than the nine-stitch corridor is wide: a band entered the gap
    * at the crown seam and was behind the wordmark's panel by the fold, so the
    * two halves of it did not line up and the hat read as a striped crown over a
