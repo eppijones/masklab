@@ -153,7 +153,7 @@ const mandrelCrown: PartDef = {
   tracks: ['full'],
   dims: { wall: 2.4, yLo: SPLIT_CROWN_Y, yHi: 160, lugsOut: 0, lugsIn: 1 },
   qty: 1,
-  mount: { frame: 'C', position: [0, 0, 0] },
+  mount: { frame: 'C', position: [0, 0, 12] },
   build: mandrelSection,
   print: petg({
     infillPct: 15,
@@ -171,7 +171,7 @@ const mandrelWall: PartDef = {
   tracks: ['full'],
   dims: { wall: 2.4, yLo: SPLIT_WALL_Y, yHi: SPLIT_CROWN_Y, lugsOut: 1, lugsIn: 1 },
   qty: 1,
-  mount: { frame: 'C', position: [0, 0, 0] },
+  mount: { frame: 'C', position: [0, 0, 12] },
   build: mandrelSection,
   print: petg({ infillPct: 15, orientationWhy: 'Open cylinder, printed as-is. Bayonets top and bottom.' }),
   note: 'Carries the 14 chart rounds — the part of the hat the lettering lands on.',
@@ -186,7 +186,7 @@ const mandrelBrim: PartDef = {
   tracks: ['full'],
   dims: { wall: 3.0, yLo: 0, yHi: SPLIT_WALL_Y, lugsOut: 1, lugsIn: 0 },
   qty: 1,
-  mount: { frame: 'C', position: [0, 0, 0] },
+  mount: { frame: 'C', position: [0, 0, 12] },
   build: mandrelSection,
   print: petg({
     infillPct: 20,
@@ -446,7 +446,11 @@ const column: PartDef = {
   tracks: ['full'],
   dims: { w: 90, hgt: 110, t: 8 },
   qty: 2,
-  mount: { frame: 'base', position: [210, 0, 0] },
+  mount: { frame: 'base', position: [210, -62, 0] },
+  repeats: [
+    { position: [210, -62, 0] as const },
+    { position: [210, 62, 0] as const },
+  ],
   build: columnBracket,
   print: petg({ walls: 5, infillPct: 45, orientationWhy: 'Flat. Slotted to the deck so the column can be trammed vertical.' }),
   fasteners: [

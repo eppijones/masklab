@@ -61,6 +61,7 @@ import {
   MIN_WALL_MM,
   NEEDLE_DIA_MM,
   STITCH_W_MM,
+  WHEEL_TEETH,
 } from '../machine/units.ts';
 import type { PartDef } from './types.ts';
 
@@ -150,7 +151,11 @@ const gateVariants: PartDef[] = GATE_THROAT_SWEEP_MM.map((throat) => ({
   tracks: ['bench', ...(throat === GATE_THROAT_MM ? (['full'] as const) : [])],
   dims: { throat, w: GATE_W_MM, dep: GATE_D_MM, h: GATE_H_MM, wall: GATE_WALL_MM },
   qty: throat === GATE_THROAT_MM ? 12 : 4, // more of the nominal, 4 of each sweep step
-  mount: { frame: 'W', position: [0, 0, 0] },
+  mount: { frame: 'W', position: [28, 0, 0] },
+  repeats: Array.from({ length: WHEEL_TEETH }, (_, i) => ({
+    position: [28, 0, 0] as const,
+    rotationDeg: [0, (360 * i) / WHEEL_TEETH, 0] as const,
+  })),
   build: gateThroat,
   print: petg({
     walls: 5,
@@ -253,7 +258,7 @@ const comb: PartDef = {
     seatD: 2 * GATE_WALL_MM + 0.25,
   },
   qty: 1,
-  mount: { frame: 'base', position: [0, 0, 0] },
+  mount: { frame: 'base', position: [178, 0, 26] },
   build: combSegment,
   print: petg({
     walls: 5,
@@ -335,7 +340,11 @@ const tooth: PartDef = {
   tracks: ['bench', 'full'],
   dims: TOOTH_DIMS,
   qty: 8,
-  mount: { frame: 'W', position: [0, 0, 0] },
+  mount: { frame: 'W', position: [0, 0, -3] },
+  repeats: Array.from({ length: WHEEL_TEETH }, (_, i) => ({
+    position: [0, 0, -3] as const,
+    rotationDeg: [0, (360 * i) / WHEEL_TEETH, 0] as const,
+  })),
   build: wheelTooth,
   print: petg({
     walls: 5,
@@ -408,7 +417,7 @@ const collet: PartDef = {
   tracks: ['bench', 'full'],
   dims: { dia: NEEDLE_DIA_MM, len: 26, w: 14 },
   qty: 2,
-  mount: { frame: 'P', position: [0, 0, 0] },
+  mount: { frame: 'P', position: [0, 0, 6], rotationDeg: [90, 0, 0] },
   build: needleCollet,
   print: petg({
     walls: 5,
@@ -472,7 +481,11 @@ const bracket: PartDef = {
   tracks: ['bench', 'full'],
   dims: { len: 70, h: 24, t: 6 },
   qty: 2,
-  mount: { frame: 'base', position: [0, 0, 0] },
+  mount: { frame: 'base', position: [166, 0, -6] },
+  repeats: [
+    { position: [166, 0, -6] as const },
+    { position: [254, 0, -6] as const },
+  ],
   build: railBracket,
   print: petg({
     walls: 5,
@@ -530,7 +543,11 @@ const motorMount: PartDef = {
   tracks: ['bench', 'full'],
   dims: { t: 8, ear: 14 },
   qty: 2,
-  mount: { frame: 'base', position: [0, 0, 0] },
+  mount: { frame: 'base', position: [262, 0, 4] },
+  repeats: [
+    { position: [262, 0, 4] as const },
+    { position: [184, 52, 30] as const, rotationDeg: [90, 0, 0] as const },
+  ],
   build: nema17Mount,
   print: petg({
     walls: 5,
@@ -598,7 +615,7 @@ const camera: PartDef = {
   tracks: ['bench', 'full'],
   dims: { camW: 32, camH: 24, camD: 32, t: 3, armLen: 60 },
   qty: 1,
-  mount: { frame: 'base', position: [0, 0, 0] },
+  mount: { frame: 'base', position: [196, -74, 34], rotationDeg: [0, 0, 68] },
   build: cameraPod,
   print: petg({
     material: 'PLA',
@@ -651,7 +668,7 @@ const dancer: PartDef = {
   tracks: ['bench', 'full'],
   dims: { armLen: 70, w: 12, t: 5, pivotDia: 3.2 },
   qty: 1,
-  mount: { frame: 'base', position: [0, 0, 0] },
+  mount: { frame: 'base', position: [272, 54, 22] },
   build: tensionDancer,
   print: petg({ infillPct: 40, orientationWhy: 'Flat. The arm is a beam; keep layers in-plane.' }),
   interfaces: [
@@ -696,7 +713,7 @@ const finger: PartDef = {
   tracks: ['bench', 'full'],
   dims: { armLen: 46, w: 12, t: 5, hornDia: MG90S.hornDia, wireDia: 1.75 },
   qty: 1,
-  mount: { frame: 'F', position: [0, 0, 0] },
+  mount: { frame: 'F', position: [0, 0, 2] },
   build: yarnFinger,
   print: petg({
     infillPct: 50,
@@ -729,7 +746,7 @@ const shaft: PartDef = {
   tracks: ['bench', 'full'],
   dims: { dia: 8, len: 60 },
   qty: 1,
-  mount: { frame: 'W', position: [0, 0, 0] },
+  mount: { frame: 'W', position: [0, 0, 0], rotationDeg: [90, 0, 0] },
   interfaces: [{ kind: 'shaft', id: 'journal', dia: 8, len: 60, at: [0, 0, 0], axis: [0, 0, 1] }],
   note: '608 bearings have an 8 mm bore, so the shaft is set by the bearing, not by preference.',
 };
@@ -762,7 +779,7 @@ const base: PartDef = {
   tracks: ['bench'],
   dims: { len: 220, wide: 120, t: 8 },
   qty: 1,
-  mount: { frame: 'base', position: [0, 0, 0] },
+  mount: { frame: 'base', position: [210, 0, -18] },
   build: benchBase,
   print: petg({
     infillPct: 25,
