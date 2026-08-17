@@ -3,12 +3,40 @@
   "configurations": [
     {
       "name": "masklab-dev",
-      "runtimeExecutable": "npm",
+      "runtimeExecutable": "/bin/zsh",
       "runtimeArgs": [
-        "run",
-        "dev"
+        "-lc",
+        "npm run dev -- --host"
       ],
       "port": 5173,
+      "autoPort": true
+    },
+    {
+      "name": "concept-static",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-lc", "python3 -m http.server 8899 --bind 127.0.0.1"],
+      "port": 8899,
+      "autoPort": true
+    },
+    {
+      "name": "archive-hatteblokk",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-lc", "./node_modules/.bin/vite --config invent/hatteblokk/vite.config.ts"],
+      "port": 5273,
+      "autoPort": true
+    },
+    {
+      "name": "archive-heklo",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-lc", "./node_modules/.bin/vite --config invent/heklo/vite.config.ts"],
+      "port": 5373,
+      "autoPort": true
+    },
+    {
+      "name": "invent-v1",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-lc", "./node_modules/.bin/vite --config invent_v1/vite.config.ts"],
+      "port": 5473,
       "autoPort": true
     }
   ]

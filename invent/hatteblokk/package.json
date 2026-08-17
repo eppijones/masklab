@@ -1,0 +1,14 @@
+{
+  "name": "invent-hatteblokk",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "R&D sub-project: automated crochet bucket-hat machine. Self-contained; uses the PARENT repo's node_modules.",
+  "scripts": {
+    "preinstall": "node scripts/guard-install.js",
+    "dev": "vite",
+    "build": "vite build",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "validate": "tsx scripts/validate.ts"
+  }
+}

@@ -11,11 +11,4 @@ dist
 .turbo
 *.tsbuildinfo
 verify-shots/
-
-# Reference material, not app source: scanned pattern PDFs and the exported
-# design dumps they came from. 70+ MB of it, and nothing in the build reads
-# any of it — keeping it out is what stops every clone and every Vercel build
-# paying for the archive.
-design/
-references/
-refs/
+invent_v1/tools/node_modules

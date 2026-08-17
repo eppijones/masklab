@@ -1,0 +1,15 @@
+{
+  "name": "invent-v1-heklomat",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "HEKLOMAT V1 — gate-wheel crochet machine. Isolated R&D site; resolves packages from the parent repo.",
+  "scripts": {
+    "preinstall": "node scripts/guard-install.js",
+    "dev": "vite",
+    "build": "vite build",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "snapshot": "tsx scripts/snapshot-hats.ts",
+    "verify": "tsx scripts/verify.ts"
+  }
+}
