@@ -347,7 +347,7 @@ if (G('D', 'guide — the screws in the steps are the screws in the box')) {
   );
 
   // The migration must be explicit: exactly one machine step reuses the Station.
-  const migration = ALL_STEPS.filter((s) => /onto the carriage/i.test(s.title));
+  const migration = ALL_STEPS.filter((s) => /Station (onto|across)/i.test(s.title));
   check(migration.length === 1, 'exactly one step moves the Station onto the machine');
 
   // Every step must end in something observable.
