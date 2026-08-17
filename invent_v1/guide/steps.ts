@@ -12,8 +12,11 @@
  * more than one step away from knowing you got it wrong.
  */
 
+export type Track = 'station' | 'machine';
+
 export interface GuideStep {
   n: number;
+  track: Track;
   title: string;
   titleNo: string;
   body: string;
@@ -36,12 +39,16 @@ export const FASTENERS: Record<string, { label: string; lenMm: number | null }> 
   'M3-INSERT': { label: 'M3 heat-set brass insert', lenMm: null },
   'M4-INSERT': { label: 'M4 heat-set brass insert', lenMm: null },
   'M5x10-BHCS': { label: 'M5 x 10 button head screw', lenMm: 10 },
+  'M5x16-BHCS': { label: 'M5 x 16 button head screw', lenMm: 16 },
   'M5-TNUT': { label: 'M5 T-nut for 2020', lenMm: null },
+  'M4x12-SHCS': { label: 'M4 x 12 socket head cap screw', lenMm: 12 },
+  'M4-NUT': { label: 'M4 nyloc nut', lenMm: null },
 };
 
 export const STEPS: readonly GuideStep[] = [
   {
     n: 1,
+    track: 'station',
     title: 'Print the fit-check coupon first',
     titleNo: 'Skriv ut passkontrollen forst',
     body:
@@ -53,6 +60,7 @@ export const STEPS: readonly GuideStep[] = [
   },
   {
     n: 2,
+    track: 'station',
     title: 'Print the rest of the rig',
     titleNo: 'Skriv ut resten',
     body:
@@ -64,6 +72,7 @@ export const STEPS: readonly GuideStep[] = [
   },
   {
     n: 3,
+    track: 'station',
     title: 'Melt in the brass inserts',
     titleNo: 'Smelt inn gjengeinnsatser',
     body:
@@ -79,6 +88,7 @@ export const STEPS: readonly GuideStep[] = [
   },
   {
     n: 4,
+    track: 'station',
     title: 'Cut and mount the linear rail',
     titleNo: 'Kapp og monter skinnen',
     body:
@@ -94,6 +104,7 @@ export const STEPS: readonly GuideStep[] = [
   },
   {
     n: 5,
+    track: 'station',
     title: 'Fit the needle collet and the ryanal',
     titleNo: 'Monter nalholder og ryanal',
     body:
@@ -109,6 +120,7 @@ export const STEPS: readonly GuideStep[] = [
   },
   {
     n: 6,
+    track: 'station',
     title: 'Mount the comb',
     titleNo: 'Monter holdekammen',
     body:
@@ -123,6 +135,7 @@ export const STEPS: readonly GuideStep[] = [
   },
   {
     n: 7,
+    track: 'station',
     title: 'Motors, wheel and yarn finger',
     titleNo: 'Motorer, hjul og garnfinger',
     body:
@@ -140,6 +153,7 @@ export const STEPS: readonly GuideStep[] = [
   },
   {
     n: 8,
+    track: 'station',
     title: 'Wire it, fuse first',
     titleNo: 'Kobling — sikring forst',
     body:
@@ -152,6 +166,7 @@ export const STEPS: readonly GuideStep[] = [
   },
   {
     n: 9,
+    track: 'station',
     title: 'Camera, light, and first power-on',
     titleNo: 'Kamera, lys og forste oppstart',
     body:
@@ -168,6 +183,7 @@ export const STEPS: readonly GuideStep[] = [
   },
   {
     n: 10,
+    track: 'station',
     title: 'T0 and T1 — yarn capture and a held V',
     titleNo: 'T0 og T1 — garnfangst og holdt maske',
     body:
@@ -179,6 +195,7 @@ export const STEPS: readonly GuideStep[] = [
   },
   {
     n: 11,
+    track: 'station',
     title: 'T2 — the one that matters',
     titleNo: 'T2 — den avgjorende',
     body:
@@ -191,6 +208,7 @@ export const STEPS: readonly GuideStep[] = [
   },
   {
     n: 12,
+    track: 'station',
     title: 'T3 — one real fastmaske',
     titleNo: 'T3 — en ekte fastmaske',
     body:
@@ -202,11 +220,169 @@ export const STEPS: readonly GuideStep[] = [
   },
 ];
 
+export const MACHINE_STEPS: readonly GuideStep[] = [
+  {
+    n: 13,
+    track: 'machine',
+    title: 'Cut the deck',
+    titleNo: 'Kapp dekket',
+    body:
+      'Four 2020 lengths into a 520 x 420 mm rectangle, plus two cross members. Square it with a set square and check the diagonals match within 1 mm — everything above this inherits whatever error you leave here.',
+    parts: [],
+    uses: [{ sku: 'M5x16-BHCS', qty: 12 }, { sku: 'M5-TNUT', qty: 12 }],
+    check: 'Diagonals match within 1 mm and the frame does not rock on a flat table.',
+    minutes: 45,
+  },
+  {
+    n: 14,
+    track: 'machine',
+    title: 'Seat the turntable bearing',
+    titleNo: 'Monter dreielageret',
+    body:
+      'The lazy-susan bearing is BOUGHT, never printed — it is the concentricity of the whole machine. Bolt it to the deck centre, then the printed hub adapter on top of it.',
+    parts: ['hub-adapter'],
+    uses: [{ sku: 'M4x12-SHCS', qty: 4 }, { sku: 'M5x10-BHCS', qty: 6 }],
+    check: 'The hub turns smoothly through a full revolution with no tight spot.',
+    minutes: 30,
+  },
+  {
+    n: 15,
+    track: 'machine',
+    title: 'Platter and C-axis belt',
+    titleNo: 'Dreieskive og C-rem',
+    body:
+      'Bolt the platter to the hub. Run GT2 around the rim groove to a 20T pulley on the C motor. Driving on the 240 mm rim gives roughly 34:1 with no gearbox, so one stitch is about 8.4 motor steps — comfortable resolution from a part you already printed.',
+    parts: ['platter'],
+    uses: [{ sku: 'M5x10-BHCS', qty: 6 }],
+    check: 'Rim runout under 0.3 mm on a dial indicator, and the belt does not slip when you resist the platter by hand.',
+    minutes: 45,
+    warn: 'Check runout now. Every stitch position for the next 3 694 stitches is measured from this disc.',
+  },
+  {
+    n: 16,
+    track: 'machine',
+    title: 'Assemble the mandrel',
+    titleNo: 'Sett sammen mandrellen',
+    body:
+      'Three sections, bayonet twist-lock, crown on top. They are lathed from the app\u2019s own hat profile, so the former is the shape the pattern actually makes. Drop the stack onto the platter and check it runs true.',
+    parts: ['mandrel-brim', 'mandrel-wall', 'mandrel-crown'],
+    uses: [],
+    check: 'The three sections twist together without force and the assembled former wobbles less than 0.5 mm at the crown.',
+    minutes: 30,
+  },
+  {
+    n: 17,
+    track: 'machine',
+    title: 'Z column and R carriage',
+    titleNo: 'Z-søyle og R-slede',
+    body:
+      'Two column brackets onto the deck, 2020 column between them, trammed vertical. T8 lead screw for Z. The R carriage rides the rest of the MGN9 metre you bought for the bench.',
+    parts: ['column-bracket'],
+    uses: [
+      { sku: 'M5x10-BHCS', qty: 8 },
+      { sku: 'M5-TNUT', qty: 8 },
+      { sku: 'M4-INSERT', qty: 4 },
+    ],
+    check: 'The column is vertical to within 0.5 mm over its height, measured against a square from the platter.',
+    minutes: 60,
+  },
+  {
+    n: 18,
+    track: 'machine',
+    title: 'Move the Station onto the carriage',
+    titleNo: 'Flytt stasjonen over på sleden',
+    body:
+      'This is the whole point of building the bench rig the way you did. Unbolt the Station assembly from the printed bench base — needle collet, rail, wheel motor, yarn finger, camera pod, thermistors, all of it still bolted together — and bolt it onto the R carriage. Nothing is rebuilt and nothing is thrown away. The bench base is the only piece that does not come with you, and it cost you filament.\n\nEverything you learned during T0 to T3 still applies, because it is the same hardware in a new place.',
+    parts: [],
+    uses: [{ sku: 'M5x10-BHCS', qty: 4 }, { sku: 'M5-TNUT', qty: 4 }],
+    check: 'The Station points at the mandrel surface, and jogging P still plunges the needle exactly as it did on the bench.',
+    minutes: 45,
+  },
+  {
+    n: 19,
+    track: 'machine',
+    title: 'Fit the full comb arc',
+    titleNo: 'Monter hele holdekammen',
+    body:
+      'The 10-gate arc replaces the 3-gate bench segment. Same pitch, same seats, same gate parts — you simply have more of them. Set the comb height against the wheel exactly as you did in calibration, because it is the same adjustment.',
+    parts: ['comb-arc'],
+    uses: [{ sku: 'M4x12-SHCS', qty: 2 }, { sku: 'M4-NUT', qty: 2 }],
+    check: 'All ten gates seat, and the wheel tooth clears every one of them by the same margin.',
+    minutes: 30,
+  },
+  {
+    n: 20,
+    track: 'machine',
+    title: 'Build the eight-tooth wheel',
+    titleNo: 'Bygg åttetannshjulet',
+    body:
+      'Eight teeth into the hub, each locked with an M3 grub. These are the identical part you ran two of on the bench. Belt the wheel to its motor at 3:1.',
+    parts: ['wheel-hub', 'wheel-tooth'],
+    uses: [{ sku: 'M3x10-SHCS', qty: 8 }],
+    check: 'Turning the wheel by hand, all eight teeth pass the comb at the same height within 0.2 mm.',
+    minutes: 40,
+  },
+  {
+    n: 21,
+    track: 'machine',
+    title: 'Yarn turret and four cones',
+    titleNo: 'Garnkarusell og fire koner',
+    body:
+      'Turret onto the T motor, four cone stands behind the machine, one dancer and one ceramic eyelet per colour. Thread all four and pull each by hand: the dancer should move and the encoder should count.',
+    parts: ['turret-drum', 'tension-dancer'],
+    uses: [{ sku: 'M3x10-SHCS', qty: 2 }, { sku: 'M3x20-SHCS', qty: 4 }, { sku: 'M3-NUT', qty: 4 }],
+    check: 'All four colours reach the finger, and indexing the turret 90 degrees swaps which one is presented.',
+    minutes: 50,
+  },
+  {
+    n: 22,
+    track: 'machine',
+    title: 'Take-down skirt',
+    titleNo: 'Nedtrekkskjørt',
+    body:
+      'The TPU skirt hangs below the working line and keeps finished fabric off the gates. Without it the hat climbs back into the comb somewhere around round 20 and jams the wheel.',
+    parts: ['takedown-skirt'],
+    uses: [{ sku: 'M3x16-SHCS', qty: 3 }],
+    check: 'The fingers flex under light finger pressure and spring back. Rigid fingers scar the fabric — reprint in TPU if they do not.',
+    minutes: 20,
+  },
+  {
+    n: 23,
+    track: 'machine',
+    title: 'Wire the remaining axes, then the enclosure',
+    titleNo: 'Koble resten, så kabinettet',
+    body:
+      'Four more axes: C, Z, R, T. Thermistor on every one of them, into the same analogue inputs the bench used. Then the enclosure panels and the door interlock in series with the E-stop, so opening the door cuts motor power the same way the mushroom does.',
+    parts: [],
+    uses: [],
+    check: 'Opening the enclosure door reads open circuit on the motor supply, exactly like pressing the E-stop.',
+    minutes: 120,
+    warn: 'Six motors now, not two. Confirm every thermistor reports a plausible room temperature before the first long run — a sensor that reads cold when it is disconnected is worse than no sensor at all.',
+  },
+  {
+    n: 24,
+    track: 'machine',
+    title: 'The first hat',
+    titleNo: 'Den første lua',
+    body:
+      'Load four colours in palette order. Hand-start the ten-stitch magic ring on the crown — thirty seconds of the several hours, and automating it is v2. Pick a pattern, press Start, and watch the first full round with a finger on the E-stop.\n\nLeave the camera auditing every round. The governor will start cautious and speed up as it learns it has thermal headroom.',
+    parts: [],
+    uses: [],
+    check: 'A full round completes with the stitch count the pattern predicted and no missed-loop verdicts.',
+    minutes: 60,
+    warn: 'Do not leave it unattended until you have watched it finish a whole hat awake. Then check whether your home insurance covers self-built equipment left running.',
+  },
+];
+
+export const ALL_STEPS: readonly GuideStep[] = [...STEPS, ...MACHINE_STEPS];
+
 export const TOTAL_MINUTES = STEPS.reduce((s, x) => s + x.minutes, 0);
+export const MACHINE_MINUTES = MACHINE_STEPS.reduce((s, x) => s + x.minutes, 0);
 
 /** Fastener demand summed across every step. Cross-checked against the BOM. */
-export function fastenerDemand(): Record<string, number> {
+export function fastenerDemand(track?: Track): Record<string, number> {
   const out: Record<string, number> = {};
-  for (const s of STEPS) for (const u of s.uses) out[u.sku] = (out[u.sku] ?? 0) + u.qty;
+  const src = track ? ALL_STEPS.filter((s) => s.track === track) : ALL_STEPS;
+  for (const s of src) for (const u of s.uses) out[u.sku] = (out[u.sku] ?? 0) + u.qty;
   return out;
 }

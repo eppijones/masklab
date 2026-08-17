@@ -26,7 +26,7 @@ import { LIMITS } from '../machine/thermal.ts';
 import { FIT, MAX_PART_MM, NEEDLE_DIA_MM, YARN_DIA_MM, THROAT_MARGIN_MM } from '../machine/units.ts';
 import { crc8, decodeCommand, encode, parse, type Command, type Verb } from '../control/protocol.ts';
 import { SimTransport } from '../control/transport.ts';
-import { FASTENERS, STEPS, TOTAL_MINUTES, fastenerDemand } from '../guide/steps.ts';
+import { ALL_STEPS, FASTENERS, MACHINE_MINUTES, TOTAL_MINUTES, fastenerDemand } from '../guide/steps.ts';
 import { MATES, PARTS, PART_BY_ID } from '../parts/registry.ts';
 import type { PartInterface } from '../parts/types.ts';
 
@@ -323,7 +323,7 @@ if (G('D', 'guide — the screws in the steps are the screws in the box')) {
   }
 
   // Every printed part must actually be assembled somewhere.
-  const assembled = new Set(STEPS.flatMap((s) => s.parts));
+  const assembled = new Set(ALL_STEPS.flatMap((s) => s.parts));
   for (const p of PARTS) {
     if (!p.print) continue;
     check(assembled.has(p.id), `${p.id} appears in at least one build step`);
@@ -337,21 +337,25 @@ if (G('D', 'guide — the screws in the steps are the screws in the box')) {
       geometric[f.sku] = (geometric[f.sku] ?? 0) + f.qty * p.qty;
     }
   }
-  note(`guide calls out ${Object.values(demand).reduce((a, b) => a + b, 0)} fasteners across ${STEPS.length} steps`);
+  note(`guide calls out ${Object.values(demand).reduce((a, b) => a + b, 0)} fasteners across ${ALL_STEPS.length} steps`);
 
   // Steps numbered 1..N with no gaps.
-  const nums = STEPS.map((s) => s.n);
+  const nums = ALL_STEPS.map((s) => s.n);
   check(
     nums.every((n, i) => n === i + 1),
-    `steps are numbered 1..${STEPS.length} with no gaps`,
+    `steps are numbered 1..${ALL_STEPS.length} with no gaps across both tracks`,
   );
 
+  // The migration must be explicit: exactly one machine step reuses the Station.
+  const migration = ALL_STEPS.filter((s) => /onto the carriage/i.test(s.title));
+  check(migration.length === 1, 'exactly one step moves the Station onto the machine');
+
   // Every step must end in something observable.
-  for (const s of STEPS) {
+  for (const s of ALL_STEPS) {
     check(s.check.trim().length > 20, `step ${s.n} ends with an observable check`);
   }
 
-  note(`${(TOTAL_MINUTES / 60).toFixed(1)} h from opening the box to T3`);
+  note(`Station ${(TOTAL_MINUTES / 60).toFixed(1)} h to T3, machine +${(MACHINE_MINUTES / 60).toFixed(1)} h to the first hat`);
 }
 
 /* ============================================================= E: frames = */

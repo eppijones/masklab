@@ -1,9 +1,10 @@
 {
-  "generatedAt": "2026-08-16",
+  "generatedAt": "2026-08-17",
   "printer": "Bambu Lab X1 Carbon (250 mm part limit)",
   "totalsGrams": {
-    "PETG": 318.7,
-    "PLA": 23.8
+    "PETG": 1232.2,
+    "PLA": 23.8,
+    "TPU": 29.6
   },
   "parts": [
     {
@@ -252,6 +253,196 @@
       "grams": 156,
       "material": "PETG",
       "qty": 1
+    },
+    {
+      "id": "mandrel-crown",
+      "file": "mandrel-crown.stl",
+      "sha256": "8b2fb669d5633ded3b8796d58ab5a8dc38e4be78e18051d822cc14438741a5c2",
+      "tris": 9392,
+      "bbox": [
+        166.12,
+        166.12,
+        47.71
+      ],
+      "volumeCm3": 36.063,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 4,
+      "grams": 43.9,
+      "material": "PETG",
+      "qty": 1
+    },
+    {
+      "id": "mandrel-wall",
+      "file": "mandrel-wall.stl",
+      "sha256": "9c61235a67dcfc78e5744b8ceb2a1b44d1ed7e61a6e8027efbd323665067a9b8",
+      "tris": 9004,
+      "bbox": [
+        192.41,
+        192.5,
+        77.02
+      ],
+      "volumeCm3": 100.409,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 1,
+      "grams": 122.1,
+      "material": "PETG",
+      "qty": 1
+    },
+    {
+      "id": "mandrel-brim",
+      "file": "mandrel-brim.stl",
+      "sha256": "a60f21a273f3556810c7c8598b60b32f8014e41c8a03723ebfe602c5084d3097",
+      "tris": 3808,
+      "bbox": [
+        240,
+        240,
+        22.38
+      ],
+      "volumeCm3": 48.072,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 1,
+      "grams": 58.6,
+      "material": "PETG",
+      "qty": 1
+    },
+    {
+      "id": "platter",
+      "file": "platter.stl",
+      "sha256": "950bb7b7fa7b2dad7860ab4f627012a54d4a9ef5362f5a2d681093e489ca790c",
+      "tris": 6076,
+      "bbox": [
+        240,
+        240,
+        10
+      ],
+      "volumeCm3": 336.588,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 0,
+      "grams": 328.1,
+      "material": "PETG",
+      "qty": 1
+    },
+    {
+      "id": "hub-adapter",
+      "file": "hub-adapter.stl",
+      "sha256": "1760d1962401d00d4ed02641e7d9cf27d3ea18a19a138126d9da135f7652f1a6",
+      "tris": 1936,
+      "bbox": [
+        130,
+        130,
+        8
+      ],
+      "volumeCm3": 95.215,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 0,
+      "grams": 110.5,
+      "material": "PETG",
+      "qty": 1
+    },
+    {
+      "id": "comb-arc",
+      "file": "comb-arc.stl",
+      "sha256": "44e52e1e9d2ab1b9e908444d80ab2d66568c6f18cb4c270f0b5a86bf56487a66",
+      "tris": 1636,
+      "bbox": [
+        98,
+        19.05,
+        12
+      ],
+      "volumeCm3": 20.452,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 10,
+      "grams": 23.6,
+      "material": "PETG",
+      "qty": 1
+    },
+    {
+      "id": "wheel-hub",
+      "file": "wheel-hub.stl",
+      "sha256": "da1feed07e0e56c48bc5ef8e48a8e0b9f4d71bb74d0713704ca4b089d79eeecc",
+      "tris": 2138,
+      "bbox": [
+        54,
+        54,
+        10
+      ],
+      "volumeCm3": 14.2,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 17,
+      "grams": 17.7,
+      "material": "PETG",
+      "qty": 1
+    },
+    {
+      "id": "turret-drum",
+      "file": "turret-drum.stl",
+      "sha256": "bcbfb22825893828ec44b7939b5c9cb4a4db0b95851f16cf0c9029cbefdf97b1",
+      "tris": 2380,
+      "bbox": [
+        86,
+        86,
+        14
+      ],
+      "volumeCm3": 78.868,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 4,
+      "grams": 53.8,
+      "material": "PETG",
+      "qty": 1
+    },
+    {
+      "id": "takedown-skirt",
+      "file": "takedown-skirt.stl",
+      "sha256": "532841ad9752df9a03c404b34df27392f3fb862d015a59f84644ae2f339e34ee",
+      "tris": 1660,
+      "bbox": [
+        206,
+        206,
+        6
+      ],
+      "volumeCm3": 25.454,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 4,
+      "grams": 29.6,
+      "material": "TPU",
+      "qty": 1
+    },
+    {
+      "id": "column-bracket",
+      "file": "column-bracket.stl",
+      "sha256": "b85581a928de048fe072e82f63914e6eee6f0762a6b356d06d28845307db3f57",
+      "tris": 1612,
+      "bbox": [
+        90,
+        110,
+        8
+      ],
+      "volumeCm3": 77.229,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 4,
+      "grams": 77.6,
+      "material": "PETG",
+      "qty": 2
     }
   ]
 }
