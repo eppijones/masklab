@@ -5,6 +5,7 @@
 
 import { GATE_THROAT_MM } from '../machine/units.ts';
 import { BENCH_PARTS, gateId } from './bench.ts';
+import { FULL_PARTS } from './full.ts';
 import type { Mate, PartDef, Track } from './types.ts';
 
 /**
@@ -15,7 +16,7 @@ import type { Mate, PartDef, Track } from './types.ts';
  */
 const NOMINAL_GATE = gateId(GATE_THROAT_MM);
 
-export const PARTS: readonly PartDef[] = [...BENCH_PARTS];
+export const PARTS: readonly PartDef[] = [...BENCH_PARTS, ...FULL_PARTS];
 
 export const PART_BY_ID: Record<string, PartDef> = Object.fromEntries(
   PARTS.map((p) => [p.id, p]),
