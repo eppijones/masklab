@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>HEKLO — build documentation</title>
+<style>
+  :root{
+    --bg:#f2f5f4; --card:#fff; --sunk:#e7ecea;
+    --ink:#101c1a; --ink2:#42544f; --ink3:#75877f;
+    --rule:#d2dcd8; --line:#e3eae7;
+    --ac:#0c5b50; --ac-bg:#dcece8;
+    --wn:#a03d0b; --wn-bg:#f6e1d4;
+    --ok:#3c5d13; --ok-bg:#e2ecd0;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0c1312; --card:#141d1c; --sunk:#1a2423;
+    --ink:#e2eae7; --ink2:#a9b9b4; --ink3:#7b8c87;
+    --rule:#2a3836; --line:#202c2a;
+    --ac:#55c2ad; --ac-bg:#14312c;
+    --wn:#e5804a; --wn-bg:#382016;
+    --ok:#a6c369; --ok-bg:#242f19;
+  }}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 22px 100px}
+  p{margin:0 0 12px;max-width:68ch}
+  a{color:var(--ac)}
+  h2{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+     color:var(--ink3);margin:0 0 18px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  h3{font-size:16.5px;margin:0}
+  .s{font-size:12.5px;color:var(--ink3)}
+  .sw{color:var(--wn)}
+  section{padding:52px 0;border-top:1px solid var(--line)}
+  section:first-of-type{border-top:0}
+
+  /* hero */
+  .hero{padding:76px 0 44px;border:0}
+  .mark{font-family:var(--mono);font-size:clamp(46px,10vw,88px);font-weight:700;
+        letter-spacing:-.045em;line-height:.9;margin:0}
+  .mark em{font-style:normal;color:var(--ac)}
+  .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;
+       color:var(--ink3);margin:0 0 18px}
+  .lede{font-size:20px;line-height:1.5;color:var(--ink2);max-width:60ch;margin:22px 0 0}
+  .lede b{color:var(--ink);font-weight:600}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:9;background:color-mix(in srgb,var(--bg) 92%,transparent);
+      backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);margin-bottom:0}
+  nav .in{max-width:1000px;margin:0 auto;padding:11px 22px;display:flex;gap:20px;
+          overflow-x:auto;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;
+          text-transform:uppercase}
+  nav a{color:var(--ink3);text-decoration:none;white-space:nowrap}
+  nav a:hover{color:var(--ac)}
+
+  /* stages */
+  .stages{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:stretch}
+  @media(max-width:760px){.stages{grid-template-columns:1fr}}
+  .stage{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:22px 24px}
+  .stage.one{border-top:3px solid var(--ac)}
+  .stage.two{border-top:3px solid var(--ink3)}
+  .stage h3{font-family:var(--mono);font-size:19px;letter-spacing:-.01em}
+  .stage .role{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+               color:var(--ink3);margin:4px 0 14px}
+  .stage dl{margin:16px 0 0;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:13.5px}
+  .stage dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+            color:var(--ink3);align-self:center}
+  .stage dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+  .arrow{display:flex;align-items:center;justify-content:center;color:var(--ac);
+         font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-align:center;
+         writing-mode:vertical-rl;transform:rotate(180deg);padding:8px 0}
+  @media(max-width:760px){.arrow{writing-mode:horizontal-tb;transform:none;padding:0}}
+
+  /* stats */
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(178px,1fr))}
+  .stat{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:16px 18px}
+  .stat .k{font-family:var(--mono);font-size:25px;font-weight:700;letter-spacing:-.02em}
+  .stat .l{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+           color:var(--ink3);margin-top:4px}
+  .stat .d{font-size:12.5px;color:var(--ink2);margin-top:7px}
+
+  /* callout */
+  .call{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--ac);
+        border-radius:0 4px 4px 0;padding:20px 24px}
+  .call.w{border-left-color:var(--wn)}
+  .call h3{margin-bottom:8px}
+  .call p:last-child{margin-bottom:0}
+
+  /* tables */
+  .scroll{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--card)}
+  table{border-collapse:collapse;width:100%;min-width:660px;font-size:13.5px}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+           color:var(--ink3);background:var(--sunk);position:sticky;top:44px}
+  tbody tr:last-child td{border-bottom:0}
+  .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .mat{font-family:var(--mono);font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:2px}
+  .m-PETG{background:var(--wn-bg);color:var(--wn)}
+  .m-PLA{background:var(--ac-bg);color:var(--ac)}
+  .m-TPU{background:var(--sunk);color:var(--ink2)}
+  .dl{font-family:var(--mono);font-size:10.5px;font-weight:700;text-decoration:none;
+      border:1px solid var(--ac);color:var(--ac);padding:3px 9px;border-radius:2px;white-space:nowrap}
+  .dl:hover{background:var(--ac);color:var(--card)}
+  .ok,.todo{font-family:var(--mono);font-size:9.5px;font-weight:700;text-transform:uppercase;
+            padding:2px 6px;border-radius:2px;white-space:nowrap}
+  .ok{background:var(--ok-bg);color:var(--ok)}
+  .todo{background:var(--wn-bg);color:var(--wn)}
+  tr.unv td{background:color-mix(in srgb,var(--wn-bg) 20%,transparent)}
+
+  /* steps */
+  .track{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+         color:var(--ac);margin:34px 0 14px;display:flex;align-items:center;gap:12px}
+  .track::after{content:"";flex:1;height:1px;background:var(--rule)}
+  .steps{display:flex;flex-direction:column;gap:12px}
+  .step{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:18px 20px}
+  .sh{display:flex;gap:15px;align-items:baseline;margin-bottom:11px}
+  .sn{font-family:var(--mono);font-size:23px;font-weight:700;color:var(--ac);line-height:1}
+  .fst{margin:12px 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+  .fst li{font-family:var(--mono);font-size:11px;background:var(--sunk);border:1px solid var(--rule);
+          border-radius:2px;padding:3px 9px}
+  .fst .q{color:var(--ac);font-weight:700}
+  .warn{background:var(--wn-bg);color:var(--wn);border-left:3px solid var(--wn);
+        padding:10px 14px;border-radius:0 3px 3px 0;font-size:13.5px}
+  .chk{background:var(--ok-bg);border-left:3px solid var(--ok);padding:10px 14px;
+       border-radius:0 3px 3px 0;font-size:13.5px;margin-bottom:0}
+
+  footer{border-top:1px solid var(--rule);padding-top:20px;margin-top:52px;
+         font-size:12.5px;color:var(--ink3)}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--sunk);padding:1px 5px;border-radius:2px}
+</style>
+</head>
+<body>
+
+<nav><div class="in">
+  <a href="#what">What it is</a>
+  <a href="#stages">Two stages</a>
+  <a href="#how">How it works</a>
+  <a href="#budget">Budget</a>
+  <a href="#print">Print</a>
+  <a href="#buy">Buy</a>
+  <a href="#build">Build</a>
+  <a href="#safety">Safety</a>
+</div></nav>
+
+<div class="wrap">
+
+<header class="hero">
+  <p class="tag">Masklab &middot; machine programme</p>
+  <h1 class="mark">HEKL<em>O</em></h1>
+  <p class="lede">A machine that crochets the Masklab bucket hats. <b>Real crochet</b> —
+  one live loop, drawn through two — not knitting that resembles it. Built from printed
+  parts, off-the-shelf motion hardware and a microcontroller, sourced entirely in Norway.</p>
+</header>
+
+<section id="what">
+  <h2>What you are looking at</h2>
+  <p>Crochet is the textile craft that is supposed to be impossible to automate. The
+  research record is more specific than that: it is not the stitch that defeats machines,
+  it is <b>finding the previous round&rsquo;s loop and holding it open</b>. Harvard&rsquo;s
+  Croche-Matic managed roughly half its stitches for exactly this reason.</p>
+
+  <p>HEKLO never searches. Every live stitch mouth is clamped open inside a printed
+  <b>gate</b> at a pose the machine already knows. A wheel of 8 gated teeth lifts each
+  loop out of a fixed <b>retention comb</b> and presents it to the hook at the same spot,
+  every time. That turns an unsolved sensing problem into a gear ratio.</p>
+
+  <div class="call">
+    <h3>Why this is honest about what it does not know</h3>
+    <p>Nothing here claims the machine works yet. It claims the mechanism is worth
+    6 124&nbsp;NOK and a weekend to find out &mdash; and it is built so that
+    finding out costs you the smallest possible amount, with a clear point at which to stop.</p>
+  </div>
+</section>
+
+<section id="stages">
+  <h2>Two stages, one machine</h2>
+  <p>You do not build the whole machine and hope. You build its <b>station module</b>
+  first, run it standalone on a bench, and answer the four questions that decide whether
+  any of this works. If they pass, that same assembly &mdash; unmodified &mdash; bolts onto
+  the machine as step&nbsp;18.</p>
+
+  <div class="stages">
+    <div class="stage one">
+      <h3>HEKLO Station</h3>
+      <div class="role">Stage 1 &middot; the prototype</div>
+      <p>The needle carriage, latch drive, gate wheel, yarn finger, camera and thermal
+      sensors &mdash; the working head of the machine, on a bench plate.</p>
+      <dl>
+        <dt>Print</dt><dd>13 parts &middot; 43 pcs &middot; 343 g</dd>
+        <dt>Print time</dt><dd>16–31 h</dd>
+        <dt>Assembly</dt><dd>10.8 h incl. testing</dd>
+        <dt>Parts</dt><dd>6 124 NOK</dd>
+        <dt>Steps</dt><dd>1&ndash;12</dd>
+      </dl>
+    </div>
+
+    <div class="arrow">step 18 &mdash; the Station moves across, unmodified</div>
+
+    <div class="stage two">
+      <h3>HEKLO M1</h3>
+      <div class="role">Stage 2 &middot; the machine</div>
+      <p>Adds the turntable, the mandrel lathed from the app&rsquo;s own hat profile, the
+      full 10-gate comb, the four-colour turret, take-down and enclosure.</p>
+      <dl>
+        <dt>Print</dt><dd>+10 parts &middot; 11 pcs &middot; 943 g</dd>
+        <dt>Print time</dt><dd>43–86 h</dd>
+        <dt>Assembly</dt><dd>+9.6 h</dd>
+        <dt>Steps</dt><dd>13&ndash;24</dd>
+        <dt>Output</dt><dd>a wearable hat</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="call" style="margin-top:22px">
+    <h3>Nothing bought for the test is wasted</h3>
+    <p>The Station is not a jig. Every purchased item in it &mdash; motors, rail, drivers,
+    controller, camera, thermistors, power supply &mdash; carries into M1 untouched. The only
+    thing left behind is one printed bench plate, and that cost filament.</p>
+  </div>
+</section>
+
+<section id="how">
+  <h2>How it makes a stitch</h2>
+  <div class="grid">
+    <div class="stat"><div class="k">1</div><div class="l">stitch type</div>
+      <div class="d">Fastmaske only. Every hat in the app uses one stitch, worked in a spiral.</div></div>
+    <div class="stat"><div class="k">10+8</div><div class="l">printed gates</div>
+      <div class="d">A comb that holds, a wheel that carries. No chain, no injector.</div></div>
+    <div class="stat"><div class="k">8</div><div class="l">mm throat</div>
+      <div class="d">Sweep 6 / 7 / 7.5 / 8 mm &mdash; the bench test picks the winner.</div></div>
+    <div class="stat"><div class="k">3&nbsp;694</div><div class="l">stitches per hat</div>
+      <div class="d">1&nbsp;328 of them change colour mid-stitch.</div></div>
+  </div>
+
+  <div class="call" style="margin-top:20px">
+    <h3>The one idea</h3>
+    <p>A wheel alone releases each loop the moment the hook passes, and relaxed fabric
+    does not hold a loop open &mdash; so the next round is a search again. A comb alone needs
+    one gate per live stitch: 180 identical prints and a mechanism to insert one mid-run.</p>
+    <p><b>Together they cancel each other&rsquo;s weakness.</b> The comb holds the last ten
+    mouths open so the wheel always picks up from a known pose; the wheel recirculates, so
+    ten gates cover a round of any length and nothing has to be inserted. That is the
+    invention, and step&nbsp;11 is where you find out whether it is real.</p>
+  </div>
+</section>
+
+<section id="budget">
+  <h2>Budget</h2>
+  <div class="grid">
+    <div class="stat"><div class="k">6 124</div><div class="l">NOK &middot; Station</div>
+      <div class="d">Everything needed to answer the four questions.</div></div>
+    <div class="stat"><div class="k">~5 205</div><div class="l">NOK &middot; M1 additions</div>
+      <div class="d">Four more motors, drivers, bearing, extrusion, enclosure. Estimate.</div></div>
+    <div class="stat"><div class="k">~11 329</div><div class="l">NOK &middot; complete</div>
+      <div class="d">Excluding the 3D printer and hand tools.</div></div>
+    <div class="stat"><div class="k">1.3</div><div class="l">kg filament</div>
+      <div class="d">58–117 h of printing, unsliced estimate.</div></div>
+  </div>
+  <p style="margin-top:16px" class="s">Every line is a Norwegian shop with domestic stock.
+  Nothing is ordered from outside the country, so there is no three-week wait and no customs.</p>
+</section>
+
+<section id="print">
+  <h2>Print &mdash; Stage 1, HEKLO Station</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Part</th><th class="n">Qty</th><th>Material</th><th class="n">Size mm</th>
+    <th class="n">Weight</th><th>Print orientation &mdash; and why</th><th></th></tr></thead>
+    <tbody><tr>
+        <td><b>Stitch gate — 6.0 mm throat</b><div class="s">Maskeport — 6.0 mm hals</div></td>
+        <td class="n">4</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">11 × 9 × 14</td>
+        <td class="n">0.7 g</td>
+        <td class="s">Throat axis vertical so layer lines run ACROSS the clamping load. Printed flat, the throat splits along a layer the first time a V pulls on it.</td>
+        <td><a class="dl" href="stl/gate-6.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Stitch gate — 7.0 mm throat</b><div class="s">Maskeport — 7.0 mm hals</div></td>
+        <td class="n">4</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">11 × 9 × 14</td>
+        <td class="n">0.6 g</td>
+        <td class="s">Throat axis vertical so layer lines run ACROSS the clamping load. Printed flat, the throat splits along a layer the first time a V pulls on it.</td>
+        <td><a class="dl" href="stl/gate-7.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Stitch gate — 7.5 mm throat</b><div class="s">Maskeport — 7.5 mm hals</div></td>
+        <td class="n">4</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">11 × 9 × 14</td>
+        <td class="n">0.6 g</td>
+        <td class="s">Throat axis vertical so layer lines run ACROSS the clamping load. Printed flat, the throat splits along a layer the first time a V pulls on it.</td>
+        <td><a class="dl" href="stl/gate-7p5.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Stitch gate — 8.0 mm throat</b><div class="s">Maskeport — 8.0 mm hals</div></td>
+        <td class="n">12</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">11 × 9 × 14</td>
+        <td class="n">0.5 g</td>
+        <td class="s">Throat axis vertical so layer lines run ACROSS the clamping load. Printed flat, the throat splits along a layer the first time a V pulls on it.</td>
+        <td><a class="dl" href="stl/gate-8.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Retention comb — 3-gate bench segment</b><div class="s">Holdekam — 3 porter</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">54 × 18 × 10</td>
+        <td class="n">10.5 g</td>
+        <td class="s">Flat on the bed. The seats are the accurate feature and want no support.</td>
+        <td><a class="dl" href="stl/comb-segment.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Gate wheel tooth</b><div class="s">Portehjultann</div></td>
+        <td class="n">8</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">34 × 14 × 6</td>
+        <td class="n">2.1 g</td>
+        <td class="s">Flat, arm in the XY plane. The bending load is in-plane, so layer lines never see peel.</td>
+        <td><a class="dl" href="stl/wheel-tooth.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Latch-needle collet</b><div class="s">Nalholder</div></td>
+        <td class="n">2</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">26 × 31 × 29</td>
+        <td class="n">9.7 g</td>
+        <td class="s">Bore axis vertical. The clamp slit must not fall on a layer boundary.</td>
+        <td><a class="dl" href="stl/needle-collet.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>MGN9 rail bracket to 2020</b><div class="s">Skinnebrakett</div></td>
+        <td class="n">2</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">70 × 47 × 9</td>
+        <td class="n">23.7 g</td>
+        <td class="s">Web flat on the bed; the foot then prints as a bridge-free upstand.</td>
+        <td><a class="dl" href="stl/rail-bracket.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>NEMA17 mount with thermistor pocket</b><div class="s">Motorfeste med temperaturfoler</div></td>
+        <td class="n">2</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">70 × 42 × 8</td>
+        <td class="n">23.8 g</td>
+        <td class="s">Flat. PETG not PLA here specifically because this part touches a motor that runs warm for hours.</td>
+        <td><a class="dl" href="stl/nema17-mount.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Camera pod</b><div class="s">Kamerahus</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PLA">PLA</span></td>
+        <td class="n">105 × 38 × 27</td>
+        <td class="n">23.8 g</td>
+        <td class="s">Open side up so the aperture needs no support. PLA is fine — nothing here gets warm.</td>
+        <td><a class="dl" href="stl/camera-pod.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Yarn tension dancer</b><div class="s">Garnstrammer</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">70 × 12 × 9</td>
+        <td class="n">5.1 g</td>
+        <td class="s">Flat. The arm is a beam; keep layers in-plane.</td>
+        <td><a class="dl" href="stl/tension-dancer.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Yarn-over finger arm</b><div class="s">Garnfingerarm</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">46 × 12 × 5</td>
+        <td class="n">2.3 g</td>
+        <td class="s">Flat. This part reverses direction twice per stitch — keep layers out of the bending plane.</td>
+        <td><a class="dl" href="stl/yarn-finger.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Bench base plate</b><div class="s">Benkeplate</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">220 × 120 × 8</td>
+        <td class="n">156.0 g</td>
+        <td class="s">Flat, obviously. Slow first layer — a warped base makes every calibration lie.</td>
+        <td><a class="dl" href="stl/bench-base.stl" download>STL</a></td>
+      </tr></tbody></table></div>
+  <h2 style="margin-top:36px">Print &mdash; Stage 2, HEKLO M1</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Part</th><th class="n">Qty</th><th>Material</th><th class="n">Size mm</th>
+    <th class="n">Weight</th><th>Print orientation &mdash; and why</th><th></th></tr></thead>
+    <tbody><tr>
+        <td><b>Mandrel — crown dome</b><div class="s">Mandrell — kronedel</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">166 × 166 × 48</td>
+        <td class="n">43.9 g</td>
+        <td class="s">Dome up, no supports. The inside is never seen and never touched by yarn.</td>
+        <td><a class="dl" href="stl/mandrel-crown.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Mandrel — wall section</b><div class="s">Mandrell — veggdel</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">192 × 193 × 77</td>
+        <td class="n">122.1 g</td>
+        <td class="s">Open cylinder, printed as-is. Bayonets top and bottom.</td>
+        <td><a class="dl" href="stl/mandrel-wall.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Mandrel — brim skirt</b><div class="s">Mandrell — bremskjørt</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">240 × 240 × 22</td>
+        <td class="n">58.6 g</td>
+        <td class="s">Largest part on the plate at 240 mm. Slow first layer — a warped brim tilts every round above it.</td>
+        <td><a class="dl" href="stl/mandrel-brim.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Turntable platter (GT2 rim groove)</b><div class="s">Dreieskive med remspor</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">240 × 240 × 10</td>
+        <td class="n">328.1 g</td>
+        <td class="s">Flat. This is the concentricity datum for the whole machine — check it with a dial indicator before you trust it.</td>
+        <td><a class="dl" href="stl/platter.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Hub adapter — lazy-susan to platter</b><div class="s">Navadapter</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">130 × 130 × 8</td>
+        <td class="n">110.5 g</td>
+        <td class="s">Flat, 5 walls. It carries the whole rotating mass.</td>
+        <td><a class="dl" href="stl/hub-adapter.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Retention comb — 10 gates</b><div class="s">Holdekam — 10 porter</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">98 × 19 × 12</td>
+        <td class="n">23.6 g</td>
+        <td class="s">Flat. The seats are the accurate feature; no supports near them.</td>
+        <td><a class="dl" href="stl/comb-arc.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Gate wheel hub (8 teeth)</b><div class="s">Portehjulnav (8 tenner)</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">54 × 54 × 10</td>
+        <td class="n">17.7 g</td>
+        <td class="s">Flat, bore vertical. Every tooth registers off this face.</td>
+        <td><a class="dl" href="stl/wheel-hub.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Yarn turret — 4 colours</b><div class="s">Garnkarusell — 4 farger</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">86 × 86 × 14</td>
+        <td class="n">53.8 g</td>
+        <td class="s">Flat. The four feed bores must stay parallel or the yarn rubs.</td>
+        <td><a class="dl" href="stl/turret-drum.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Take-down skirt</b><div class="s">Nedtrekkskjørt</div></td>
+        <td class="n">1</td>
+        <td><span class="mat m-TPU">TPU</span></td>
+        <td class="n">206 × 206 × 6</td>
+        <td class="n">29.6 g</td>
+        <td class="s">TPU, flat. The fingers must flex — printed rigid, they scar the fabric instead of tensioning it.</td>
+        <td><a class="dl" href="stl/takedown-skirt.stl" download>STL</a></td>
+      </tr><tr>
+        <td><b>Station column bracket</b><div class="s">Søylebrakett</div></td>
+        <td class="n">2</td>
+        <td><span class="mat m-PETG">PETG</span></td>
+        <td class="n">90 × 110 × 8</td>
+        <td class="n">77.6 g</td>
+        <td class="s">Flat. Slotted to the deck so the column can be trammed vertical.</td>
+        <td><a class="dl" href="stl/column-bracket.stl" download>STL</a></td>
+      </tr></tbody></table></div>
+  <p class="s" style="margin-top:10px">All 23 files are verified watertight,
+  free of degenerate triangles, a single connected body each, and within the 250&nbsp;mm build
+  volume. Print times are unsliced estimates from mass &mdash; slice the plate for the real number.</p>
+</section>
+
+<section id="buy">
+  <h2>Buy &mdash; Stage 1</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Item</th><th class="n">Qty</th><th>Shop</th><th class="n">NOK</th><th>Status</th></tr></thead>
+    <tbody><tr class="">
+    <td><b>NEMA17 stepper motor, 1.8 deg, 5.5 kg/cm</b></td>
+    <td class="n">2 stk</td>
+    <td><a href="https://www.elefun.no/p/produkter_produktark.aspx?v=50218" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td class="n">590</td>
+    <td><span class="ok">confirmed</span></td></tr><tr class="">
+    <td><b>HIWIN MGN9 linear rail, 1 m</b></td>
+    <td class="n">1 m</td>
+    <td><a href="https://www.elefun.no/vare-61587/3d-print-selvbyggerutstyr-lineare-skinner-hiwin-linear-guide-rail-mgn9-9mm-x-1000mm" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td class="n">895</td>
+    <td><span class="ok">confirmed</span></td></tr><tr class="">
+    <td><b>HIWIN MGN9C carriage block</b></td>
+    <td class="n">1 stk</td>
+    <td><a href="https://www.elefun.no/vare-61587/3d-print-selvbyggerutstyr-lineare-skinner-hiwin-linear-guide-rail-mgn9-9mm-x-1000mm" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td class="n">195</td>
+    <td><span class="ok">confirmed</span></td></tr><tr class="">
+    <td><b>GT2 timing belt, 6 mm, per metre</b></td>
+    <td class="n">1 m</td>
+    <td><a href="https://www.elefun.no/p/kat.aspx?k=1405" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td class="n">59</td>
+    <td><span class="ok">confirmed</span></td></tr><tr class="">
+    <td><b>GT2 timing pulley, 20 tooth, 5 mm bore</b></td>
+    <td class="n">2 stk</td>
+    <td><a href="https://www.elefun.no/p/kat.aspx?k=1405" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td class="n">118</td>
+    <td><span class="ok">confirmed</span></td></tr><tr class="">
+    <td><b>608ZZ ball bearing, 8x22x7</b></td>
+    <td class="n">4 stk</td>
+    <td><a href="https://www.elefun.no/vare-12179/kulelager-8x22x7mm-608zz" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td class="n">116</td>
+    <td><span class="ok">confirmed</span></td></tr><tr class="unv">
+    <td><b>T8 lead screw with brass nut, 200 mm</b></td>
+    <td class="n">1 stk</td>
+    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td class="n">149</td>
+    <td><span class="todo">check first</span></td></tr><tr class="">
+    <td><b>Flexible shaft coupling 5 mm x 8 mm</b></td>
+    <td class="n">1 stk</td>
+    <td><a href="https://www.elefun.no/p/kat.aspx?k=1405" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td class="n">79</td>
+    <td><span class="ok">confirmed</span></td></tr><tr class="unv">
+    <td><b>2020 aluminium extrusion, 1 m</b></td>
+    <td class="n">2 m</td>
+    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td class="n">238</td>
+    <td><span class="todo">check first</span></td></tr><tr class="">
+    <td><b>Arduino Nano ESP32 (ESP32-S3), pin headers fitted</b></td>
+    <td class="n">1 stk</td>
+    <td><a href="https://www.kjell.com/no/produkter/elektro-og-verktoy/elektronikk/arduino/utviklingskort/arduino-nano-esp32-utviklingskort-med-wifi-og-bluetooth-p88443" target="_blank" rel="noreferrer">Kjell &amp; Company</a></td>
+    <td class="n">259</td>
+    <td><span class="ok">confirmed</span><div class="s">5+ stk, 2-4 virkedager</div></td></tr><tr class="">
+    <td><b>StepStick with Trinamic TMC2209, UART</b><div class="s sw">replaces: BigTreeTech TMC2209 at Elefun — discontinued (&quot;ikke lenger lagerført&quot;)</div></td>
+    <td class="n">3 stk</td>
+    <td><a href="https://www.zeptobit.com/index.php?category=21" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td class="n">357</td>
+    <td><span class="ok">confirmed</span><div class="s">52 stk på lager</div></td></tr><tr class="unv">
+    <td><b>12 V DC power supply, 5 A, enclosed CE-marked</b></td>
+    <td class="n">1 stk</td>
+    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td class="n">249</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>Hook-up wire, ferrules and terminal blocks</b></td>
+    <td class="n">1 sett</td>
+    <td><a href="https://www.kjell.com/no/produkter/elektro-og-verktoy/elektronikk" target="_blank" rel="noreferrer">Kjell &amp; Company</a></td>
+    <td class="n">199</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>USB webcam, 1080p, manual focus preferred</b></td>
+    <td class="n">1 stk</td>
+    <td><a href="https://www.kjell.com/no/produkter/datamaskin-og-kontor/datatilbehor/webkamera" target="_blank" rel="noreferrer">Kjell &amp; Company</a></td>
+    <td class="n">449</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>NTC 3950 100k thermistor, cartridge, 1 m lead</b></td>
+    <td class="n">3 stk</td>
+    <td><a href="https://3dprintnorge.net/produkt/deler/mekaniske-deler/thermistor-ntc-3950" target="_blank" rel="noreferrer">3D Print Norge</a></td>
+    <td class="n">207</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>LED strip, 12 V, warm white, 0.5 m</b></td>
+    <td class="n">1 stk</td>
+    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td class="n">89</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>Latching mushroom emergency stop, NC contact</b></td>
+    <td class="n">1 stk</td>
+    <td><a href="https://www.elfadistrelec.no/" target="_blank" rel="noreferrer">Elfa Distrelec Norge</a></td>
+    <td class="n">249</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>Inline blade fuse holder + 7.5 A fuses</b></td>
+    <td class="n">1 sett</td>
+    <td><a href="https://www.biltema.no/" target="_blank" rel="noreferrer">Biltema</a></td>
+    <td class="n">79</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>Smoke alarm (mount above the machine)</b></td>
+    <td class="n">1 stk</td>
+    <td><a href="https://www.biltema.no/" target="_blank" rel="noreferrer">Biltema</a></td>
+    <td class="n">149</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>M3 socket-head cap screws, assorted 8/10/16/20 mm</b></td>
+    <td class="n">1 sett</td>
+    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td class="n">199</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>M5 button-head screws 10 mm + T-nuts for 2020</b></td>
+    <td class="n">1 sett</td>
+    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td class="n">159</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>M3 + M4 heat-set brass inserts, knurled</b></td>
+    <td class="n">1 pk</td>
+    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td class="n">179</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>Ryanål (rya latch hook), 15.5 cm</b><div class="s sw">replaces: Knitting-machine latch needle (Silver Reed / Brother spare) — a specialist order from woolen.no, stanett.no or akeb.no</div></td>
+    <td class="n">2 stk</td>
+    <td><a href="https://panduro.com/" target="_blank" rel="noreferrer">Panduro</a></td>
+    <td class="n">138</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>Ceramic yarn eyelet / PTFE tube</b></td>
+    <td class="n">2 stk</td>
+    <td><a href="https://3dprintnorge.net/" target="_blank" rel="noreferrer">3D Print Norge</a></td>
+    <td class="n">98</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>DK / Cotton 8-8 cotton yarn, 4.0 mm gauge</b></td>
+    <td class="n">2 stk</td>
+    <td><a href="https://www.hobbygross.no/" target="_blank" rel="noreferrer">local yarn shop</a></td>
+    <td class="n">118</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>PETG filament, 1 kg</b></td>
+    <td class="n">1 kg</td>
+    <td><a href="https://3dprintnorge.net/" target="_blank" rel="noreferrer">3D Print Norge</a></td>
+    <td class="n">279</td>
+    <td><span class="todo">check first</span></td></tr><tr class="unv">
+    <td><b>PLA filament, 1 kg</b></td>
+    <td class="n">1 kg</td>
+    <td><a href="https://3dprintnorge.net/" target="_blank" rel="noreferrer">3D Print Norge</a></td>
+    <td class="n">229</td>
+    <td><span class="todo">check first</span></td></tr></tbody>
+  </table></div>
+  <p class="warn" style="margin-top:12px"><b>18 of 27 lines still need checking against the shop page before you order.</b>
+         Those prices are estimates. The confirmed lines were read off the live page on 2026-08-17, and stock moves.</p>
+
+  <h2 style="margin-top:36px">Fasteners, both stages</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Fastener</th><th class="n">Total</th></tr></thead>
+    <tbody><tr><td>M3 heat-set brass insert</td><td class="n">2</td></tr><tr><td>M3 nyloc nut</td><td class="n">8</td></tr><tr><td>M3 x 10 socket head cap screw</td><td class="n">22</td></tr><tr><td>M3 x 16 socket head cap screw</td><td class="n">13</td></tr><tr><td>M3 x 20 socket head cap screw</td><td class="n">6</td></tr><tr><td>M3 x 8 socket head cap screw</td><td class="n">2</td></tr><tr><td>M4 heat-set brass insert</td><td class="n">8</td></tr><tr><td>M4 nyloc nut</td><td class="n">2</td></tr><tr><td>M4 x 12 socket head cap screw</td><td class="n">6</td></tr><tr><td>M5 T-nut for 2020</td><td class="n">33</td></tr><tr><td>M5 x 10 button head screw</td><td class="n">33</td></tr><tr><td>M5 x 16 button head screw</td><td class="n">12</td></tr></tbody>
+  </table></div>
+  <p class="s" style="margin-top:10px">Summed from the build steps, not written by hand. The
+  build fails its own checks if a step calls for a screw that is not on this list.</p>
+</section>
+
+<section id="build">
+  <h2>Build &mdash; 24 steps</h2>
+  <p>Every step ends with something you can observe. If you cannot see it, do not continue
+  &mdash; that is the whole trick, far more than exploded diagrams.</p>
+
+  <div class="track">Stage 1 &middot; HEKLO Station &middot; steps 1&ndash;12</div>
+  <div class="steps"><article class="step" id="step-1">
+    <div class="sh">
+      <span class="sn">01</span>
+      <div><h3>Print the fit-check coupon first</h3><div class="s">Skriv ut passkontrollen forst &middot; 30 min</div></div>
+    </div>
+    <p>Before anything else, print gate-8 and wheel-tooth on their own — about 20 minutes together. Push a gate tongue into the tooth seat by hand. It should go in with firm thumb pressure and stay put when you turn the tooth upside down. If it drops out, or needs pliers, your printer runs a different offset from mine: change nothing in the model, adjust your slicer X/Y compensation, and reprint the pair. Doing this now saves you finding out after a 6-hour plate.</p>
+    
+    
+    <p class="chk"><b>You should now see:</b> A gate seats in a tooth with thumb pressure and does not fall out when inverted.</p>
+  </article><article class="step" id="step-2">
+    <div class="sh">
+      <span class="sn">02</span>
+      <div><h3>Print the rest of the rig</h3><div class="s">Skriv ut resten &middot; 40 min</div></div>
+    </div>
+    <p>Everything else, 343 g total. PETG for anything structural or near a motor; PLA only for the camera pod. Print the gate sweep — 6.0, 7.0, 7.5 and 8.0 mm throats — all four. They exist so T2 can find the width that actually holds cotton, and you will not know which one that is until you try. Follow the orientation note on each part: they are not arbitrary, they put the layer lines across the load rather than along it.</p>
+    
+    
+    <p class="chk"><b>You should now see:</b> Every part is on the bench and none has a visible layer split or lifted corner.</p>
+  </article><article class="step" id="step-3">
+    <div class="sh">
+      <span class="sn">03</span>
+      <div><h3>Melt in the brass inserts</h3><div class="s">Smelt inn gjengeinnsatser &middot; 20 min</div></div>
+    </div>
+    <p>Soldering iron at 240 C, insert sitting square on the pocket, straight down under its own weight plus light pressure. Four M4 in the bench base, two M3 in the camera pod. The pockets have a lead-in chamfer so the insert starts square — if one goes in crooked, back it out while it is still hot and try again. Tapped PETG threads strip on the second assembly, and you will disassemble this rig many times during T2.</p>
+    <ul class="fst"><li><span class="q">4&times;</span> M4 heat-set brass insert</li><li><span class="q">2&times;</span> M3 heat-set brass insert</li></ul>
+    <p class="warn">A soldering iron at 240 C and molten plastic. Ventilate, and do not breathe the fumes.</p>
+    <p class="chk"><b>You should now see:</b> Every insert is flush or a hair below the surface, and square to it.</p>
+  </article><article class="step" id="step-4">
+    <div class="sh">
+      <span class="sn">04</span>
+      <div><h3>Cut and mount the linear rail</h3><div class="s">Kapp og monter skinnen &middot; 30 min</div></div>
+    </div>
+    <p>Cut 200 mm from the MGN9 metre with a hacksaw, deburr both ends with a file until a fingernail does not catch. Bolt the two rail brackets to the bench base through the slotted feet, then the rail to the brackets. Leave everything finger-tight for now. Slide the carriage block on from one end — and never let it run off the other, because the balls fall out and the block is finished.</p>
+    <ul class="fst"><li><span class="q">6&times;</span> M3 x 10 socket head cap screw</li><li><span class="q">4&times;</span> M5 x 10 button head screw</li><li><span class="q">4&times;</span> M5 T-nut for 2020</li></ul>
+    
+    <p class="chk"><b>You should now see:</b> The carriage slides the full length with one finger, with no tight spot.</p>
+  </article><article class="step" id="step-5">
+    <div class="sh">
+      <span class="sn">05</span>
+      <div><h3>Fit the needle collet and the ryanal</h3><div class="s">Monter nalholder og ryanal &middot; 20 min</div></div>
+    </div>
+    <p>Bolt the collet to the carriage block on its 20x20 pattern. Drop the ryanal into the bore, latch facing up and toward the comb, and pinch the clamp slit with the M3 x 20 and its nut. Hand tight plus a quarter turn — no more. You are clamping printed plastic, and the difference between held and cracked is about half a turn.</p>
+    <ul class="fst"><li><span class="q">4&times;</span> M3 x 10 socket head cap screw</li><li><span class="q">1&times;</span> M3 x 20 socket head cap screw</li><li><span class="q">1&times;</span> M3 nyloc nut</li></ul>
+    
+    <p class="chk"><b>You should now see:</b> The needle does not rotate when you twist it by hand, and the latch swings freely.</p>
+  </article><article class="step" id="step-6">
+    <div class="sh">
+      <span class="sn">06</span>
+      <div><h3>Mount the comb</h3><div class="s">Monter holdekammen &middot; 20 min</div></div>
+    </div>
+    <p>Bolt the comb segment to the base through its slotted ears, gate pockets facing the needle. Push three gates of the same throat width into the pockets — note the stagger: pocket 1 and 3 sit on the near row, pocket 2 on the far row. Do not tighten the ear bolts yet. Comb height against the needle is the calibration that decides whether this machine works, and the slots exist so you can set it by eye in step 9.</p>
+    <ul class="fst"><li><span class="q">2&times;</span> M3 x 16 socket head cap screw</li><li><span class="q">2&times;</span> M3 nyloc nut</li></ul>
+    
+    <p class="chk"><b>You should now see:</b> Three gates sit in their pockets, tongues fully home, and none rocks when pressed.</p>
+  </article><article class="step" id="step-7">
+    <div class="sh">
+      <span class="sn">07</span>
+      <div><h3>Motors, wheel and yarn finger</h3><div class="s">Motorer, hjul og garnfinger &middot; 45 min</div></div>
+    </div>
+    <p>Bolt both NEMA17s to their printed mounts and the mounts to the 2020 rail. Fit the thermistor cartridge into the pocket in each mount before you bolt the motor down — it must touch the motor body, and it is far easier now than later. Press the 8 mm shaft through two 608 bearings, slide a wheel tooth on, and lock it with the M3 grub. Screw the yarn finger onto the servo horn and pinch a 40 mm length of 1.75 mm filament into its wire seat.</p>
+    <ul class="fst"><li><span class="q">8&times;</span> M3 x 16 socket head cap screw</li><li><span class="q">4&times;</span> M5 x 10 button head screw</li><li><span class="q">4&times;</span> M5 T-nut for 2020</li><li><span class="q">2&times;</span> M3 x 10 socket head cap screw</li></ul>
+    <p class="warn">Fit the thermistors NOW. They are the only thing standing between a stalled motor and a fire, and every reason to skip them is a bad one.</p>
+    <p class="chk"><b>You should now see:</b> Both motors spin freely by hand, and both thermistors are pinched against motor metal.</p>
+  </article><article class="step" id="step-8">
+    <div class="sh">
+      <span class="sn">08</span>
+      <div><h3>Wire it, fuse first</h3><div class="s">Kobling — sikring forst &middot; 45 min</div></div>
+    </div>
+    <p>Fuse holder on the PSU positive output, before anything else. Then the E-stop in the same line, so breaking it kills motor power without the firmware being involved. Drivers onto the ESP32 carrier, motors to the drivers with ferruled ends, thermistors to the analogue inputs, LED to 12 V constant. Do not power up yet.</p>
+    
+    <p class="warn">The E-stop must interrupt motor POWER, not signal a pin. Software cannot override a broken circuit, and that is the entire point of it.</p>
+    <p class="chk"><b>You should now see:</b> With the E-stop pressed, a multimeter reads open circuit on the motor supply line.</p>
+  </article><article class="step" id="step-9">
+    <div class="sh">
+      <span class="sn">09</span>
+      <div><h3>Camera, light, and first power-on</h3><div class="s">Kamera, lys og forste oppstart &middot; 40 min</div></div>
+    </div>
+    <p>Clamp the camera pod so the throat of the middle gate fills about a third of the frame, and lock the focus manually — autofocus hunts on a 4 mm target and every hunt is a frame the detector cannot use. LED aimed across the throat, not down it, so the aperture reads as a shadow. Now power on with a hand on the E-stop. Open the control app, connect over USB, and jog each axis a single millimetre.</p>
+    <ul class="fst"><li><span class="q">2&times;</span> M3 x 8 socket head cap screw</li><li><span class="q">1&times;</span> M5 x 10 button head screw</li><li><span class="q">1&times;</span> M5 T-nut for 2020</li></ul>
+    <p class="warn">A thermistor reading exactly 0 or wildly high is disconnected. Fix it before running anything; a sensor that reads cold when it is broken is worse than no sensor.</p>
+    <p class="chk"><b>You should now see:</b> Both axes jog in the commanded direction, and both thermistors read room temperature — not zero, and not open circuit.</p>
+  </article><article class="step" id="step-10">
+    <div class="sh">
+      <span class="sn">10</span>
+      <div><h3>T0 and T1 — yarn capture and a held V</h3><div class="s">T0 og T1 — garnfangst og holdt maske &middot; 60 min</div></div>
+    </div>
+    <p>By hand first. Hook a loop of your cotton with the ryanal and release it, one hundred times, counting failures. Then crochet ten stitches by hand, drop one mouth into a gate throat, and push the needle through it fifty times. Log both in the app. These are dull and they are the cheapest information you will ever buy on this project.</p>
+    
+    
+    <p class="chk"><b>You should now see:</b> T0: 100/100 captures. T1: 50/50 passes through a gated V without splitting the yarn.</p>
+  </article><article class="step" id="step-11">
+    <div class="sh">
+      <span class="sn">11</span>
+      <div><h3>T2 — the one that matters</h3><div class="s">T2 — den avgjorende &middot; 120 min</div></div>
+    </div>
+    <p>Tension the hand-crocheted swatch across the comb so three mouths sit in three gates. Now run the wheel tooth through its pickup arc and see whether it takes the V out of the gate and carries it. Fifty times, logged, with the camera recording every frame and you keying seated or empty. That builds the labelled fixture set the detector needs, at the same time as it answers the question.</p><p>Nobody in any of the four predecessor dossiers has tested this step. It is the step the whole gate-wheel idea rests on.</p>
+    
+    <p class="warn">If every throat width fails T2, stop. The correct move is a thinner needle (a knitting-machine latch needle at 1.8 mm), not a wider throat — there is no room for a wider throat.</p>
+    <p class="chk"><b>You should now see:</b> T2: 50/50 pickups. Below 40/50, stop and try the next throat width down before changing anything else.</p>
+  </article><article class="step" id="step-12">
+    <div class="sh">
+      <span class="sn">12</span>
+      <div><h3>T3 — one real fastmaske</h3><div class="s">T3 — en ekte fastmaske &middot; 180 min</div></div>
+    </div>
+    <p>Yarn through the dancer and the eyelet to the finger. Run the full cycle: pick up the V, plunge, yarn over, draw through two, and check that exactly one loop remains on the needle. Fifty consecutive. Export the log as CSV.</p><p>If you get here, you have the thing that has stopped everyone else — a machine-formed crochet stitch into a mechanically located previous stitch. Everything after this is engineering rather than invention.</p>
+    <ul class="fst"><li><span class="q">1&times;</span> M3 x 20 socket head cap screw</li><li><span class="q">1&times;</span> M3 nyloc nut</li></ul>
+    
+    <p class="chk"><b>You should now see:</b> T3: 50 consecutive single crochets, loop count 1 at the end of each, height spread under 0.6 mm.</p>
+  </article></div>
+
+  <div class="track">Stage 2 &middot; HEKLO M1 &middot; steps 13&ndash;24</div>
+  <div class="steps"><article class="step" id="step-13">
+    <div class="sh">
+      <span class="sn">13</span>
+      <div><h3>Cut the deck</h3><div class="s">Kapp dekket &middot; 45 min</div></div>
+    </div>
+    <p>Four 2020 lengths into a 520 x 420 mm rectangle, plus two cross members. Square it with a set square and check the diagonals match within 1 mm — everything above this inherits whatever error you leave here.</p>
+    <ul class="fst"><li><span class="q">12&times;</span> M5 x 16 button head screw</li><li><span class="q">12&times;</span> M5 T-nut for 2020</li></ul>
+    
+    <p class="chk"><b>You should now see:</b> Diagonals match within 1 mm and the frame does not rock on a flat table.</p>
+  </article><article class="step" id="step-14">
+    <div class="sh">
+      <span class="sn">14</span>
+      <div><h3>Seat the turntable bearing</h3><div class="s">Monter dreielageret &middot; 30 min</div></div>
+    </div>
+    <p>The lazy-susan bearing is BOUGHT, never printed — it is the concentricity of the whole machine. Bolt it to the deck centre, then the printed hub adapter on top of it.</p>
+    <ul class="fst"><li><span class="q">4&times;</span> M4 x 12 socket head cap screw</li><li><span class="q">6&times;</span> M5 x 10 button head screw</li></ul>
+    
+    <p class="chk"><b>You should now see:</b> The hub turns smoothly through a full revolution with no tight spot.</p>
+  </article><article class="step" id="step-15">
+    <div class="sh">
+      <span class="sn">15</span>
+      <div><h3>Platter and C-axis belt</h3><div class="s">Dreieskive og C-rem &middot; 45 min</div></div>
+    </div>
+    <p>Bolt the platter to the hub. Run GT2 around the rim groove to a 20T pulley on the C motor. Driving on the 240 mm rim gives roughly 34:1 with no gearbox, so one stitch is about 8.4 motor steps — comfortable resolution from a part you already printed.</p>
+    <ul class="fst"><li><span class="q">6&times;</span> M5 x 10 button head screw</li></ul>
+    <p class="warn">Check runout now. Every stitch position for the next 3 694 stitches is measured from this disc.</p>
+    <p class="chk"><b>You should now see:</b> Rim runout under 0.3 mm on a dial indicator, and the belt does not slip when you resist the platter by hand.</p>
+  </article><article class="step" id="step-16">
+    <div class="sh">
+      <span class="sn">16</span>
+      <div><h3>Assemble the mandrel</h3><div class="s">Sett sammen mandrellen &middot; 30 min</div></div>
+    </div>
+    <p>Three sections, bayonet twist-lock, crown on top. They are lathed from the app’s own hat profile, so the former is the shape the pattern actually makes. Drop the stack onto the platter and check it runs true.</p>
+    
+    
+    <p class="chk"><b>You should now see:</b> The three sections twist together without force and the assembled former wobbles less than 0.5 mm at the crown.</p>
+  </article><article class="step" id="step-17">
+    <div class="sh">
+      <span class="sn">17</span>
+      <div><h3>Z column and R carriage</h3><div class="s">Z-søyle og R-slede &middot; 60 min</div></div>
+    </div>
+    <p>Two column brackets onto the deck, 2020 column between them, trammed vertical. T8 lead screw for Z. The R carriage rides the rest of the MGN9 metre you bought for the bench.</p>
+    <ul class="fst"><li><span class="q">8&times;</span> M5 x 10 button head screw</li><li><span class="q">8&times;</span> M5 T-nut for 2020</li><li><span class="q">4&times;</span> M4 heat-set brass insert</li></ul>
+    
+    <p class="chk"><b>You should now see:</b> The column is vertical to within 0.5 mm over its height, measured against a square from the platter.</p>
+  </article><article class="step" id="step-18">
+    <div class="sh">
+      <span class="sn">18</span>
+      <div><h3>Move the Station onto the carriage</h3><div class="s">Flytt stasjonen over på sleden &middot; 45 min</div></div>
+    </div>
+    <p>This is the whole point of building the bench rig the way you did. Unbolt the Station assembly from the printed bench base — needle collet, rail, wheel motor, yarn finger, camera pod, thermistors, all of it still bolted together — and bolt it onto the R carriage. Nothing is rebuilt and nothing is thrown away. The bench base is the only piece that does not come with you, and it cost you filament.</p><p>Everything you learned during T0 to T3 still applies, because it is the same hardware in a new place.</p>
+    <ul class="fst"><li><span class="q">4&times;</span> M5 x 10 button head screw</li><li><span class="q">4&times;</span> M5 T-nut for 2020</li></ul>
+    
+    <p class="chk"><b>You should now see:</b> The Station points at the mandrel surface, and jogging P still plunges the needle exactly as it did on the bench.</p>
+  </article><article class="step" id="step-19">
+    <div class="sh">
+      <span class="sn">19</span>
+      <div><h3>Fit the full comb arc</h3><div class="s">Monter hele holdekammen &middot; 30 min</div></div>
+    </div>
+    <p>The 10-gate arc replaces the 3-gate bench segment. Same pitch, same seats, same gate parts — you simply have more of them. Set the comb height against the wheel exactly as you did in calibration, because it is the same adjustment.</p>
+    <ul class="fst"><li><span class="q">2&times;</span> M4 x 12 socket head cap screw</li><li><span class="q">2&times;</span> M4 nyloc nut</li></ul>
+    
+    <p class="chk"><b>You should now see:</b> All ten gates seat, and the wheel tooth clears every one of them by the same margin.</p>
+  </article><article class="step" id="step-20">
+    <div class="sh">
+      <span class="sn">20</span>
+      <div><h3>Build the eight-tooth wheel</h3><div class="s">Bygg åttetannshjulet &middot; 40 min</div></div>
+    </div>
+    <p>Eight teeth into the hub, each locked with an M3 grub. These are the identical part you ran two of on the bench. Belt the wheel to its motor at 3:1.</p>
+    <ul class="fst"><li><span class="q">8&times;</span> M3 x 10 socket head cap screw</li></ul>
+    
+    <p class="chk"><b>You should now see:</b> Turning the wheel by hand, all eight teeth pass the comb at the same height within 0.2 mm.</p>
+  </article><article class="step" id="step-21">
+    <div class="sh">
+      <span class="sn">21</span>
+      <div><h3>Yarn turret and four cones</h3><div class="s">Garnkarusell og fire koner &middot; 50 min</div></div>
+    </div>
+    <p>Turret onto the T motor, four cone stands behind the machine, one dancer and one ceramic eyelet per colour. Thread all four and pull each by hand: the dancer should move and the encoder should count.</p>
+    <ul class="fst"><li><span class="q">2&times;</span> M3 x 10 socket head cap screw</li><li><span class="q">4&times;</span> M3 x 20 socket head cap screw</li><li><span class="q">4&times;</span> M3 nyloc nut</li></ul>
+    
+    <p class="chk"><b>You should now see:</b> All four colours reach the finger, and indexing the turret 90 degrees swaps which one is presented.</p>
+  </article><article class="step" id="step-22">
+    <div class="sh">
+      <span class="sn">22</span>
+      <div><h3>Take-down skirt</h3><div class="s">Nedtrekkskjørt &middot; 20 min</div></div>
+    </div>
+    <p>The TPU skirt hangs below the working line and keeps finished fabric off the gates. Without it the hat climbs back into the comb somewhere around round 20 and jams the wheel.</p>
+    <ul class="fst"><li><span class="q">3&times;</span> M3 x 16 socket head cap screw</li></ul>
+    
+    <p class="chk"><b>You should now see:</b> The fingers flex under light finger pressure and spring back. Rigid fingers scar the fabric — reprint in TPU if they do not.</p>
+  </article><article class="step" id="step-23">
+    <div class="sh">
+      <span class="sn">23</span>
+      <div><h3>Wire the remaining axes, then the enclosure</h3><div class="s">Koble resten, så kabinettet &middot; 120 min</div></div>
+    </div>
+    <p>Four more axes: C, Z, R, T. Thermistor on every one of them, into the same analogue inputs the bench used. Then the enclosure panels and the door interlock in series with the E-stop, so opening the door cuts motor power the same way the mushroom does.</p>
+    
+    <p class="warn">Six motors now, not two. Confirm every thermistor reports a plausible room temperature before the first long run — a sensor that reads cold when it is disconnected is worse than no sensor at all.</p>
+    <p class="chk"><b>You should now see:</b> Opening the enclosure door reads open circuit on the motor supply, exactly like pressing the E-stop.</p>
+  </article><article class="step" id="step-24">
+    <div class="sh">
+      <span class="sn">24</span>
+      <div><h3>The first hat</h3><div class="s">Den første lua &middot; 60 min</div></div>
+    </div>
+    <p>Load four colours in palette order. Hand-start the ten-stitch magic ring on the crown — thirty seconds of the several hours, and automating it is v2. Pick a pattern, press Start, and watch the first full round with a finger on the E-stop.</p><p>Leave the camera auditing every round. The governor will start cautious and speed up as it learns it has thermal headroom.</p>
+    
+    <p class="warn">Do not leave it unattended until you have watched it finish a whole hat awake. Then check whether your home insurance covers self-built equipment left running.</p>
+    <p class="chk"><b>You should now see:</b> A full round completes with the stitch count the pattern predicted and no missed-loop verdicts.</p>
+  </article></div>
+</section>
+
+<section id="safety">
+  <h2>Speed and fire are the same problem</h2>
+  <div class="call">
+    <p>Cycle rate <em>is</em> duty cycle, and duty cycle is what makes heat. So speed is not
+    a number in the program &mdash; it is governed by measured temperature.</p>
+    <p>Every motor and driver carries a sensor. The firmware owns a hard cutout at
+    70&nbsp;&deg;C motor and 85&nbsp;&deg;C driver that kills
+    motor power locally, without asking the computer. Below that, the software trades speed
+    for thermal headroom: hot machine slows down, cool machine speeds up.</p>
+    <p><b>One hat, 3&nbsp;694 stitches:</b> 8 h 46 m cautious &middot;
+    5 h 29 m target &middot; 4 h 15 m mechanical ceiling.
+    The machine finds its own safe maximum and stays there. The time is a result, not a promise.</p>
+    <p style="margin-bottom:0">A disconnected sensor reads open circuit, and open circuit is
+    treated as a fault &mdash; never as &ldquo;cold&rdquo;. That is exactly how a thermal cutout
+    silently stops existing.</p>
+  </div>
+
+  <div class="call w" style="margin-top:16px">
+    <h3>Before you leave it running</h3>
+    <p>Fuse on the supply, latching emergency stop in the motor line that software cannot
+    override, smoke alarm above the machine, and a door interlock that cuts power when opened.
+    All four are on the parts list.</p>
+    <p style="margin-bottom:0">Do not run it unattended until you have watched it finish a
+    whole hat awake &mdash; and check whether your home insurance covers self-built equipment
+    left running. Many policies do not.</p>
+  </div>
+</section>
+
+<footer>
+  <p><b>HEKLO</b> &middot; Stage 1 <b>HEKLO Station</b> &middot; Stage 2 <b>HEKLO M1</b>.
+  Generated from the machine definition, the parts registry, the sourcing data and the build
+  guide &mdash; every number on this page is computed, not typed.</p>
+  <p>Unlisted page. Not linked from the Masklab site and not indexed. Contains an unfiled
+  patent disclosure: Norway follows the EPC, which has no grace period.</p>
+</footer>
+
+</div>
+</body>
+</html>

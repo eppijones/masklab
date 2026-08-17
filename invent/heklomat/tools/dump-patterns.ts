@@ -1,0 +1,178 @@
+/**
+ * Dumps all eight bucket-hat patterns from the app's pattern engine into the
+ * compact run-length form the HEKLOMAT pages consume.
+ *
+ * Run from the REPO ROOT (needs the app's node_modules for `three` etc.):
+ *
+ *   npx tsx invent/heklomat/tools/dump-patterns.ts
+ *
+ * Writes:
+ *   invent/heklomat/data/patterns.js      window.HEKLOMAT_DATA = {...}
+ *   invent/heklomat/tools/.profile.json   buildProfile rings of the reference hat,
+ *                                      in mm — consumed by build-stl.ts so the
+ *                                      STL build never imports from src/.
+ *
+ * Read-only with respect to src/; the shipped pages never import from it.
+ */
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { listPatterns } from '../../../src/patterns/registry';
+import { derivePattern } from '../../../src/patterns/buildFromDefinition';
+import { YARN_HEX, YARN_NAME, type YarnColor } from '../../../src/data/types';
+import { buildProfile } from '../../../src/lib/hatGeometry';
+import { CATALOG } from '../../../src/platform/catalog';
+
+const OUT_DIR = join(import.meta.dirname, '..');
+const MANDREL_REF_ID = 'norway26-black'; // standard NORWAY'26 silhouette
+
+interface DumpRound {
+  num: number;
+  phase: string;
+  count: number;
+  color: number; // palette index of the round's (or solid run's) color
+  inc: number | null;
+  runs?: [number, number][]; // [length, paletteIdx] — omitted when solid
+  incIdx?: number[]; // 0-based increase positions — omitted when none
+}
+
+const patterns = listPatterns().map((def) => {
+  const d = derivePattern(def);
+  const { rounds, stitches } = d;
+
+  // Palette: order of first appearance across round bases + stitch colors.
+  const pal: YarnColor[] = [];
+  const palIdx = new Map<YarnColor, number>();
+  const idx = (c: YarnColor): number => {
+    let i = palIdx.get(c);
+    if (i === undefined) {
+      i = pal.length;
+      pal.push(c);
+      palIdx.set(c, i);
+    }
+    return i;
+  };
+
+  // Per-round stitch slices (stitches are in working order).
+  const byRound: { color: number; inc: boolean }[][] = rounds.map(() => []);
+  let changes = 0;
+  for (const s of stitches) {
+    byRound[s.roundIdx].push({ color: idx(s.color), inc: s.isIncrease });
+    if (s.changeColorAfter) changes++;
+  }
+
+  const dumpRounds: DumpRound[] = rounds.map((r, ri) => {
+    const sts = byRound[ri];
+    if (sts.length !== r.count) {
+      throw new Error(
+        `${def.id} round ${r.num}: ${sts.length} stitches, count says ${r.count}`,
+      );
+    }
+    // Run-length encode colors.
+    const runs: [number, number][] = [];
+    for (const s of sts) {
+      const last = runs[runs.length - 1];
+      if (last && last[1] === s.color) last[0]++;
+      else runs.push([1, s.color]);
+    }
+    const incIdx = sts.flatMap((s, i) => (s.inc ? [i] : []));
+    const out: DumpRound = {
+      num: r.num,
+      phase: r.phase,
+      count: r.count,
+      color: runs.length === 1 ? runs[0][1] : idx(r.color),
+      inc: r.increaseEvery,
+    };
+    if (runs.length > 1) out.runs = runs;
+    if (incIdx.length > 0) out.incIdx = incIdx;
+    return out;
+  });
+
+  // Round-trip check: expanded runs must reproduce the stitch stream exactly.
+  dumpRounds.forEach((dr, ri) => {
+    const expanded: number[] = [];
+    if (dr.runs) for (const [len, c] of dr.runs) for (let k = 0; k < len; k++) expanded.push(c);
+    else for (let k = 0; k < dr.count; k++) expanded.push(dr.color);
+    if (expanded.length !== byRound[ri].length) {
+      throw new Error(`${def.id} round ${dr.num}: run-length expansion size mismatch`);
+    }
+    expanded.forEach((c, i) => {
+      if (c !== byRound[ri][i].color) {
+        throw new Error(`${def.id} round ${dr.num} stitch ${i}: color mismatch`);
+      }
+    });
+  });
+
+  const cat = CATALOG.find((c) => c.id === def.id);
+  const suMm = (d.size.omkrets_cm * 10) / d.bodyCount;
+
+  return {
+    id: def.id,
+    title: def.title,
+    titleNo: def.titleNo,
+    difficulty: cat?.difficulty ?? '',
+    handTime: cat?.time ?? '',
+    hookMm: d.hook.mm,
+    sizeCm: d.size.omkrets_cm,
+    suMm: Number(suMm.toFixed(3)),
+    totals: {
+      stitches: stitches.length,
+      colorChanges: changes,
+      rounds: rounds.length,
+    },
+    palette: pal,
+    rounds: dumpRounds,
+  };
+});
+
+// ---- summary table + sanity vs known ranges --------------------------------
+console.log('id                 rounds  stitches  changes  palette');
+for (const p of patterns) {
+  console.log(
+    `${p.id.padEnd(18)} ${String(p.totals.rounds).padStart(5)} ${String(
+      p.totals.stitches,
+    ).padStart(9)} ${String(p.totals.colorChanges).padStart(8)}  ${p.palette.join(',')}`,
+  );
+  if (p.totals.stitches < 2500 || p.totals.stitches > 4000) {
+    throw new Error(`${p.id}: implausible stitch total ${p.totals.stitches}`);
+  }
+}
+if (patterns.length !== 8) throw new Error(`expected 8 patterns, got ${patterns.length}`);
+
+const data = {
+  yarnHex: YARN_HEX,
+  yarnName: YARN_NAME,
+  patterns,
+};
+const js = `// GENERATED by invent/heklomat/tools/dump-patterns.ts — do not edit.\nwindow.HEKLOMAT_DATA = ${JSON.stringify(data)};\n`;
+writeFileSync(join(OUT_DIR, 'data', 'patterns.js'), js);
+console.log(`\nwrote data/patterns.js — ${(js.length / 1024).toFixed(0)} KB`);
+
+// ---- mandrel profile for build-stl.ts (in mm) ------------------------------
+const ref = listPatterns().find((p) => p.id === MANDREL_REF_ID)!;
+const dRef = derivePattern(ref);
+const profile = buildProfile(dRef.rounds);
+const suMmRef = (dRef.size.omkrets_cm * 10) / dRef.bodyCount;
+const topNRef = dRef.rounds.filter((r) => r.phase === 'top').length;
+const brimStartRef = dRef.rounds.findIndex(
+  (r) => r.phase === 'brim-inc' || r.phase === 'wave' || r.phase === 'brim',
+);
+const profMm = {
+  id: MANDREL_REF_ID,
+  suMm: Number(suMmRef.toFixed(3)),
+  topN: topNRef,
+  brimStart: brimStartRef,
+  // r/y in mm, crown first (y descends).
+  rings: profile.map((p) => ({
+    r: Number((p.r * suMmRef).toFixed(2)),
+    y: Number((p.y * suMmRef).toFixed(2)),
+  })),
+};
+writeFileSync(
+  join(OUT_DIR, 'tools', '.profile.json'),
+  JSON.stringify(profMm, null, 1),
+);
+console.log(
+  `wrote tools/.profile.json — ${profMm.rings.length} rings, brim r ${
+    profMm.rings[profMm.rings.length - 1].r
+  } mm`,
+);
