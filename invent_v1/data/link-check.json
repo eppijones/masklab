@@ -1,0 +1,191 @@
+{
+  "checkedAt": "2026-08-18",
+  "total": 26,
+  "ok": 26,
+  "blocked": 0,
+  "dead": 0,
+  "results": [
+    {
+      "id": "nema17",
+      "url": "https://www.elefun.no/p/produkter_produktark.aspx?v=50218",
+      "status": 200,
+      "state": "ok",
+      "ms": 92
+    },
+    {
+      "id": "mgn9-rail",
+      "url": "https://www.elefun.no/vare-61587/3d-print-selvbyggerutstyr-lineare-skinner-hiwin-linear-guide-rail-mgn9-9mm-x-1000mm",
+      "status": 200,
+      "state": "ok",
+      "ms": 39
+    },
+    {
+      "id": "mgn9-block",
+      "url": "https://www.elefun.no/vare-61587/3d-print-selvbyggerutstyr-lineare-skinner-hiwin-linear-guide-rail-mgn9-9mm-x-1000mm",
+      "status": 200,
+      "state": "ok",
+      "ms": 35
+    },
+    {
+      "id": "gt2-belt",
+      "url": "https://www.elefun.no/p/kat.aspx?k=1405",
+      "status": 200,
+      "state": "ok",
+      "ms": 33
+    },
+    {
+      "id": "gt2-pulley",
+      "url": "https://www.elefun.no/p/kat.aspx?k=1405",
+      "status": 200,
+      "state": "ok",
+      "ms": 28
+    },
+    {
+      "id": "bearing-608",
+      "url": "https://www.elefun.no/vare-12179/kulelager-8x22x7mm-608zz",
+      "status": 200,
+      "state": "ok",
+      "ms": 39
+    },
+    {
+      "id": "leadscrew-t8",
+      "url": "https://www.zeptobit.com/",
+      "status": 200,
+      "state": "ok",
+      "ms": 176
+    },
+    {
+      "id": "coupling",
+      "url": "https://www.elefun.no/p/kat.aspx?k=1405",
+      "status": 200,
+      "state": "ok",
+      "ms": 29
+    },
+    {
+      "id": "profile-2020",
+      "url": "https://www.zeptobit.com/",
+      "status": 200,
+      "state": "ok",
+      "ms": 75
+    },
+    {
+      "id": "mcu",
+      "url": "https://www.kjell.com/no/produkter/elektro-og-verktoy/elektronikk/arduino/utviklingskort/arduino-nano-esp32-utviklingskort-med-wifi-og-bluetooth-p88443",
+      "status": 200,
+      "state": "ok",
+      "ms": 151
+    },
+    {
+      "id": "driver-tmc2209",
+      "url": "https://www.zeptobit.com/index.php?category=21",
+      "status": 200,
+      "state": "ok",
+      "ms": 73
+    },
+    {
+      "id": "psu-12v",
+      "url": "https://www.zeptobit.com/",
+      "status": 200,
+      "state": "ok",
+      "ms": 72
+    },
+    {
+      "id": "wire",
+      "url": "https://www.kjell.com/no/produkter/elektro-og-verktoy/elektronikk",
+      "status": 200,
+      "state": "ok",
+      "ms": 511
+    },
+    {
+      "id": "webcam",
+      "url": "https://www.kjell.com/no/produkter/datamaskin-og-kontor/datatilbehor/webkamera",
+      "status": 200,
+      "state": "ok",
+      "ms": 912
+    },
+    {
+      "id": "thermistor",
+      "url": "https://www.3djake.no/search?query=termistor",
+      "status": 200,
+      "state": "ok",
+      "ms": 212
+    },
+    {
+      "id": "led",
+      "url": "https://www.zeptobit.com/",
+      "status": 200,
+      "state": "ok",
+      "ms": 79
+    },
+    {
+      "id": "estop",
+      "url": "https://www.elfadistrelec.no/",
+      "status": 200,
+      "state": "ok",
+      "ms": 295
+    },
+    {
+      "id": "fuse",
+      "url": "https://www.biltema.no/",
+      "status": 200,
+      "state": "ok",
+      "ms": 1666
+    },
+    {
+      "id": "smoke-alarm",
+      "url": "https://www.biltema.no/",
+      "status": 200,
+      "state": "ok",
+      "ms": 48
+    },
+    {
+      "id": "screws-m3",
+      "url": "https://www.zeptobit.com/",
+      "status": 200,
+      "state": "ok",
+      "ms": 78
+    },
+    {
+      "id": "nuts-m3m4",
+      "url": "https://www.zeptobit.com/",
+      "status": 200,
+      "state": "ok",
+      "ms": 69
+    },
+    {
+      "id": "screws-m5",
+      "url": "https://www.zeptobit.com/",
+      "status": 200,
+      "state": "ok",
+      "ms": 80
+    },
+    {
+      "id": "eyelet",
+      "url": "https://www.3djake.no/filamenter",
+      "status": 200,
+      "state": "ok",
+      "ms": 544
+    },
+    {
+      "id": "yarn",
+      "url": "https://www.hobbii.no/garn",
+      "status": 200,
+      "state": "ok",
+      "ms": 1367
+    },
+    {
+      "id": "filament-petg",
+      "url": "https://www.3djake.no/filament/petg",
+      "status": 200,
+      "state": "ok",
+      "ms": 408
+    },
+    {
+      "id": "filament-pla",
+      "url": "https://www.3djake.no/filament/pla",
+      "status": 200,
+      "state": "ok",
+      "ms": 294
+    }
+  ]
+}

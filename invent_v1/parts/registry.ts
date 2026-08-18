@@ -57,9 +57,15 @@ export const MATES: readonly Mate[] = [
     why: 'The wheel hub turns on an 8 mm shaft set by the 608 bearing bore. Too tight and the printed hub splits when the shaft is pressed in; too loose and the tooth tip wanders, which shows up as a pickup that works on the bench and fails in a round.',
   },
   {
-    a: 'needle-collet#needle',
+    a: 'crochet-hook#nose',
     b: `${NOMINAL_GATE}#throat`,
     type: 'clearance',
-    why: 'The needle must pass through the throat with both legs of the stitch mouth beside it. This is the inequality that forced the comb into two staggered rows — at one row, a gate has to be narrower than the stitch pitch, which caps the throat below the diameter of the needle alone. If this check fails, T2 cannot succeed no matter how good the mechanism is.',
+    why: 'The hook NOSE must pass through the throat with both legs of the stitch mouth beside it. This is the inequality that forced the comb into two rows — at one row a gate has to be narrower than the stitch pitch, which caps the throat below the diameter of the tool alone. If this check fails, G2 cannot succeed no matter how good the mechanism is. Note it is the nose, not the shank: the shank is 5 mm and never enters a gate, and comparing the wrong one makes an impossible machine look fine.',
+  },
+  {
+    a: 'hook-collet#shank',
+    b: 'crochet-hook#shank',
+    type: 'clearance',
+    why: 'The hook is a consumable and gets swapped mid-run with cold hands. A slip fit plus a clamp slit means you change it in ten seconds; a press fit means you change it with pliers and re-aim the camera afterwards.',
   },
 ];

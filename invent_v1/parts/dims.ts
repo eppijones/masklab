@@ -48,9 +48,12 @@ export const CLEARANCE = { M3: 3.4, M4: 4.5, M5: 5.5 } as const;
 /** Socket-head cap screw head diameters, for counterbores. */
 export const CAP_HEAD = { M3: 5.5, M4: 7.0, M5: 8.5 } as const;
 
-/** Heat-set brass insert bores. Standard knurled inserts for PETG. */
-export const INSERT_BORE = { M3: 4.0, M4: 5.6, M5: 6.4 } as const;
-export const INSERT_DEPTH = { M3: 5.7, M4: 8.1, M5: 9.5 } as const;
+/**
+ * Hex nut dimensions, DIN 934. These replaced the heat-set inserts: there is
+ * no soldering iron anywhere in this build, and a nut is a nut in any shop.
+ */
+export const NUT_AF = { M3: 5.5, M4: 7.0, M5: 8.0 } as const;
+export const NUT_THICK = { M3: 2.4, M4: 3.2, M5: 4.0 } as const;
 
 /* ------------------------------------------------------------- hardware --- */
 

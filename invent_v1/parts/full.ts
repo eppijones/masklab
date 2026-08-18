@@ -19,7 +19,7 @@ import {
   circle,
   cyl,
   extrude,
-  insertPocket,
+  nutPocket,
   poly,
   revolve,
   ringOf,
@@ -30,10 +30,12 @@ import {
   at2,
 } from '../cad/ops.ts';
 import type { Pt2, Solid } from '../cad/solid.ts';
-import { CLEARANCE, INSERT_BORE, INSERT_DEPTH, NEMA17_HOLES } from './dims.ts';
+import { CLEARANCE, NEMA17_HOLES, NUT_AF, NUT_THICK } from './dims.ts';
 import {
   COMB_GATES,
+  COMB_ROW_DZ_MM,
   COMB_ROW_OFFSET_MM,
+  COMB_ROW_TILT_DEG,
   GATE_WALL_MM,
   GATE_W_MM,
   MAX_PART_MM,
@@ -271,7 +273,7 @@ const hub: PartDef = {
 /* ------------------------------------------------------------------------- */
 
 function combArc(d: Record<string, number>): Solid {
-  const { gates, pitch, wall, h, seatW, seatD, rowOffset, ear } = d;
+  const { gates, pitch, wall, h, seatW, seatD, rowOffset, rowDz, rowTilt, ear } = d;
   const gateLen = gates * pitch + 2 * wall;
   const len = gateLen + 2 * ear;
   const depth = rowOffset + seatD + 2 * wall;
@@ -281,14 +283,22 @@ function combArc(d: Record<string, number>): Solid {
   const pocket = 5;
   for (let i = 0; i < gates; i++) {
     const x = -gateLen / 2 + wall + pitch * (i + 0.5);
-    const y = (i % 2 === 0 ? -1 : +1) * (rowOffset / 2);
+    // Same convergent stagger as the bench segment: rows separated in HEIGHT
+    // and tilted back to a common mouth line, so all ten throats present at one
+    // radius. Ten gates on two radii would ask the working edge to zig-zag
+    // 10 mm in and out ten times per round, which is not a thing cotton does.
+    const upper = i % 2 === 0;
+    const z = h / 2 + (upper ? +rowDz : -rowDz) / 2;
+    const tilt = upper ? -rowTilt : +rowTilt;
+    const y = (upper ? +1 : -1) * (rowOffset / 2 - seatD / 2 - wall);
     cuts.push(
       at(
         extrude(roundedRect(seatW, seatD, 0.3), pocket + 2),
-        [x, y, h - pocket / 2 + 1 - (pocket + 2) / 2],
+        [x, y, z - (pocket + 2) / 2 + pocket / 2],
+        [tilt, 0, 0],
       ),
     );
-    cuts.push(at(cyl(h + 4, 1.1, 20), [x, y, h / 2]));
+    cuts.push(at(cyl(h + 8, 1.1, 20), [x, y, h / 2], [tilt, 0, 0]));
   }
   const mounts = [-(gateLen / 2 + ear / 2), +(gateLen / 2 + ear / 2)].map((x) =>
     at(extrude(slot2(CLEARANCE.M4, 6), h + 4), [x, 0, h / 2], [0, 0, 90]),
@@ -307,9 +317,11 @@ const comb: PartDef = {
     gates: COMB_GATES,
     pitch: STITCH_W_MM,
     wall: 3,
-    h: 12,
+    h: 16,
     ear: 18,
     rowOffset: COMB_ROW_OFFSET_MM,
+    rowDz: COMB_ROW_DZ_MM,
+    rowTilt: COMB_ROW_TILT_DEG,
     seatW: GATE_W_MM - 2 * GATE_WALL_MM + 0.25,
     seatD: 2 * GATE_WALL_MM + 0.25,
   },
@@ -430,10 +442,13 @@ function columnBracket(d: Record<string, number>): Solid {
     at(extrude(slot2(CLEARANCE.M5, 6), t + 4), [x, -(hgt / 2 - 12), 0]),
   );
   const toColumn = NEMA17_HOLES.map(([x, y]) => at(bore(CLEARANCE.M5, t + 4), [x, y + 12, 0]));
+  // Captive M4 nuts, entered from the top edge. The column bolts pull the
+  // bracket against the extrusion, so the nut is loaded in shear-free tension
+  // and a printed thread is never asked to hold anything.
   const inserts = [
     [-(w / 2 - 12), hgt / 2 - 10],
     [w / 2 - 12, hgt / 2 - 10],
-  ].map(([x, y]) => at(insertPocket(INSERT_BORE.M4, INSERT_DEPTH.M4), [x, y, t]));
+  ].map(([x, y]) => at(nutPocket(NUT_AF.M4, NUT_THICK.M4, 12, CLEARANCE.M4), [x, y, t / 2]));
   return subtract(plate, ...toDeck, ...toColumn, ...inserts);
 }
 
@@ -456,7 +471,8 @@ const column: PartDef = {
   fasteners: [
     { sku: 'M5x10-BHCS', qty: 4 },
     { sku: 'M5-TNUT', qty: 4 },
-    { sku: 'M4-INSERT', qty: 4 },
+    { sku: 'M4x12-SHCS', qty: 4 },
+    { sku: 'M4-NUT', qty: 4 },
   ],
   note: 'Carries the Z column. Tram this vertical before anything above it is trusted.',
 };

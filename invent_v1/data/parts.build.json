@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-17",
+  "generatedAt": "2026-08-18",
   "printer": "Bambu Lab X1 Carbon (250 mm part limit)",
   "totalsGrams": {
-    "PETG": 1232.2,
-    "PLA": 23.8,
+    "PETG": 1593.8,
+    "PLA": 25.7,
     "TPU": 29.6
   },
   "parts": [
@@ -86,19 +86,19 @@
     {
       "id": "comb-segment",
       "file": "comb-segment.stl",
-      "sha256": "12b73aec67493b6c1873c99321d0c8931edfa64925149f73dbe6679a0bd452fe",
-      "tris": 664,
+      "sha256": "8c2ba4fe081c50a97d67e419a7932995a10faf75c1186ab4c1a022899c688db1",
+      "tris": 964,
       "bbox": [
         53.6,
         17.85,
-        10
+        14
       ],
-      "volumeCm3": 8.932,
+      "volumeCm3": 12.508,
       "closed": true,
       "degenerate": 0,
       "bodies": 1,
-      "genus": 3,
-      "grams": 10.5,
+      "genus": 5,
+      "grams": 13.7,
       "material": "PETG",
       "qty": 1
     },
@@ -122,21 +122,40 @@
       "qty": 8
     },
     {
-      "id": "needle-collet",
-      "file": "needle-collet.stl",
-      "sha256": "0fe2bb4c8bc47a30be621ba153f811962bca895f88560083eec71e374c3f09c8",
-      "tris": 1396,
+      "id": "crochet-hook",
+      "file": "crochet-hook.stl",
+      "sha256": "7976a6b5570b22edb7230205b726f94241c75e16724d1efc319b6dd28750f154",
+      "tris": 1478,
+      "bbox": [
+        5,
+        4.75,
+        61.14
+      ],
+      "volumeCm3": 0.771,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 1,
+      "grams": 1,
+      "material": "PETG",
+      "qty": 5
+    },
+    {
+      "id": "hook-collet",
+      "file": "hook-collet.stl",
+      "sha256": "64fe6343fd36c76d37dad147028e4d4c225b7e666976166e9312236bbf1fac64",
+      "tris": 2114,
       "bbox": [
         26,
         31,
         28.5
       ],
-      "volumeCm3": 7.827,
+      "volumeCm3": 6.979,
       "closed": true,
       "degenerate": 0,
       "bodies": 1,
-      "genus": 6,
-      "grams": 9.7,
+      "genus": 7,
+      "grams": 8.7,
       "material": "PETG",
       "qty": 2
     },
@@ -181,19 +200,19 @@
     {
       "id": "camera-pod",
       "file": "camera-pod.stl",
-      "sha256": "0f2b95e44c90a96aa55318d61c13bcd04f2ac79a07a45f2e4a9a90d9719fb999",
-      "tris": 752,
+      "sha256": "5feb892f49cc526ab8b0ec347029606c6d87644f832fd68dfc266ff0b72895e0",
+      "tris": 1122,
       "bbox": [
-        105,
+        116,
         38,
         27
       ],
-      "volumeCm3": 19.916,
+      "volumeCm3": 21.531,
       "closed": true,
       "degenerate": 0,
       "bodies": 1,
-      "genus": 2,
-      "grams": 23.8,
+      "genus": 6,
+      "grams": 25.7,
       "material": "PLA",
       "qty": 1
     },
@@ -236,21 +255,78 @@
       "qty": 1
     },
     {
+      "id": "swift-base",
+      "file": "swift-base.stl",
+      "sha256": "fb0e3628cffa70ba246d42a0e7f47a203ed2ab4f63aed2b43e8363bfbaec7059",
+      "tris": 768,
+      "bbox": [
+        78,
+        78,
+        10
+      ],
+      "volumeCm3": 56.887,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 1,
+      "grams": 44.4,
+      "material": "PETG",
+      "qty": 4
+    },
+    {
+      "id": "swift-spindle",
+      "file": "swift-spindle.stl",
+      "sha256": "eea0fc0925749f46f60dbc8ea35f5421e57539caa7ce8cbcb1398c44520e5137",
+      "tris": 1364,
+      "bbox": [
+        62,
+        62,
+        76.4
+      ],
+      "volumeCm3": 16.258,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 0,
+      "grams": 18.4,
+      "material": "PETG",
+      "qty": 4
+    },
+    {
+      "id": "swift-guide",
+      "file": "swift-guide.stl",
+      "sha256": "7771b334080ade9223a99342fcef060a3515aa5acfab2a884d96ddf554de542b",
+      "tris": 968,
+      "bbox": [
+        61.5,
+        19,
+        118
+      ],
+      "volumeCm3": 28.268,
+      "closed": true,
+      "degenerate": 0,
+      "bodies": 1,
+      "genus": 3,
+      "grams": 24,
+      "material": "PETG",
+      "qty": 4
+    },
+    {
       "id": "bench-base",
       "file": "bench-base.stl",
-      "sha256": "0cff77d3a6ac0861ff5f05311cbd798c29eb5352a61aa8d3f92d499f41fcac93",
-      "tris": 1504,
+      "sha256": "5849b554511e23cf74972dff06d27c9ecd903173ab53b90cb660c36bd5f7c712",
+      "tris": 1680,
       "bbox": [
         220,
         120,
         8
       ],
-      "volumeCm3": 207.19,
+      "volumeCm3": 206.241,
       "closed": true,
       "degenerate": 0,
       "bodies": 1,
-      "genus": 7,
-      "grams": 156,
+      "genus": 11,
+      "grams": 157,
       "material": "PETG",
       "qty": 1
     },
@@ -352,19 +428,19 @@
     {
       "id": "comb-arc",
       "file": "comb-arc.stl",
-      "sha256": "44e52e1e9d2ab1b9e908444d80ab2d66568c6f18cb4c270f0b5a86bf56487a66",
-      "tris": 1636,
+      "sha256": "7b6d389ac54194ded923b9101400794fffb70bb2215c252e493a5b33e87492d0",
+      "tris": 2556,
       "bbox": [
         98,
         19.05,
-        12
+        16
       ],
-      "volumeCm3": 20.452,
+      "volumeCm3": 27.187,
       "closed": true,
       "degenerate": 0,
       "bodies": 1,
-      "genus": 10,
-      "grams": 23.6,
+      "genus": 19,
+      "grams": 30.4,
       "material": "PETG",
       "qty": 1
     },
@@ -428,19 +504,19 @@
     {
       "id": "column-bracket",
       "file": "column-bracket.stl",
-      "sha256": "b85581a928de048fe072e82f63914e6eee6f0762a6b356d06d28845307db3f57",
-      "tris": 1612,
+      "sha256": "a52e11820f2b57dcda6ab5b53adb155f4940c53dcc398db3e97b87c1e58c504d",
+      "tris": 1700,
       "bbox": [
         90,
         110,
         8
       ],
-      "volumeCm3": 77.229,
+      "volumeCm3": 76.851,
       "closed": true,
       "degenerate": 0,
       "bodies": 1,
-      "genus": 4,
-      "grams": 77.6,
+      "genus": 6,
+      "grams": 77.8,
       "material": "PETG",
       "qty": 2
     }

@@ -13,7 +13,7 @@
   :root{
     --bg:#EDE7DA; --card:#FDFAF3; --ink:#201D18; --ink-soft:#55503F; --ink-faint:#8A8070;
     --line:#EDE4D0; --card-border:#E4DAC5; --chip:#F3ECDC; --red:#BA0C2F; --red-dark:#A50A29;
-    --blue:#00205B; --go:#2F6B4F; --go-soft:#E8F0EA; --gold:#A89A7E;
+    --blue:#00205B; --go:#2F6B4F; --go-soft:#E8F0EA; --gold:#A89A7E; --warn:#9A4614;
     --serif:'Instrument Serif',Georgia,serif;
     --sans:'Karla',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     --mono:ui-monospace,'SF Mono',Menlo,monospace;
@@ -22,12 +22,11 @@
   html{scroll-behavior:smooth}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
        font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
-
   .lang-no .en{display:none}
   .lang-en .no{display:none}
 
   .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
-  p{margin:0 0 14px;max-width:62ch}
+  p{margin:0 0 14px;max-width:64ch}
   a{color:var(--red)}
   h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,4vw,40px);
      line-height:1.05;margin:0 0 8px;letter-spacing:-.01em}
@@ -35,16 +34,15 @@
   h4{font-family:var(--sans);font-weight:800;font-size:13.5px;margin:0;letter-spacing:-.005em}
   .eyebrow{font-family:var(--sans);font-weight:800;font-size:11.5px;letter-spacing:.16em;
            text-transform:uppercase;color:var(--red);margin:0 0 14px}
-  .sub{color:var(--ink-soft);max-width:58ch;margin-bottom:0}
-  section{padding:60px 0;border-top:1px solid var(--card-border)}
+  .sub{color:var(--ink-soft);max-width:60ch;margin-bottom:0}
+  section{padding:58px 0;border-top:1px solid var(--card-border)}
 
-  /* topbar */
-  .top{position:sticky;top:0;z-index:20;background:rgba(237,231,218,.93);
+  .top{position:sticky;top:0;z-index:20;background:rgba(237,231,218,.94);
        backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border)}
   .top .in{max-width:1120px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:26px}
   .wm{font-family:var(--serif);font-size:19px;letter-spacing:.14em;text-decoration:none;color:var(--ink)}
   .wm i{color:var(--red);font-style:normal}
-  .top nav{display:flex;gap:20px;overflow-x:auto;flex:1;font-weight:700;font-size:12px;
+  .top nav{display:flex;gap:18px;overflow-x:auto;flex:1;font-weight:700;font-size:12px;
            letter-spacing:.08em;text-transform:uppercase}
   .top nav a{color:var(--ink-faint);text-decoration:none;white-space:nowrap}
   .top nav a:hover{color:var(--ink)}
@@ -53,15 +51,14 @@
     font-size:11px;letter-spacing:.06em;padding:4px 11px;border-radius:999px;cursor:pointer;color:var(--ink-faint)}
   .lang button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
 
-  /* hero */
-  .hero{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;
-        padding:64px 0 56px;border-top:0}
-  @media(max-width:860px){.hero{grid-template-columns:1fr;gap:24px}}
+  .hero{display:grid;grid-template-columns:1fr 1.05fr;gap:40px;align-items:center;
+        padding:56px 0 44px;border-top:0}
+  @media(max-width:900px){.hero{grid-template-columns:1fr;gap:24px}}
   .hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(46px,8vw,82px);
-           line-height:.98;letter-spacing:-.02em;margin:0 0 18px}
+           line-height:.98;letter-spacing:-.02em;margin:0 0 14px}
   .hero .lede{font-family:var(--serif);font-size:clamp(19px,2.2vw,25px);line-height:1.35;
-              color:var(--ink-soft);max-width:24ch}
-  .hero-3d{aspect-ratio:16/10;background:var(--card);border:1px solid var(--card-border);
+              color:var(--ink-soft);max-width:26ch}
+  .hero-3d{aspect-ratio:16/11;background:var(--card);border:1px solid var(--card-border);
            border-radius:14px;overflow:hidden;position:relative}
   .hero-3d canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
   .v-tabs{position:absolute;left:14px;bottom:14px;display:flex;gap:6px;z-index:2}
@@ -72,42 +69,53 @@
   .v-hint{position:absolute;right:14px;bottom:16px;font-size:11px;font-weight:700;
           color:var(--ink-faint);letter-spacing:.05em;z-index:2}
 
-  /* stages */
-  .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-  @media(max-width:760px){.two{grid-template-columns:1fr}}
-  .stage{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:24px}
-  .stage .role{font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-               color:var(--red);margin-bottom:8px}
-  .stage.b .role{color:var(--ink-faint)}
-  .stage dl{margin:16px 0 0;display:grid;grid-template-columns:auto 1fr;gap:7px 18px;font-size:14px}
-  .stage dt{color:var(--ink-faint);font-weight:700;font-size:12px;letter-spacing:.04em;
-            text-transform:uppercase;align-self:center}
-  .stage dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
-  .bridge{background:var(--go-soft);border:1px solid #CFE0D5;border-radius:12px;
-          padding:16px 20px;margin-top:18px;font-size:14.5px}
-  .bridge b{color:var(--go)}
-
-  /* stat row */
-  .stats{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
-  .stat{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:18px 20px}
-  .stat .k{font-family:var(--serif);font-size:34px;line-height:1}
+  .stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(148px,1fr))}
+  .stat{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:16px 18px}
+  .stat .k{font-family:var(--serif);font-size:32px;line-height:1}
   .stat .l{font-weight:800;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
            color:var(--ink-faint);margin-top:6px}
+  .stat.hot .k{color:var(--red)}
+
+  /* verdict */
+  .verdict{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--red);
+           border-radius:0 16px 16px 0;padding:26px 30px;margin-bottom:24px}
+  .verdict .big{font-family:var(--serif);font-size:clamp(30px,4.4vw,46px);line-height:1.06;margin:0 0 12px}
+  .verdict .big em{font-style:normal;color:var(--red)}
+  .odds{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-top:20px}
+  .odd{background:var(--bg);border:1px solid var(--card-border);border-radius:12px;padding:16px 18px}
+  .odd .k{font-family:var(--serif);font-size:38px;line-height:1}
+  .odd.good .k{color:var(--go)}
+  .odd.bad .k{color:var(--red)}
+  .odd .l{font-weight:800;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin:4px 0 6px}
+  .odd .d{font-size:13px;color:var(--ink-soft);line-height:1.45}
+
+  .gid{font-family:var(--mono);font-weight:700;color:var(--red);vertical-align:top;padding-top:14px}
+  .gt{font-size:13px;color:var(--ink-soft);margin-top:3px}
+  .gw{font-size:12.5px;color:var(--ink-faint);margin-top:6px;line-height:1.5;max-width:70ch}
+  .gp{font-family:var(--serif);font-size:19px}
+  .gc{font-family:var(--serif);font-size:19px;color:var(--ink-faint)}
+  .gc.lo{color:var(--red)}
 
   /* parts */
   .pgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(196px,1fr))}
   .pc{background:var(--card);border:1px solid var(--card-border);border-radius:12px;overflow:hidden}
-  .pc-3d{aspect-ratio:1;background:linear-gradient(160deg,#F7F2E6,#EFE8D8)}
-  .pc-3d canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+  .pc-3d{aspect-ratio:1;background:linear-gradient(160deg,#F7F2E6,#EFE8D8);
+         border:0;padding:0;display:block;width:100%;position:relative;cursor:zoom-in}
+  .pc-3d canvas{width:100%;height:100%;display:block}
   .pc-b{padding:12px 14px 14px}
-  .pc-m{display:flex;flex-wrap:wrap;gap:7px;margin:7px 0 10px;font-size:11.5px;
+  .pc-m{display:flex;flex-wrap:wrap;gap:6px;margin:7px 0 10px;font-size:11.5px;
         color:var(--ink-faint);font-weight:700;font-variant-numeric:tabular-nums}
+  .pc-m .pt{color:var(--ink-soft)}
   .mat{font-size:9.5px;font-weight:800;letter-spacing:.06em;padding:2px 6px;border-radius:4px}
   .m-PETG{background:#F6E3D6;color:#9A4614}.m-PLA{background:#E2ECF5;color:#1E4F7A}
   .m-TPU{background:var(--chip);color:var(--ink-soft)}
   .btn-s{display:inline-block;font-weight:800;font-size:11px;letter-spacing:.06em;
     text-decoration:none;border:1.5px solid var(--ink);color:var(--ink);padding:5px 12px;border-radius:999px}
   .btn-s:hover{background:var(--ink);color:var(--bg)}
+  .pc-zoom{position:absolute;right:9px;bottom:9px;width:24px;height:24px;border-radius:50%;
+    background:rgba(32,29,24,.08);color:var(--ink-soft);font-weight:800;font-size:15px;
+    display:grid;place-items:center;line-height:1}
+  .pc-3d:hover .pc-zoom{background:var(--ink);color:var(--bg)}
 
   /* steps */
   .track-h{display:flex;align-items:center;gap:14px;margin:34px 0 16px;
@@ -115,12 +123,17 @@
   .track-h::after{content:"";flex:1;height:1px;background:var(--card-border)}
   .steps{display:flex;flex-direction:column;gap:14px}
   .st{background:var(--card);border:1px solid var(--card-border);border-radius:14px;
-      display:grid;grid-template-columns:220px 1fr;overflow:hidden}
+      display:grid;grid-template-columns:250px 1fr;overflow:hidden}
   @media(max-width:700px){.st{grid-template-columns:1fr}}
   .st-3d{background:linear-gradient(160deg,#F7F2E6,#EFE8D8);border-right:1px solid var(--card-border);
-         min-height:180px;position:relative}
+         min-height:190px;position:relative}
   @media(max-width:700px){.st-3d{border-right:0;border-bottom:1px solid var(--card-border);aspect-ratio:16/9}}
-  .st-3d canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+  .st-3d canvas{width:100%;height:100%;display:block}
+  .st-play{position:absolute;right:10px;bottom:10px;width:28px;height:28px;border-radius:50%;
+    border:1px solid var(--card-border);background:rgba(253,250,243,.94);color:var(--ink-soft);
+    font-size:11px;cursor:pointer;display:grid;place-items:center;padding:0;line-height:1}
+  .st-play:hover{background:var(--ink);color:var(--bg)}
+  .st.playing .st-play{background:var(--red);color:#fff;border-color:var(--red)}
   .st-b{padding:20px 22px}
   .st-h{display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap}
   .st-n{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--red);
@@ -134,29 +147,56 @@
   .ck{background:var(--go-soft);border-left:3px solid var(--go);padding:10px 14px;
       border-radius:0 8px 8px 0;font-size:14px;margin-bottom:0}
 
+  /* sim */
+  .sim{background:var(--card);border:1px solid var(--card-border);border-radius:16px;overflow:hidden}
+  .sim-c{aspect-ratio:16/9;position:relative;background:linear-gradient(160deg,#F7F2E6,#EFE8D8)}
+  @media(max-width:700px){.sim-c{aspect-ratio:4/5}}
+  .sim-c canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+  .sim-hud{position:absolute;left:16px;top:16px;display:flex;gap:8px;flex-wrap:wrap}
+  .hud{background:rgba(253,250,243,.93);border:1px solid var(--card-border);border-radius:9px;
+       padding:7px 12px;font-variant-numeric:tabular-nums}
+  .hud b{font-family:var(--serif);font-size:19px;font-weight:400;display:block;line-height:1.1}
+  .hud span{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+  .sim-bar{display:flex;align-items:center;gap:14px;padding:14px 18px;border-top:1px solid var(--card-border);flex-wrap:wrap}
+  .sim-bar button{font-family:var(--sans);font-weight:800;font-size:12px;border:1.5px solid var(--ink);
+    background:transparent;color:var(--ink);padding:7px 16px;border-radius:999px;cursor:pointer}
+  .sim-bar button.on,.sim-bar button:hover{background:var(--ink);color:var(--bg)}
+  .spd{display:flex;gap:3px;background:var(--chip);border-radius:999px;padding:3px}
+  .spd button{border:0;padding:5px 12px;font-size:11px;border-radius:999px;background:transparent;color:var(--ink-faint)}
+  .spd button[aria-pressed=true]{background:var(--red);color:#fff}
+  .sim-bar input[type=range]{flex:1;min-width:140px;accent-color:var(--red)}
+  .swatch{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.15);display:inline-block;vertical-align:-2px}
+
+  /* size control */
+  .sizer{background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:24px 26px}
+  .sliders{display:grid;gap:18px;grid-template-columns:1fr 1fr}
+  @media(max-width:700px){.sliders{grid-template-columns:1fr}}
+  .sl label{display:flex;justify-content:space-between;font-weight:800;font-size:11px;
+            letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  .sl label b{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--ink);letter-spacing:0;text-transform:none}
+  .sl input{width:100%;accent-color:var(--red)}
+
   /* tables */
   .sc{overflow-x:auto;background:var(--card);border:1px solid var(--card-border);border-radius:12px}
-  table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
-  th,td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line)}
+  table{border-collapse:collapse;width:100%;min-width:540px;font-size:14px}
+  th,td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line);vertical-align:top}
   thead th{font-weight:800;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-           color:var(--ink-faint);background:#F7F2E6}
+           color:var(--ink-faint);background:#F7F2E6;vertical-align:middle}
   tbody tr:last-child td{border-bottom:0}
   .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
   .ok,.td{font-weight:800;font-size:10px;letter-spacing:.05em;text-transform:uppercase;
           padding:3px 8px;border-radius:6px;white-space:nowrap}
   .ok{background:var(--go-soft);color:var(--go)}
-  .td{background:#FBEDE6;color:#9A4614}
+  .td{background:#FBEDE6;color:var(--warn)}
   tr.unv td{background:#FDF6F1}
+  .lk{margin-right:7px;font-size:11px}
+  .lk.ok{color:var(--go)}.lk.warn{color:var(--gold)}.lk.bad{color:var(--red)}
 
   .note{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--red);
         border-radius:0 12px 12px 0;padding:20px 24px}
+  .note.q{border-left-color:var(--go)}
   .note p:last-child{margin-bottom:0}
 
-  .pc-3d{border:0;padding:0;display:block;width:100%;position:relative;cursor:zoom-in}
-  .pc-zoom{position:absolute;right:9px;bottom:9px;width:24px;height:24px;border-radius:50%;
-    background:rgba(32,29,24,.08);color:var(--ink-soft);font-weight:800;font-size:15px;
-    display:grid;place-items:center;line-height:1}
-  .pc-3d:hover .pc-zoom{background:var(--ink);color:var(--bg)}
   .modal{position:fixed;inset:0;z-index:60;background:rgba(32,29,24,.55);
          display:grid;place-items:center;padding:24px}
   .modal[hidden]{display:none}
@@ -179,11 +219,15 @@
 <div class="top"><div class="in">
   <a class="wm" href="/">MASKLAB<i>*</i></a>
   <nav>
-    <a href="#stages"><span class="no">To trinn</span><span class="en">Two stages</span></a>
+    <a href="#verdict"><span class="no">Sjansene</span><span class="en">The odds</span></a>
+    <a href="#mech"><span class="no">Mekanisme</span><span class="en">Mechanism</span></a>
+    <a href="#sim"><span class="no">Simulering</span><span class="en">Simulation</span></a>
+    <a href="#size"><span class="no">Størrelser</span><span class="en">Sizes</span></a>
     <a href="#parts"><span class="no">Deler</span><span class="en">Parts</span></a>
     <a href="#build"><span class="no">Bygg</span><span class="en">Build</span></a>
     <a href="#buy"><span class="no">Kjøp</span><span class="en">Buy</span></a>
     <a href="#safety"><span class="no">Sikkerhet</span><span class="en">Safety</span></a>
+    <a href="#patent"><span class="no">Patent</span><span class="en">Patent</span></a>
   </nav>
   <div class="lang">
     <button id="bNo" aria-pressed="true">NO</button>
@@ -198,7 +242,17 @@
     <p class="eyebrow"><span class="no">Masklab · maskinprogram</span><span class="en">Masklab · machine programme</span></p>
     <h1>HEKLO</h1>
     <p class="lede"><span class="no">En maskin som hekler bøttehattene. Ekte hekling — én løkke, trukket gjennom to.</span><span class="en">A machine that crochets the bucket hats. Real crochet — one loop, drawn through two.</span></p>
-    <p class="sub" style="margin-top:18px"><span class="no">Printede deler, standard bevegelseskomponenter og en mikrokontroller. Alt kjøpt i Norge.</span><span class="en">Printed parts, off-the-shelf motion hardware and a microcontroller. All sourced in Norway.</span></p>
+    <p class="sub" style="margin-top:16px"><span class="no">Printede deler, standard bevegelseskomponenter og en mikrokontroller. Ingen lodding, ingenting skarpt, alt kjøpt i Norge.</span><span class="en">Printed parts, off-the-shelf motion hardware and a microcontroller. No soldering, nothing sharp, all sourced in Norway.</span></p>
+    <div class="stats" style="margin-top:22px">
+      <div class="stat"><div class="k">27</div>
+        <div class="l"><span class="no">printede deler</span><span class="en">printed parts</span></div></div>
+      <div class="stat"><div class="k">42 t 42 m</div>
+        <div class="l"><span class="no">printtid, anslag</span><span class="en">print time, est.</span></div></div>
+      <div class="stat hot"><div class="k">1.0 %</div>
+        <div class="l"><span class="no">sjanse for en ferdig lue</span><span class="en">chance of a finished hat</span></div></div>
+      <div class="stat"><div class="k">320 kr</div>
+        <div class="l"><span class="no">for å finne det ut</span><span class="en">to find that out</span></div></div>
+    </div>
   </div>
   <div class="hero-3d">
     <canvas id="hero"></canvas>
@@ -210,67 +264,195 @@
   </div>
 </section>
 
-<section id="stages">
-  <p class="eyebrow"><span class="no">Slik henger det sammen</span><span class="en">How it fits together</span></p>
-  <h2><span class="no">To trinn, én maskin</span><span class="en">Two stages, one machine</span></h2>
-  <p class="sub" style="margin-bottom:26px"><span class="no">Du bygger hodet først og kjører det på benken. Består det testene, skrus akkurat den samme enheten på maskinen i steg 18.</span><span class="en">You build the head first and run it on a bench. If it passes, that same assembly bolts onto the machine at step 18.</span></p>
+<section id="verdict">
+  <p class="eyebrow"><span class="no">Les dette først</span><span class="en">Read this first</span></p>
+  <div class="verdict">
+    <p class="big"><span class="no">Ingen har bygget en heklemaskin som virker.<br>Det er derfor det er verdt å prøve — og derfor <em>du bør bruke 320 kr før du bruker 6 248</em>.</span><span class="en">Nobody has built a crochet machine that works.<br>That is why it is worth trying — and why <em>you should spend 320 kr before you spend 6 248</em>.</span></p>
+    <p><span class="no">Publisert toppnivå for hekling i omgang er fire masker på rad, fra en forskningsgruppe på Harvard med ni akser og et verksted. Denne maskinen har en idé som kan gjøre det bedre — porten som holder masken åpen — men den ideen er ikke testet på ekte garn av noen, noen gang.</span><span class="en">The published state of the art for crochet in the round is four consecutive stitches, from a Harvard research group with nine axes and a machine shop. This machine has an idea that might do better — the gate that holds the stitch open — but that idea has never been tested on real yarn by anybody.</span></p>
+    <p style="margin-bottom:0"><span class="no">Så rekkefølgen er snudd. Det første steget er ikke å bestille motorer. Det er å printe fire porter, hekle en slange for hånd, og se om en port fanger en maske. Det tar en kveld og koster filament.</span><span class="en">So the order is reversed. The first step is not ordering motors. It is printing four gates, crocheting a tube by hand, and seeing whether a gate catches a stitch. That takes an evening and costs filament.</span></p>
 
-  <div class="two">
-    <div class="stage">
-      <div class="role"><span class="no">Trinn 1 · prototyp</span><span class="en">Stage 1 · prototype</span></div>
-      <h3>HEKLO Station</h3>
-      <p style="margin-top:8px"><span class="no">Nålvogn, hjuldrift, garnfinger, kamera og temperaturfølere — maskinens arbeidshode, på en benkeplate.</span><span class="en">Needle carriage, wheel drive, yarn finger, camera and thermal sensors — the working head, on a bench plate.</span></p>
-      <dl>
-        <dt><span class="no">Print</span><span class="en">Print</span></dt><dd>13 · 43 <span class="no">stk</span><span class="en">pcs</span> · 343 g</dd>
-        <dt><span class="no">Printtid</span><span class="en">Print time</span></dt><dd>16–31 t</dd>
-        <dt><span class="no">Montering</span><span class="en">Assembly</span></dt><dd>10.8 <span class="no">t</span><span class="en">h</span></dd>
-        <dt><span class="no">Deler</span><span class="en">Parts</span></dt><dd>6 124 kr</dd>
-        <dt><span class="no">Steg</span><span class="en">Steps</span></dt><dd>1–12</dd>
-      </dl>
-    </div>
-    <div class="stage b">
-      <div class="role"><span class="no">Trinn 2 · maskinen</span><span class="en">Stage 2 · the machine</span></div>
-      <h3>HEKLO M1</h3>
-      <p style="margin-top:8px"><span class="no">Legger til dreieskive, mandrell dreid fra appens egen lueprofil, hele kammen, fargekarusell og kabinett.</span><span class="en">Adds the turntable, a mandrel lathed from the app’s own hat profile, the full comb, colour turret and enclosure.</span></p>
-      <dl>
-        <dt><span class="no">Print</span><span class="en">Print</span></dt><dd>+10 · 11 <span class="no">stk</span><span class="en">pcs</span> · 943 g</dd>
-        <dt><span class="no">Printtid</span><span class="en">Print time</span></dt><dd>43–86 t</dd>
-        <dt><span class="no">Montering</span><span class="en">Assembly</span></dt><dd>+9.6 <span class="no">t</span><span class="en">h</span></dd>
-        <dt><span class="no">Steg</span><span class="en">Steps</span></dt><dd>13–24</dd>
-        <dt><span class="no">Resultat</span><span class="en">Output</span></dt><dd><span class="no">en ferdig lue</span><span class="en">a wearable hat</span></dd>
-      </dl>
+    <div class="odds">
+      <div class="odd good">
+        <div class="k">95 %</div>
+        <div class="l"><span class="no">sjanse for å få et svar</span><span class="en">chance you get an answer</span></div>
+        <div class="d"><span class="no">For 320 kr og en kveld vet du om mekanismen fanger garn. Et rent nei er verdt like mye som et ja.</span><span class="en">For 320 kr and an evening you know whether the mechanism catches yarn. A clean no is worth as much as a yes.</span></div>
+      </div>
+      <div class="odd">
+        <div class="k">16 %</div>
+        <div class="l"><span class="no">én maskinlaget maske</span><span class="en">one machine-made stitch</span></div>
+        <div class="d"><span class="no">Dette alene ville vært et resultat verdt å vise fram.</span><span class="en">This alone would be a result worth showing anyone.</span></div>
+      </div>
+      <div class="odd bad">
+        <div class="k">1.0 %</div>
+        <div class="l"><span class="no">en ferdig lue</span><span class="en">a finished hat</span></div>
+        <div class="d"><span class="no">Hele kjeden, med tilsyn. Ikke uten tilsyn — se regnestykket under.</span><span class="en">The whole chain, supervised. Not unattended — see the arithmetic below.</span></div>
+      </div>
     </div>
   </div>
 
-  <div class="bridge"><span class="no">&lt;b&gt;Ingenting kastes.&lt;/b&gt; Alt du kjøper til prototypen går inn i den ferdige maskinen — motorer, skinne, drivere, kontroller, kamera, følere, strømforsyning. Det eneste som blir igjen er én printet benkeplate.</span><span class="en">&lt;b&gt;Nothing is wasted.&lt;/b&gt; Everything bought for the prototype goes into the finished machine — motors, rail, drivers, controller, camera, sensors, power supply. The only thing left behind is one printed bench plate.</span></div>
+  <h2 style="margin-top:34px"><span class="no">Portene, i rekkefølge</span><span class="en">The gates, in order</span></h2>
+  <p class="sub" style="margin-bottom:20px"><span class="no">Hver rad er et spørsmål maskinen må svare på, sannsynligheten for at den klarer det gitt at alt før gikk bra, og hvor mye penger som allerede er brukt når du får svaret. Tallene er skjønn, og de er merket som skjønn. Regnestykket er det ikke.</span><span class="en">Each row is a question the machine has to answer, the probability it does given everything before it worked, and how much money is already spent by the time you find out. The probabilities are judgement and are labelled as judgement. The multiplication is not.</span></p>
+  <div class="sc"><table>
+    <thead><tr><th></th><th><span class="no">Spørsmålet</span><span class="en">The question</span></th>
+      <th class="n"><span class="no">Denne</span><span class="en">This one</span></th><th class="n"><span class="no">Samlet</span><span class="en">Cumulative</span></th>
+      <th class="n"><span class="no">Brukt, kr</span><span class="en">Spent, kr</span></th></tr></thead>
+    <tbody><tr>
+    <td class="gid">G0</td>
+    <td><b><span class="no">En printet port fanger en levende maske</span><span class="en">A printed gate catches a live stitch</span></b><div class="gt"><span class="no">Hekle en slange på 100 masker for hånd. Drei den forbi tre printede porter for hånd. Går maskemunnen inn i halsen og blir liggende, uten at fingrene legger den der?</span><span class="en">Hand-crochet a 100-stitch tube. Turn it past three printed gates by hand. Does the top V enter the throat and stay held, without being placed there by fingers?</span></div>
+      <div class="gw"><span class="no">Dette er spørsmålet alle tidligere utkast hoppet over, og det maskinen ikke kan komme utenom. En slapp bomullsmaske på en stoffkant er myk, liten og lukket; en innføring på 0,7 mm skal åpne den og svelge den, drevet av ingenting annet enn at stoffet beveger seg forbi. Ingen har publisert at dette virker. Femti-femti er raust, ikke pessimistisk.</span><span class="en">This is the question every predecessor design skipped, and it is the one the machine cannot work around. A relaxed cotton V standing off a fabric edge is soft, small and closed; a 0.7 mm lead-in has to open it and swallow it, driven by nothing but the fabric moving past. Nobody has published this working. Fifty-fifty is generous rather than pessimistic.</span></div></td>
+    <td class="n"><span class="gp">50%</span></td>
+    <td class="n"><span class="gc ">50%</span></td>
+    <td class="n">320</td>
+  </tr><tr>
+    <td class="gid">G1</td>
+    <td><b><span class="no">Porten holder mens kroken går gjennom</span><span class="en">The gate holds it while the hook passes</span></b><div class="gt"><span class="no">Før den printede kroken gjennom en holdt maske femti ganger. Tell splitting, tap og hekting.</span><span class="en">Push the printed hook through a held V fifty times. Count splits, drops and snags.</span></div>
+      <div class="gw"><span class="no">Statisk geometri, og halskravet går opp med 0,2 mm til overs. Risikoen er overflaten: en printet spiss er ruere enn stål, og bomull er lodnet garn som lar seg splitte.</span><span class="en">Static geometry, and the throat inequality already closes with 0.2 mm to spare. The risk is surface: a printed nose is rougher than steel and cotton is a fuzzy, splittable yarn.</span></div></td>
+    <td class="n"><span class="gp">75%</span></td>
+    <td class="n"><span class="gc ">38%</span></td>
+    <td class="n">320</td>
+  </tr><tr>
+    <td class="gid">G2</td>
+    <td><b><span class="no">Hjulet tar løkken ut av kammen</span><span class="en">The wheel takes the loop out of the comb</span></b><div class="gt"><span class="no">Femti motoriserte opptak fra en strammet prøvelapp, logget, med kamera.</span><span class="en">Fifty powered pickups from a tensioned swatch, logged, on camera.</span></div>
+      <div class="gw"><span class="no">En overlevering mellom to bevegelige deler gjennom noe mykt. Her er pengene allerede brukt — nettopp derfor kommer G0 og G1 først, uten motorer.</span><span class="en">A handoff between two moving parts through a soft object. This is where the money is already spent, which is exactly why G0 and G1 come first and use no motors.</span></div></td>
+    <td class="n"><span class="gp">60%</span></td>
+    <td class="n"><span class="gc ">22%</span></td>
+    <td class="n">6 124</td>
+  </tr><tr>
+    <td class="gid">G3</td>
+    <td><b><span class="no">Én komplett maskinlaget maske</span><span class="en">One complete machine-made stitch</span></b><div class="gt"><span class="no">Ta opp, stikk, legg garn, trekk gjennom to. Nøyaktig én løkke igjen på kroken.</span><span class="en">Pick up, plunge, yarn over, draw through two. Exactly one loop left on the hook.</span></div>
+      <div class="gw"><span class="no">Fire koordinerte bevegelser rundt noe ettergivende. Croche-Matic kom hit med ni akser; porten fjerner det meste av letingen, og det er grunnen til å vente bedre snarere enn dårligere.</span><span class="en">Four coordinated motions around a compliant object. Croche-Matic reached this with nine axes; the gate removes most of the searching, which is the reason to expect better rather than worse.</span></div></td>
+    <td class="n"><span class="gp">70%</span></td>
+    <td class="n"><span class="gc ">16%</span></td>
+    <td class="n">6 124</td>
+  </tr><tr>
+    <td class="gid">G4</td>
+    <td><b><span class="no">Ti på rad</span><span class="en">Ten in a row</span></b><div class="gt"><span class="no">Ti masker på rad uten at en hånd tar i arbeidet.</span><span class="en">Ten consecutive stitches with no hand touching the work.</span></div>
+      <div class="gw"><span class="no">Publisert toppnivå er fire. Det er på rad at hver lille feil blir kumulativ: garnstrammingen driver, stoffkanten kryper, og den tiende masken lages i et stoff maskinen allerede har forstyrret ni ganger.</span><span class="en">The published state of the art is four. Consecutive is where every small error becomes a compounding one: yarn tension drifts, the fabric edge creeps, and the tenth stitch is worked into a fabric the machine has already disturbed nine times.</span></div></td>
+    <td class="n"><span class="gp">45%</span></td>
+    <td class="n"><span class="gc lo">7%</span></td>
+    <td class="n">6 124</td>
+  </tr><tr>
+    <td class="gid">G5</td>
+    <td><b><span class="no">En hel omgang</span><span class="en">A full round</span></b><div class="gt"><span class="no">100 masker, én omdreining, med maskeantallet oppskriften forutsa.</span><span class="en">100 stitches, one revolution, with the stitch count the pattern predicted.</span></div>
+      <div class="gw"><span class="no">Krever hele maskinen — dreieskive, mandrell, nedtrekk. Her dukker feil opp som benken ikke kan vise: stoffet klatrer tilbake i kammen, nedtrekket kjemper mot portene, omgangen lukker seg en halv maske feil.</span><span class="en">Needs the full machine — turntable, mandrel, take-down. New failure modes appear here that the bench cannot show: the fabric climbing back into the comb, take-down tension fighting the gates, the round closing on itself half a stitch out.</span></div></td>
+    <td class="n"><span class="gp">40%</span></td>
+    <td class="n"><span class="gc lo">3%</span></td>
+    <td class="n">11 800</td>
+  </tr><tr>
+    <td class="gid">G6</td>
+    <td><b><span class="no">En brukbar lue, med tilsyn</span><span class="en">A wearable hat, supervised</span></b><div class="gt"><span class="no">En ferdig lue av mandrellen, der et menneske starter den igjen når den stopper.</span><span class="en">A complete hat off the mandrel, with a human resuming it when it pauses.</span></div>
+      <div class="gw"><span class="no">Tusenvis av masker og over tusen fargeskift. Med tilsyn, fordi regnestykket under utelukker alt annet på en førstegangsmaskin.</span><span class="en">Thousands of stitches and over a thousand colour changes. Supervised, because the per-stitch arithmetic below rules out anything else on a first machine.</span></div></td>
+    <td class="n"><span class="gp">35%</span></td>
+    <td class="n"><span class="gc lo">1.0%</span></td>
+    <td class="n">11 800</td>
+  </tr></tbody>
+  </table></div>
+
+  <div class="note" style="margin-top:22px">
+    <p><span class="no"><b>Og så regnestykket ingen liker.</b> En lue er 3 694 masker på rad. Selv med 99,9 % per maske er sjansen for en hel lue uten inngrep 2.5 %. For 50/50 må hver eneste maske lykkes 99.9812 % av gangene.</span><span class="en"><b>And then the arithmetic nobody likes.</b> A hat is 3,694 consecutive stitches. Even at 99.9% per stitch, the chance of a whole hat with no intervention is 2.5%. For even odds, every single stitch has to succeed 99.9812% of the time.</span></p>
+    <p><span class="no">Derfor er denne maskinen ikke designet for treffsikkerhet, men for gjenoppretting. Hekling har nøyaktig én levende løkke — maskinens tilstand er alltid gjenopprettelig. Et mislykket opptak er ikke et ødelagt plagg, det er en ny indeksering og et nytt forsøk.</span><span class="en">So this machine is not designed around accuracy, it is designed around recovery. Crochet has exactly one live loop, which means the machine state is always recoverable. A failed pickup is not a ruined garment, it is a re-index and another attempt.</span></p>
+    <p style="margin-bottom:0"><span class="no">Med gjenoppretting på 90 % av feilene blir 99,5 % per maske til rundt 2 stopp per lue. Det er en maskin du står ved siden av, ikke en du går fra. Si det høyt nå, ikke etter at den er bygget.</span><span class="en">With a retry that recovers 90% of failures, 99.5% per stitch becomes about 2 stops per hat. That is a machine you stand next to, not one you walk away from. Better said now than after it is built.</span></p>
+  </div>
 </section>
 
-<section>
+<section id="mech">
   <p class="eyebrow"><span class="no">Mekanismen</span><span class="en">The mechanism</span></p>
   <h2><span class="no">Maskinen leter aldri</span><span class="en">The machine never searches</span></h2>
-  <p class="sub"><span class="no">Det som stopper heklemaskiner er ikke masken — det er å finne forrige omgangs løkke og holde den åpen. Her holdes hver levende maske klemt åpen i en printet port, i en posisjon maskinen allerede kjenner.</span><span class="en">What defeats crochet machines is not the stitch — it is finding the previous round’s loop and holding it open. Here every live stitch is clamped open in a printed gate, at a pose the machine already knows.</span></p>
-  <div class="stats" style="margin-top:26px">
+  <p class="sub"><span class="no">Det som stopper heklemaskiner er ikke masken — det er å finne forrige omgangs løkke og holde den åpen. Her klemmes hver levende maske åpen i en printet port, i en posisjon maskinen allerede kjenner.</span><span class="en">What defeats crochet machines is not the stitch — it is finding the previous round’s loop and holding it open. Here every live stitch is clamped open in a printed gate, at a pose the machine already knows.</span></p>
+  <div class="stats" style="margin-top:24px">
     <div class="stat"><div class="k">10+8</div>
       <div class="l"><span class="no">printede porter</span><span class="en">printed gates</span></div></div>
     <div class="stat"><div class="k">8 mm</div>
       <div class="l"><span class="no">halsbredde</span><span class="en">throat width</span></div></div>
-    <div class="stat"><div class="k">3 694</div>
-      <div class="l"><span class="no">masker per lue</span><span class="en">stitches per hat</span></div></div>
+    <div class="stat hot"><div class="k">0.2 mm</div>
+      <div class="l"><span class="no">margin — alt du har</span><span class="en">margin — all of it</span></div></div>
     <div class="stat"><div class="k">1</div>
-      <div class="l"><span class="no">maskType — fastmaske</span><span class="en">stitch type — single</span></div></div>
+      <div class="l"><span class="no">masketype — fastmaske</span><span class="en">stitch type — single</span></div></div>
   </div>
-  <div class="note" style="margin-top:22px">
-    <p><span class="no">&lt;b&gt;Kammen holder, hjulet bærer.&lt;/b&gt; Et hjul alene slipper løkken så snart kroken passerer, og slapt stoff holder ingenting åpent. En kam alene trenger én port per maske — 180 like utskrifter og en mekanisme som setter inn nye underveis.</span><span class="en">&lt;b&gt;The comb holds, the wheel carries.&lt;/b&gt; A wheel alone releases the loop the moment the hook passes, and relaxed fabric holds nothing open. A comb alone needs one gate per stitch — 180 identical prints and a mechanism to insert more mid-run.</span></p>
-    <p><span class="no">Sammen opphever de hverandres svakhet. Steg 11 er der du finner ut om det stemmer.</span><span class="en">Together they cancel each other’s weakness. Step 11 is where you find out whether that is true.</span></p>
+
+  <div class="note q" style="margin-top:22px">
+    <p><span class="no"><b>Kammen holder, hjulet bærer.</b> Et hjul alene slipper løkken så snart kroken passerer. En kam alene trenger én port per maske — 180 like utskrifter og en mekanisme som setter inn nye underveis. Sammen opphever de hverandres svakhet.</span><span class="en"><b>The comb holds, the wheel carries.</b> A wheel alone releases the loop the moment the hook passes. A comb alone needs one gate per stitch — 180 identical prints and a mechanism to insert more mid-run. Together they cancel each other’s weakness.</span></p>
+    <p style="margin-bottom:0"><span class="no"><b>Og her er tallet alt henger på.</b> Halsen må slippe gjennom krokspissen (3 mm) med begge maskebein ved siden av (2 × 2.1 mm), pluss margin. Det er 7.8 mm. En åpning på 8 mm kan ikke gjenta seg hver 5.6 mm — det er aritmetikk — så kammen har to rader. Taket for to rader er 8 mm. Du har 0.2 mm å gå på.</span><span class="en"><b>And here is the number everything rests on.</b> The throat has to pass the hook nose (3 mm) with both legs of the stitch beside it (2 × 2.1 mm), plus margin. That is 7.8 mm. An 8 mm aperture cannot repeat every 5.6 mm — that is arithmetic — so the comb has two rows. The two-row ceiling is 8 mm. You have 0.2 mm in hand.</span></p>
+  </div>
+
+  <div class="note" style="margin-top:16px">
+    <p style="margin-bottom:0"><span class="no"><b>Den uløste biten, sagt rett ut.</b> Porten holder masken åpen når masken først er <em>i</em> porten. Hvordan kommer den dit? Ved at stoffet dreier forbi og kanten mates inn i en 0,7 mm innføring. Ingen har vist at det virker på bomull. Det er hele grunnen til at G0 finnes, og til at G0 koster filament i stedet for motorer.</span><span class="en"><b>The unsolved part, said plainly.</b> The gate holds the stitch open once the stitch is <em>in</em> the gate. How does it get there? By the fabric turning past and the edge feeding into a 0.7 mm lead-in. Nobody has shown that works on cotton. That is the entire reason G0 exists, and the reason G0 costs filament instead of motors.</span></p>
+  </div>
+</section>
+
+<section id="sim">
+  <p class="eyebrow"><span class="no">Simulering</span><span class="en">Simulation</span></p>
+  <h2><span class="no">Lua blir til, maske for maske</span><span class="en">The hat, one stitch at a time</span></h2>
+  <p class="sub" style="margin-bottom:20px"><span class="no">Dette er NORGE Away slik oppskriften faktisk er: omgangstall, økninger, fargesekvens og profil lest rett fra appens egne data. Ved 1× går den i maskinens virkelige takt — én maske hvert 4,8 sekund.</span><span class="en">This is NORGE Away as the pattern actually is: round counts, increases, colour sequence and profile read straight from the app’s own data. At 1× it runs at the machine’s real rate — one stitch every 4.8 seconds.</span></p>
+  <div class="sim">
+    <div class="sim-c">
+      <canvas id="simC"></canvas>
+      <div class="sim-hud">
+        <div class="hud"><b id="hStitch">0</b><span><span class="no">maske</span><span class="en">stitch</span></span></div>
+        <div class="hud"><b id="hRound">1</b><span><span class="no">omgang</span><span class="en">round</span></span></div>
+        <div class="hud"><b id="hTime">0 t</b><span><span class="no">maskintid</span><span class="en">machine time</span></span></div>
+        <div class="hud"><b id="hLeft">—</b><span><span class="no">igjen</span><span class="en">remaining</span></span></div>
+        <div class="hud"><b><span class="swatch" id="hSw"></span></b><span><span class="no">farge</span><span class="en">colour</span></span></div>
+      </div>
+    </div>
+    <div class="sim-bar">
+      <button id="simPlay"><span class="no">Spill av</span><span class="en">Play</span></button>
+      <div class="spd" id="simSpd">
+        <button data-x="1" aria-pressed="true">1×</button>
+        <button data-x="8" aria-pressed="false">8×</button>
+        <button data-x="60" aria-pressed="false">60×</button>
+        <button data-x="600" aria-pressed="false">600×</button>
+      </div>
+      <input id="simSeek" type="range" min="0" max="1000" value="0">
+      <button id="simReset"><span class="no">Nullstill</span><span class="en">Reset</span></button>
+    </div>
+  </div>
+  <div class="note" style="margin-top:18px">
+    <p><span class="no"><b>Hva som er ekte her, og hva som ikke er det.</b> Ekte: maskeantall, omgangsstruktur, økninger, fargerekkefølge, hatteprofilen, syklustiden — og derfor timetallet. Ekte: aksebevegelsene, fordi de er maskinens erklærte akser gjennom sine erklærte områder.</span><span class="en"><b>What is real here, and what is not.</b> Real: the stitch count, the round structure, the increases, the colour sequence, the hat profile, the cycle time — and therefore the hours. Real: the axis motions, because those are the machine’s declared axes moving through their declared ranges.</span></p>
+    <p style="margin-bottom:0"><span class="no">Ikke ekte: <em>garnet</em>. Hver maske tegnes som en løkke der oppskriften sier den skal være. Det er ingen fysikksimulering av bomull, og ingenting her er bevis for at en ekte tråd oppfører seg slik. En simulering som går perfekt er ikke et resultat — den er kravspesifikasjonen.</span><span class="en">Not real: <em>the yarn</em>. Each stitch is drawn as a loop at the pose the pattern puts it at. This is not a physical simulation of cotton, and nothing here is evidence that a real strand behaves this way. A simulation that runs perfectly is not a result — it is the specification.</span></p>
+  </div>
+</section>
+
+<section id="size">
+  <p class="eyebrow"><span class="no">Størrelser</span><span class="en">Sizes</span></p>
+  <h2><span class="no">Én maskin, mange luer</span><span class="en">One machine, many hats</span></h2>
+  <p class="sub" style="margin-bottom:20px"><span class="no">Omkrets og omgangstall er parametre, ikke konstanter. Alt under regnes ut på nytt fra maskinens egen rundeplan — den samme som verifikasjonen kjører alle åtte oppskriftene gjennom.</span><span class="en">Circumference and round count are parameters, not constants. Everything below is recomputed from the machine’s own round schedule — the same one the harness replays all eight patterns through.</span></p>
+  <div class="sizer">
+    <div class="sliders">
+      <div class="sl">
+        <label><span class="no">Hodeomkrets</span><span class="en">Head circumference</span> <b><span id="vCm">56</span> cm</b></label>
+        <input id="sCm" type="range" min="50" max="62" step="2" value="56">
+      </div>
+      <div class="sl">
+        <label><span class="no">Omganger</span><span class="en">Rounds</span> <b><span id="vR">42</span></b></label>
+        <input id="sR" type="range" min="29" max="58" step="1" value="42">
+      </div>
+    </div>
+    <div class="stats" style="margin-top:22px">
+      <div class="stat"><div class="k" id="vSt">—</div><div class="l"><span class="no">masker</span><span class="en">stitches</span></div></div>
+      <div class="stat"><div class="k" id="vBody">—</div><div class="l"><span class="no">masker per omgang</span><span class="en">stitches per round</span></div></div>
+      <div class="stat"><div class="k" id="vYarn">—</div><div class="l"><span class="no">garn</span><span class="en">yarn</span></div></div>
+      <div class="stat"><div class="k" id="vTime">—</div><div class="l"><span class="no">maskintid, mål</span><span class="en">machine time, target</span></div></div>
+    </div>
+    <p style="margin:18px 0 0;font-size:13.5px;color:var(--ink-faint)"><span class="no">Det eneste som må printes på nytt for en ny størrelse er mandrellen — tre deler, rundt 225 g. Alt annet på maskinen er størrelsesuavhengig, fordi porten holder én maske og bryr seg ikke om hvor mange det er av dem.</span><span class="en">The only thing that has to be reprinted for a new size is the mandrel — three parts, about 225 g. Everything else on the machine is size-independent, because a gate holds one stitch and does not care how many there are.</span></p>
   </div>
 </section>
 
 <section id="parts">
-  <p class="eyebrow"><span class="no">Trinn 1 · HEKLO Station</span><span class="en">Stage 1 · HEKLO Station</span></p>
-  <h2><span class="no">Deler du printer</span><span class="en">Parts you print</span></h2>
-  <p class="sub" style="margin-bottom:22px"><span class="no">Dra for å snurre. Alle filer er verifisert tette, én sammenhengende kropp, innenfor byggevolumet.</span><span class="en">Drag to spin. Every file is verified watertight, a single connected body, within the build volume.</span></p>
+  <p class="eyebrow"><span class="no">Deler du printer</span><span class="en">Parts you print</span></p>
+  <h2>27 <span class="no">deler · </span><span class="en">parts · </span>71 <span class="no">stk · </span><span class="en">pcs · </span>1649 g</h2>
+  <p class="sub" style="margin-bottom:22px"><span class="no">Klikk for å snurre. Hver fil er verifisert tett, én sammenhengende kropp, innenfor byggevolumet — og fargen er filamentfargen: kremhvit PETG for struktur, karmosin for mekanismen, kull for PLA, grå for TPU.</span><span class="en">Click to spin. Every file is verified watertight, a single connected body, within the build volume — and the colour is the filament colour: ivory PETG for structure, crimson for the mechanism, charcoal for PLA, grey for TPU.</span></p>
+
+  <div class="stats" style="margin-bottom:22px">
+    <div class="stat"><div class="k">21 t 48 m</div><div class="l"><span class="no">prototyp, printtid</span><span class="en">prototype, print time</span></div></div>
+    <div class="stat"><div class="k">20 t 54 m</div><div class="l"><span class="no">maskin, printtid</span><span class="en">machine, print time</span></div></div>
+    <div class="stat"><div class="k">464 kr</div><div class="l"><span class="no">filament, totalt</span><span class="en">filament, total</span></div></div>
+    <div class="stat"><div class="k">0</div><div class="l"><span class="no">deler som trenger lodd</span><span class="en">parts needing solder</span></div></div>
+  </div>
+
+  <div class="track-h"><span class="no">Trinn 1 · HEKLO Station</span><span class="en">Stage 1 · HEKLO Station</span></div>
   <div class="pgrid"><article class="pc" data-part="gate-6.stl">
-      <button class="pc-3d" data-open="gate-6.stl" data-name="Maskeport — 6.0 mm hals" data-name-en="Stitch gate — 6.0 mm throat" aria-label="Stitch gate — 6.0 mm throat"><canvas data-stl="gate-6.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="gate-6.stl" data-id="gate-6" data-name="Maskeport — 6.0 mm hals" data-name-en="Stitch gate — 6.0 mm throat" aria-label="Stitch gate — 6.0 mm throat"><canvas data-stl="gate-6.stl" data-id="gate-6"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Maskeport — 6.0 mm hals</span><span class="en">Stitch gate — 6.0 mm throat</span></h4>
         <div class="pc-m">
@@ -278,11 +460,12 @@
           <span>4×</span>
           <span>11×9×14 mm</span>
           <span>1 g</span>
+          <span class="pt">5 m</span>
         </div>
         <a class="btn-s" href="stl/gate-6.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="gate-7.stl">
-      <button class="pc-3d" data-open="gate-7.stl" data-name="Maskeport — 7.0 mm hals" data-name-en="Stitch gate — 7.0 mm throat" aria-label="Stitch gate — 7.0 mm throat"><canvas data-stl="gate-7.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="gate-7.stl" data-id="gate-7" data-name="Maskeport — 7.0 mm hals" data-name-en="Stitch gate — 7.0 mm throat" aria-label="Stitch gate — 7.0 mm throat"><canvas data-stl="gate-7.stl" data-id="gate-7"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Maskeport — 7.0 mm hals</span><span class="en">Stitch gate — 7.0 mm throat</span></h4>
         <div class="pc-m">
@@ -290,11 +473,12 @@
           <span>4×</span>
           <span>11×9×14 mm</span>
           <span>1 g</span>
+          <span class="pt">5 m</span>
         </div>
         <a class="btn-s" href="stl/gate-7.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="gate-7p5.stl">
-      <button class="pc-3d" data-open="gate-7p5.stl" data-name="Maskeport — 7.5 mm hals" data-name-en="Stitch gate — 7.5 mm throat" aria-label="Stitch gate — 7.5 mm throat"><canvas data-stl="gate-7p5.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="gate-7p5.stl" data-id="gate-7p5" data-name="Maskeport — 7.5 mm hals" data-name-en="Stitch gate — 7.5 mm throat" aria-label="Stitch gate — 7.5 mm throat"><canvas data-stl="gate-7p5.stl" data-id="gate-7p5"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Maskeport — 7.5 mm hals</span><span class="en">Stitch gate — 7.5 mm throat</span></h4>
         <div class="pc-m">
@@ -302,11 +486,12 @@
           <span>4×</span>
           <span>11×9×14 mm</span>
           <span>1 g</span>
+          <span class="pt">5 m</span>
         </div>
         <a class="btn-s" href="stl/gate-7p5.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="gate-8.stl">
-      <button class="pc-3d" data-open="gate-8.stl" data-name="Maskeport — 8.0 mm hals" data-name-en="Stitch gate — 8.0 mm throat" aria-label="Stitch gate — 8.0 mm throat"><canvas data-stl="gate-8.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="gate-8.stl" data-id="gate-8" data-name="Maskeport — 8.0 mm hals" data-name-en="Stitch gate — 8.0 mm throat" aria-label="Stitch gate — 8.0 mm throat"><canvas data-stl="gate-8.stl" data-id="gate-8"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Maskeport — 8.0 mm hals</span><span class="en">Stitch gate — 8.0 mm throat</span></h4>
         <div class="pc-m">
@@ -314,23 +499,25 @@
           <span>12×</span>
           <span>11×9×14 mm</span>
           <span>1 g</span>
+          <span class="pt">5 m</span>
         </div>
         <a class="btn-s" href="stl/gate-8.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="comb-segment.stl">
-      <button class="pc-3d" data-open="comb-segment.stl" data-name="Holdekam — 3 porter" data-name-en="Retention comb — 3-gate bench segment" aria-label="Retention comb — 3-gate bench segment"><canvas data-stl="comb-segment.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="comb-segment.stl" data-id="comb-segment" data-name="Holdekam — 3 porter" data-name-en="Retention comb — 3-gate bench segment" aria-label="Retention comb — 3-gate bench segment"><canvas data-stl="comb-segment.stl" data-id="comb-segment"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Holdekam — 3 porter</span><span class="en">Retention comb — 3-gate bench segment</span></h4>
         <div class="pc-m">
           <span class="mat m-PETG">PETG</span>
           <span>1×</span>
-          <span>54×18×10 mm</span>
-          <span>11 g</span>
+          <span>54×18×14 mm</span>
+          <span>14 g</span>
+          <span class="pt">21 m</span>
         </div>
         <a class="btn-s" href="stl/comb-segment.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="wheel-tooth.stl">
-      <button class="pc-3d" data-open="wheel-tooth.stl" data-name="Portehjultann" data-name-en="Gate wheel tooth" aria-label="Gate wheel tooth"><canvas data-stl="wheel-tooth.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="wheel-tooth.stl" data-id="wheel-tooth" data-name="Portehjultann" data-name-en="Gate wheel tooth" aria-label="Gate wheel tooth"><canvas data-stl="wheel-tooth.stl" data-id="wheel-tooth"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Portehjultann</span><span class="en">Gate wheel tooth</span></h4>
         <div class="pc-m">
@@ -338,23 +525,38 @@
           <span>8×</span>
           <span>34×14×6 mm</span>
           <span>2 g</span>
+          <span class="pt">5 m</span>
         </div>
         <a class="btn-s" href="stl/wheel-tooth.stl" download>STL</a>
       </div>
-    </article><article class="pc" data-part="needle-collet.stl">
-      <button class="pc-3d" data-open="needle-collet.stl" data-name="Nalholder" data-name-en="Latch-needle collet" aria-label="Latch-needle collet"><canvas data-stl="needle-collet.stl"></canvas><span class="pc-zoom">+</span></button>
+    </article><article class="pc" data-part="crochet-hook.stl">
+      <button class="pc-3d" data-open="crochet-hook.stl" data-id="crochet-hook" data-name="Printet heklekrok — 3.0 mm spiss" data-name-en="Printed crochet hook — 3.0 mm nose" aria-label="Printed crochet hook — 3.0 mm nose"><canvas data-stl="crochet-hook.stl" data-id="crochet-hook"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
-        <h4><span class="no">Nalholder</span><span class="en">Latch-needle collet</span></h4>
+        <h4><span class="no">Printet heklekrok — 3.0 mm spiss</span><span class="en">Printed crochet hook — 3.0 mm nose</span></h4>
+        <div class="pc-m">
+          <span class="mat m-PETG">PETG</span>
+          <span>5×</span>
+          <span>5×5×61 mm</span>
+          <span>1 g</span>
+          <span class="pt">18 m</span>
+        </div>
+        <a class="btn-s" href="stl/crochet-hook.stl" download>STL</a>
+      </div>
+    </article><article class="pc" data-part="hook-collet.stl">
+      <button class="pc-3d" data-open="hook-collet.stl" data-id="hook-collet" data-name="Krokholder" data-name-en="Hook collet" aria-label="Hook collet"><canvas data-stl="hook-collet.stl" data-id="hook-collet"></canvas><span class="pc-zoom">+</span></button>
+      <div class="pc-b">
+        <h4><span class="no">Krokholder</span><span class="en">Hook collet</span></h4>
         <div class="pc-m">
           <span class="mat m-PETG">PETG</span>
           <span>2×</span>
           <span>26×31×29 mm</span>
-          <span>10 g</span>
+          <span>9 g</span>
+          <span class="pt">19 m</span>
         </div>
-        <a class="btn-s" href="stl/needle-collet.stl" download>STL</a>
+        <a class="btn-s" href="stl/hook-collet.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="rail-bracket.stl">
-      <button class="pc-3d" data-open="rail-bracket.stl" data-name="Skinnebrakett" data-name-en="MGN9 rail bracket to 2020" aria-label="MGN9 rail bracket to 2020"><canvas data-stl="rail-bracket.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="rail-bracket.stl" data-id="rail-bracket" data-name="Skinnebrakett" data-name-en="MGN9 rail bracket to 2020" aria-label="MGN9 rail bracket to 2020"><canvas data-stl="rail-bracket.stl" data-id="rail-bracket"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Skinnebrakett</span><span class="en">MGN9 rail bracket to 2020</span></h4>
         <div class="pc-m">
@@ -362,11 +564,12 @@
           <span>2×</span>
           <span>70×47×9 mm</span>
           <span>24 g</span>
+          <span class="pt">31 m</span>
         </div>
         <a class="btn-s" href="stl/rail-bracket.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="nema17-mount.stl">
-      <button class="pc-3d" data-open="nema17-mount.stl" data-name="Motorfeste med temperaturfoler" data-name-en="NEMA17 mount with thermistor pocket" aria-label="NEMA17 mount with thermistor pocket"><canvas data-stl="nema17-mount.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="nema17-mount.stl" data-id="nema17-mount" data-name="Motorfeste med temperaturfoler" data-name-en="NEMA17 mount with thermistor pocket" aria-label="NEMA17 mount with thermistor pocket"><canvas data-stl="nema17-mount.stl" data-id="nema17-mount"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Motorfeste med temperaturfoler</span><span class="en">NEMA17 mount with thermistor pocket</span></h4>
         <div class="pc-m">
@@ -374,23 +577,25 @@
           <span>2×</span>
           <span>70×42×8 mm</span>
           <span>24 g</span>
+          <span class="pt">31 m</span>
         </div>
         <a class="btn-s" href="stl/nema17-mount.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="camera-pod.stl">
-      <button class="pc-3d" data-open="camera-pod.stl" data-name="Kamerahus" data-name-en="Camera pod" aria-label="Camera pod"><canvas data-stl="camera-pod.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="camera-pod.stl" data-id="camera-pod" data-name="Kamerahus" data-name-en="Camera pod" aria-label="Camera pod"><canvas data-stl="camera-pod.stl" data-id="camera-pod"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Kamerahus</span><span class="en">Camera pod</span></h4>
         <div class="pc-m">
           <span class="mat m-PLA">PLA</span>
           <span>1×</span>
-          <span>105×38×27 mm</span>
-          <span>24 g</span>
+          <span>116×38×27 mm</span>
+          <span>26 g</span>
+          <span class="pt">31 m</span>
         </div>
         <a class="btn-s" href="stl/camera-pod.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="tension-dancer.stl">
-      <button class="pc-3d" data-open="tension-dancer.stl" data-name="Garnstrammer" data-name-en="Yarn tension dancer" aria-label="Yarn tension dancer"><canvas data-stl="tension-dancer.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="tension-dancer.stl" data-id="tension-dancer" data-name="Garnstrammer" data-name-en="Yarn tension dancer" aria-label="Yarn tension dancer"><canvas data-stl="tension-dancer.stl" data-id="tension-dancer"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Garnstrammer</span><span class="en">Yarn tension dancer</span></h4>
         <div class="pc-m">
@@ -398,11 +603,12 @@
           <span>1×</span>
           <span>70×12×9 mm</span>
           <span>5 g</span>
+          <span class="pt">9 m</span>
         </div>
         <a class="btn-s" href="stl/tension-dancer.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="yarn-finger.stl">
-      <button class="pc-3d" data-open="yarn-finger.stl" data-name="Garnfingerarm" data-name-en="Yarn-over finger arm" aria-label="Yarn-over finger arm"><canvas data-stl="yarn-finger.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="yarn-finger.stl" data-id="yarn-finger" data-name="Garnfingerarm" data-name-en="Yarn-over finger arm" aria-label="Yarn-over finger arm"><canvas data-stl="yarn-finger.stl" data-id="yarn-finger"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Garnfingerarm</span><span class="en">Yarn-over finger arm</span></h4>
         <div class="pc-m">
@@ -410,26 +616,66 @@
           <span>1×</span>
           <span>46×12×5 mm</span>
           <span>2 g</span>
+          <span class="pt">5 m</span>
         </div>
         <a class="btn-s" href="stl/yarn-finger.stl" download>STL</a>
       </div>
+    </article><article class="pc" data-part="swift-base.stl">
+      <button class="pc-3d" data-open="swift-base.stl" data-id="swift-base" data-name="Garnsnurrer — fot" data-name-en="Yarn spinner base" aria-label="Yarn spinner base"><canvas data-stl="swift-base.stl" data-id="swift-base"></canvas><span class="pc-zoom">+</span></button>
+      <div class="pc-b">
+        <h4><span class="no">Garnsnurrer — fot</span><span class="en">Yarn spinner base</span></h4>
+        <div class="pc-m">
+          <span class="mat m-PETG">PETG</span>
+          <span>4×</span>
+          <span>78×78×10 mm</span>
+          <span>44 g</span>
+          <span class="pt">56 m</span>
+        </div>
+        <a class="btn-s" href="stl/swift-base.stl" download>STL</a>
+      </div>
+    </article><article class="pc" data-part="swift-spindle.stl">
+      <button class="pc-3d" data-open="swift-spindle.stl" data-id="swift-spindle" data-name="Garnsnurrer — spindel" data-name-en="Yarn spinner spindle" aria-label="Yarn spinner spindle"><canvas data-stl="swift-spindle.stl" data-id="swift-spindle"></canvas><span class="pc-zoom">+</span></button>
+      <div class="pc-b">
+        <h4><span class="no">Garnsnurrer — spindel</span><span class="en">Yarn spinner spindle</span></h4>
+        <div class="pc-m">
+          <span class="mat m-PETG">PETG</span>
+          <span>4×</span>
+          <span>62×62×76 mm</span>
+          <span>18 g</span>
+          <span class="pt">43 m</span>
+        </div>
+        <a class="btn-s" href="stl/swift-spindle.stl" download>STL</a>
+      </div>
+    </article><article class="pc" data-part="swift-guide.stl">
+      <button class="pc-3d" data-open="swift-guide.stl" data-id="swift-guide" data-name="Garnsnurrer — føringsarm" data-name-en="Yarn spinner guide arm" aria-label="Yarn spinner guide arm"><canvas data-stl="swift-guide.stl" data-id="swift-guide"></canvas><span class="pc-zoom">+</span></button>
+      <div class="pc-b">
+        <h4><span class="no">Garnsnurrer — føringsarm</span><span class="en">Yarn spinner guide arm</span></h4>
+        <div class="pc-m">
+          <span class="mat m-PETG">PETG</span>
+          <span>4×</span>
+          <span>62×19×118 mm</span>
+          <span>24 g</span>
+          <span class="pt">1 t 01 m</span>
+        </div>
+        <a class="btn-s" href="stl/swift-guide.stl" download>STL</a>
+      </div>
     </article><article class="pc" data-part="bench-base.stl">
-      <button class="pc-3d" data-open="bench-base.stl" data-name="Benkeplate" data-name-en="Bench base plate" aria-label="Bench base plate"><canvas data-stl="bench-base.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="bench-base.stl" data-id="bench-base" data-name="Benkeplate" data-name-en="Bench base plate" aria-label="Bench base plate"><canvas data-stl="bench-base.stl" data-id="bench-base"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Benkeplate</span><span class="en">Bench base plate</span></h4>
         <div class="pc-m">
           <span class="mat m-PETG">PETG</span>
           <span>1×</span>
           <span>220×120×8 mm</span>
-          <span>156 g</span>
+          <span>157 g</span>
+          <span class="pt">3 t 10 m</span>
         </div>
         <a class="btn-s" href="stl/bench-base.stl" download>STL</a>
       </div>
     </article></div>
-
-  <p class="eyebrow" style="margin-top:44px"><span class="no">Trinn 2 · HEKLO M1</span><span class="en">Stage 2 · HEKLO M1</span></p>
+  <div class="track-h"><span class="no">Trinn 2 · HEKLO M1</span><span class="en">Stage 2 · HEKLO M1</span></div>
   <div class="pgrid"><article class="pc" data-part="mandrel-crown.stl">
-      <button class="pc-3d" data-open="mandrel-crown.stl" data-name="Mandrell — kronedel" data-name-en="Mandrel — crown dome" aria-label="Mandrel — crown dome"><canvas data-stl="mandrel-crown.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="mandrel-crown.stl" data-id="mandrel-crown" data-name="Mandrell — kronedel" data-name-en="Mandrel — crown dome" aria-label="Mandrel — crown dome"><canvas data-stl="mandrel-crown.stl" data-id="mandrel-crown"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Mandrell — kronedel</span><span class="en">Mandrel — crown dome</span></h4>
         <div class="pc-m">
@@ -437,11 +683,12 @@
           <span>1×</span>
           <span>166×166×48 mm</span>
           <span>44 g</span>
+          <span class="pt">1 t 06 m</span>
         </div>
         <a class="btn-s" href="stl/mandrel-crown.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="mandrel-wall.stl">
-      <button class="pc-3d" data-open="mandrel-wall.stl" data-name="Mandrell — veggdel" data-name-en="Mandrel — wall section" aria-label="Mandrel — wall section"><canvas data-stl="mandrel-wall.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="mandrel-wall.stl" data-id="mandrel-wall" data-name="Mandrell — veggdel" data-name-en="Mandrel — wall section" aria-label="Mandrel — wall section"><canvas data-stl="mandrel-wall.stl" data-id="mandrel-wall"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Mandrell — veggdel</span><span class="en">Mandrel — wall section</span></h4>
         <div class="pc-m">
@@ -449,11 +696,12 @@
           <span>1×</span>
           <span>192×193×77 mm</span>
           <span>122 g</span>
+          <span class="pt">2 t 47 m</span>
         </div>
         <a class="btn-s" href="stl/mandrel-wall.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="mandrel-brim.stl">
-      <button class="pc-3d" data-open="mandrel-brim.stl" data-name="Mandrell — bremskjørt" data-name-en="Mandrel — brim skirt" aria-label="Mandrel — brim skirt"><canvas data-stl="mandrel-brim.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="mandrel-brim.stl" data-id="mandrel-brim" data-name="Mandrell — bremskjørt" data-name-en="Mandrel — brim skirt" aria-label="Mandrel — brim skirt"><canvas data-stl="mandrel-brim.stl" data-id="mandrel-brim"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Mandrell — bremskjørt</span><span class="en">Mandrel — brim skirt</span></h4>
         <div class="pc-m">
@@ -461,11 +709,12 @@
           <span>1×</span>
           <span>240×240×22 mm</span>
           <span>59 g</span>
+          <span class="pt">1 t 16 m</span>
         </div>
         <a class="btn-s" href="stl/mandrel-brim.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="platter.stl">
-      <button class="pc-3d" data-open="platter.stl" data-name="Dreieskive med remspor" data-name-en="Turntable platter (GT2 rim groove)" aria-label="Turntable platter (GT2 rim groove)"><canvas data-stl="platter.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="platter.stl" data-id="platter" data-name="Dreieskive med remspor" data-name-en="Turntable platter (GT2 rim groove)" aria-label="Turntable platter (GT2 rim groove)"><canvas data-stl="platter.stl" data-id="platter"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Dreieskive med remspor</span><span class="en">Turntable platter (GT2 rim groove)</span></h4>
         <div class="pc-m">
@@ -473,11 +722,12 @@
           <span>1×</span>
           <span>240×240×10 mm</span>
           <span>328 g</span>
+          <span class="pt">6 t 35 m</span>
         </div>
         <a class="btn-s" href="stl/platter.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="hub-adapter.stl">
-      <button class="pc-3d" data-open="hub-adapter.stl" data-name="Navadapter" data-name-en="Hub adapter — lazy-susan to platter" aria-label="Hub adapter — lazy-susan to platter"><canvas data-stl="hub-adapter.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="hub-adapter.stl" data-id="hub-adapter" data-name="Navadapter" data-name-en="Hub adapter — lazy-susan to platter" aria-label="Hub adapter — lazy-susan to platter"><canvas data-stl="hub-adapter.stl" data-id="hub-adapter"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Navadapter</span><span class="en">Hub adapter — lazy-susan to platter</span></h4>
         <div class="pc-m">
@@ -485,23 +735,25 @@
           <span>1×</span>
           <span>130×130×8 mm</span>
           <span>111 g</span>
+          <span class="pt">2 t 14 m</span>
         </div>
         <a class="btn-s" href="stl/hub-adapter.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="comb-arc.stl">
-      <button class="pc-3d" data-open="comb-arc.stl" data-name="Holdekam — 10 porter" data-name-en="Retention comb — 10 gates" aria-label="Retention comb — 10 gates"><canvas data-stl="comb-arc.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="comb-arc.stl" data-id="comb-arc" data-name="Holdekam — 10 porter" data-name-en="Retention comb — 10 gates" aria-label="Retention comb — 10 gates"><canvas data-stl="comb-arc.stl" data-id="comb-arc"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Holdekam — 10 porter</span><span class="en">Retention comb — 10 gates</span></h4>
         <div class="pc-m">
           <span class="mat m-PETG">PETG</span>
           <span>1×</span>
-          <span>98×19×12 mm</span>
-          <span>24 g</span>
+          <span>98×19×16 mm</span>
+          <span>30 g</span>
+          <span class="pt">41 m</span>
         </div>
         <a class="btn-s" href="stl/comb-arc.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="wheel-hub.stl">
-      <button class="pc-3d" data-open="wheel-hub.stl" data-name="Portehjulnav (8 tenner)" data-name-en="Gate wheel hub (8 teeth)" aria-label="Gate wheel hub (8 teeth)"><canvas data-stl="wheel-hub.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="wheel-hub.stl" data-id="wheel-hub" data-name="Portehjulnav (8 tenner)" data-name-en="Gate wheel hub (8 teeth)" aria-label="Gate wheel hub (8 teeth)"><canvas data-stl="wheel-hub.stl" data-id="wheel-hub"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Portehjulnav (8 tenner)</span><span class="en">Gate wheel hub (8 teeth)</span></h4>
         <div class="pc-m">
@@ -509,11 +761,12 @@
           <span>1×</span>
           <span>54×54×10 mm</span>
           <span>18 g</span>
+          <span class="pt">24 m</span>
         </div>
         <a class="btn-s" href="stl/wheel-hub.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="turret-drum.stl">
-      <button class="pc-3d" data-open="turret-drum.stl" data-name="Garnkarusell — 4 farger" data-name-en="Yarn turret — 4 colours" aria-label="Yarn turret — 4 colours"><canvas data-stl="turret-drum.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="turret-drum.stl" data-id="turret-drum" data-name="Garnkarusell — 4 farger" data-name-en="Yarn turret — 4 colours" aria-label="Yarn turret — 4 colours"><canvas data-stl="turret-drum.stl" data-id="turret-drum"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Garnkarusell — 4 farger</span><span class="en">Yarn turret — 4 colours</span></h4>
         <div class="pc-m">
@@ -521,11 +774,12 @@
           <span>1×</span>
           <span>86×86×14 mm</span>
           <span>54 g</span>
+          <span class="pt">1 t 08 m</span>
         </div>
         <a class="btn-s" href="stl/turret-drum.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="takedown-skirt.stl">
-      <button class="pc-3d" data-open="takedown-skirt.stl" data-name="Nedtrekkskjørt" data-name-en="Take-down skirt" aria-label="Take-down skirt"><canvas data-stl="takedown-skirt.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="takedown-skirt.stl" data-id="takedown-skirt" data-name="Nedtrekkskjørt" data-name-en="Take-down skirt" aria-label="Take-down skirt"><canvas data-stl="takedown-skirt.stl" data-id="takedown-skirt"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Nedtrekkskjørt</span><span class="en">Take-down skirt</span></h4>
         <div class="pc-m">
@@ -533,11 +787,12 @@
           <span>1×</span>
           <span>206×206×6 mm</span>
           <span>30 g</span>
+          <span class="pt">1 t 33 m</span>
         </div>
         <a class="btn-s" href="stl/takedown-skirt.stl" download>STL</a>
       </div>
     </article><article class="pc" data-part="column-bracket.stl">
-      <button class="pc-3d" data-open="column-bracket.stl" data-name="Søylebrakett" data-name-en="Station column bracket" aria-label="Station column bracket"><canvas data-stl="column-bracket.stl"></canvas><span class="pc-zoom">+</span></button>
+      <button class="pc-3d" data-open="column-bracket.stl" data-id="column-bracket" data-name="Søylebrakett" data-name-en="Station column bracket" aria-label="Station column bracket"><canvas data-stl="column-bracket.stl" data-id="column-bracket"></canvas><span class="pc-zoom">+</span></button>
       <div class="pc-b">
         <h4><span class="no">Søylebrakett</span><span class="en">Station column bracket</span></h4>
         <div class="pc-m">
@@ -545,88 +800,110 @@
           <span>2×</span>
           <span>90×110×8 mm</span>
           <span>78 g</span>
+          <span class="pt">1 t 35 m</span>
         </div>
         <a class="btn-s" href="stl/column-bracket.stl" download>STL</a>
       </div>
     </article></div>
+  <p style="margin-top:18px;font-size:13.5px;color:var(--ink-faint)"><span class="no">Printtidene er anslag: volum delt på reell flythastighet for en X1 Carbon, pluss lagoverhead. En slicer vil være uenig med 10–20 %. Ingen del her har møtt en slicer ennå, og det står i filen.</span><span class="en">Print times are estimates: volume over a real volumetric flow rate for an X1 Carbon, plus per-layer overhead. A slicer will disagree by 10–20%. No part here has met a slicer yet, and the file says so.</span></p>
 </section>
 
 <section id="build">
   <p class="eyebrow"><span class="no">Monteringsanvisning</span><span class="en">Assembly guide</span></p>
   <h2><span class="no">Bygg — 24 steg</span><span class="en">Build — 24 steps</span></h2>
-  <p class="sub" style="margin-bottom:10px"><span class="no">Nye deler i hvert steg vises i rødt. Alt som allerede er montert står i beige, resten er gjennomsiktig.</span><span class="en">New parts in each step are shown in red. What is already built is beige, the rest is ghosted.</span></p>
-
+  <p class="sub" style="margin-bottom:10px"><span class="no">Hvert steg viser maskinen slik den står akkurat da — nye deler flyr inn på plass i rødt, det som allerede er montert står i sin egen farge, resten er gjennomsiktig. Kjøpte deler er med: skinne, motorer, lager, rem, strømforsyning. Trykk ▶ for å se steget igjen.</span><span class="en">Each step shows the machine exactly as it stands — new parts fly into place in red, what is already built sits in its own colour, the rest is ghosted. Bought hardware is in the picture: rail, motors, bearings, belt, supply. Press ▶ to replay a step.</span></p>
+  <div class="stats" style="margin:22px 0 6px">
+    <div class="stat"><div class="k">11.9 t</div>
+      <div class="l"><span class="no">bygg, prototyp</span><span class="en">build, prototype</span></div></div>
+    <div class="stat"><div class="k">+9.6 t</div>
+      <div class="l"><span class="no">bygg, maskinen</span><span class="en">build, the machine</span></div></div>
+    <div class="stat"><div class="k">5 t 29</div>
+      <div class="l"><span class="no">drift, én lue</span><span class="en">operating, one hat</span></div></div>
+    <div class="stat"><div class="k">6 248 kr</div>
+      <div class="l"><span class="no">deler, trinn 1</span><span class="en">parts, stage 1</span></div></div>
+  </div>
   <div class="track-h"><span class="no">Trinn 1 · Station · steg 1–12</span><span class="en">Stage 1 · Station · steps 1–12</span></div>
   <div class="steps"><article class="st" id="s1" data-step="1">
-    <div class="st-3d"><canvas data-assembly-step="1"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="1"></canvas><button class="st-play" data-replay="1" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">01</span>
-        <h3><span class="no">Skriv ut passkontrollen først</span><span class="en">Print the fit check first</span></h3>
+        <h3><span class="no">Skriv ut fangsttesten — ikke noe annet ennå</span><span class="en">Print the catch test — nothing else yet</span></h3>
         <span class="st-t">30 min</span></div>
-      <p><span class="no">Skriv ut én port og én hjultann — 20 minutter. Trykk tungen inn i tannsetet. Fast tommeltrykk, og den skal sitte når du snur den opp ned.</span><span class="en">Print one gate and one wheel tooth — 20 minutes. Push the gate tongue into the tooth seat. Firm thumb pressure, and it stays put upside down.</span></p>
+      <p><span class="no">Fire porter, ett kamsegment, én krok. To timer på platen og rundt 40 g. Ikke bestill noe før steg 2 har svart.</span><span class="en">Four gates, one comb segment, one hook. Two hours on the plate and about 40 g. Do not order anything until step 2 has answered.</span></p>
       
       
-      <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Den sitter med tommelen og faller ikke ut opp ned. Hvis ikke: juster kompensasjon i slicer — ikke modellen.</span><span class="en">It seats by thumb and does not fall out inverted. If not, adjust slicer compensation — not the model.</span></p>
+      <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Portene sitter i kammen med tommelen og faller ikke ut når du snur den opp ned.</span><span class="en">Gates seat in the comb by thumb and do not fall out when you turn it upside down.</span></p>
     </div>
   </article><article class="st" id="s2" data-step="2">
-    <div class="st-3d"><canvas data-assembly-step="2"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="2"></canvas><button class="st-play" data-replay="2" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">02</span>
-        <h3><span class="no">Skriv ut resten</span><span class="en">Print the rest</span></h3>
-        <span class="st-t">40 min</span></div>
-      <p><span class="no">343 g. PETG til alt som bærer eller sitter nær en motor, PLA til kamerahuset. Skriv ut alle fire halsbredder — benketesten avgjør.</span><span class="en">343 g. PETG for anything structural or near a motor, PLA for the camera pod. Print all four gate widths — the bench test picks the winner.</span></p>
+        <h3><span class="no">G0 — fanger en port en levende maske?</span><span class="en">G0 — does a gate catch a live stitch?</span></h3>
+        <span class="st-t">120 min</span></div>
+      <p><span class="no">Hekle en slange på 100 masker for hånd. Hold kammen mot arbeidskanten og drei slangen forbi — for hånd, uten motorer. Tell hvor mange av 100 maskemunner som går inn i en hals av seg selv.</span><span class="en">Crochet a 100-stitch tube by hand. Hold the comb against the working edge and turn the tube past it — by hand, no motors. Count how many of 100 stitch mouths enter a throat on their own.</span></p>
       
-      
-      <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Ingen lagsprekker, ingen løftede hjørner.</span><span class="en">No layer splits, no lifted corners.</span></p>
+      <p class="wn"><span class="no">Dette er hele prosjektet på én kveld. Alle tidligere utkast hoppet over det og bestilte motorer med én gang. Klarer ikke porten å ta en maske av en slange du dreier rolig for hånd, klarer den det heller ikke i fart.</span><span class="en">This is the whole project in one evening. Every design before this one skipped it and went straight to ordering motors. If a gate will not take a stitch off a tube you are turning gently by hand, it will not take one at speed.</span></p>
+      <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">80 av 100 eller bedre, ved en av halsbreddene. Under 50: stopp og les merknaden — pengene ligger fortsatt i lomma.</span><span class="en">80 of 100 or better, at some throat width. Below 50, stop and read the note — the money is still in your pocket.</span></p>
     </div>
   </article><article class="st" id="s3" data-step="3">
-    <div class="st-3d"><canvas data-assembly-step="3"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="3"></canvas><button class="st-play" data-replay="3" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">03</span>
-        <h3><span class="no">Smelt inn innsatsene</span><span class="en">Melt in the inserts</span></h3>
-        <span class="st-t">20 min</span></div>
-      <p><span class="no">Loddebolt på 240 °C. Fire M4 i bunnplaten, to M3 i kamerahuset. Rett ned, vinkelrett på flaten.</span><span class="en">Soldering iron at 240 °C. Four M4 in the base, two M3 in the camera pod. Straight down, square to the surface.</span></p>
-      <ul class="fx"><li><b>4×</b> <span class="no">M4 gjengeinnsats</span><span class="en">M4 brass insert</span></li><li><b>2×</b> <span class="no">M3 gjengeinnsats</span><span class="en">M3 brass insert</span></li></ul>
-      <p class="wn"><span class="no">Smeltet plast og 240 °C. Luft ut.</span><span class="en">Molten plastic and a 240 °C iron. Ventilate.</span></p>
-      <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">I flukt eller så vidt under, og rett.</span><span class="en">Flush or a hair below, and square.</span></p>
+        <h3><span class="no">Skriv ut resten</span><span class="en">Print the rest</span></h3>
+        <span class="st-t">40 min</span></div>
+      <p><span class="no">PETG til alt som bærer eller sitter nær en motor, PLA til kamerahuset, TPU til skjørtet. Skriv ut alle fire halsbredder — G2 avgjør.</span><span class="en">PETG for anything structural or near a motor, PLA for the camera pod, TPU for the skirt. Print all four throat widths — G2 picks the winner.</span></p>
+      
+      
+      <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Ingen lagsprekker, ingen løftede hjørner, og krokspissen er glatt under en tommelnegl.</span><span class="en">No layer splits, no lifted corners, and the hook nose is smooth under a thumbnail.</span></p>
     </div>
   </article><article class="st" id="s4" data-step="4">
-    <div class="st-3d"><canvas data-assembly-step="4"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="4"></canvas><button class="st-play" data-replay="4" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">04</span>
         <h3><span class="no">Skinne og bratter</span><span class="en">Rail and brackets</span></h3>
         <span class="st-t">30 min</span></div>
       <p><span class="no">Kapp 200 mm MGN9, avgrad begge ender. Bratter på bunnplaten, skinne på brattene, fingerstramt. Skyv vognen på fra én ende.</span><span class="en">Cut 200 mm of MGN9, deburr both ends. Brackets to the base, rail to the brackets, finger-tight. Slide the carriage on from one end.</span></p>
-      <ul class="fx"><li><b>6×</b> <span class="no">M3 × 10 unbrakoskrue</span><span class="en">M3 × 10 cap screw</span></li><li><b>4×</b> <span class="no">M5 × 10 linseskrue</span><span class="en">M5 × 10 button screw</span></li><li><b>4×</b> <span class="no">M5 T-mutter, 2020</span><span class="en">M5 T-nut, 2020</span></li></ul>
+      <ul class="fx"><li><b>6×</b> <span class="no">M3 × 10 unbrakoskrue</span><span class="en">M3 × 10 cap screw</span></li><li><b>4×</b> <span class="no">M5 × 10 linseskrue</span><span class="en">M5 × 10 button screw</span></li><li><b>4×</b> <span class="no">M5 T-mutter, 2020</span><span class="en">M5 T-nut, 2020</span></li><li><b>4×</b> <span class="no">M4 × 12 unbrakoskrue</span><span class="en">M4 × 12 cap screw</span></li><li><b>4×</b> <span class="no">M4 låsemutter</span><span class="en">M4 nyloc nut</span></li></ul>
       <p class="wn"><span class="no">Kjør aldri vognen av skinneenden — kulene faller ut og den er ødelagt.</span><span class="en">Never run the carriage off the rail end — the balls fall out and it is finished.</span></p>
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Vognen glir hele veien med én finger, uten trange punkter.</span><span class="en">The carriage slides the full length with one finger, no tight spot.</span></p>
     </div>
   </article><article class="st" id="s5" data-step="5">
-    <div class="st-3d"><canvas data-assembly-step="5"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="5"></canvas><button class="st-play" data-replay="5" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">05</span>
-        <h3><span class="no">Nålholder</span><span class="en">Needle collet</span></h3>
-        <span class="st-t">20 min</span></div>
-      <p><span class="no">Holderen på vognen. Ryanål i hullet, klaffen opp og mot kammen. Klem sammen klemsporet.</span><span class="en">Collet onto the carriage. Ryanål into the bore, latch up and facing the comb. Pinch the clamp slit.</span></p>
+        <h3><span class="no">Krok og krokholder</span><span class="en">Hook and collet</span></h3>
+        <span class="st-t">25 min</span></div>
+      <p><span class="no">Holderen på vognen. Printet krok i hullet, flate mot flate, halsen mot kammen. Klem klemsporet mot en fastlåst mutter.</span><span class="en">Collet onto the carriage. Printed hook into the bore, flat against the flat, throat facing the comb. Pinch the clamp slit onto a captive nut.</span></p>
       <ul class="fx"><li><b>4×</b> <span class="no">M3 × 10 unbrakoskrue</span><span class="en">M3 × 10 cap screw</span></li><li><b>1×</b> <span class="no">M3 × 20 unbrakoskrue</span><span class="en">M3 × 20 cap screw</span></li><li><b>1×</b> <span class="no">M3 låsemutter</span><span class="en">M3 nyloc nut</span></li></ul>
-      <p class="wn"><span class="no">Fingerstramt pluss en kvart omdreining. Du klemmer på printet plast.</span><span class="en">Hand tight plus a quarter turn. You are clamping printed plastic.</span></p>
-      <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Nålen lar seg ikke vri for hånd, og klaffen svinger fritt.</span><span class="en">The needle will not twist by hand, and the latch swings free.</span></p>
+      <p class="wn"><span class="no">Fingerstramt pluss en kvart omdreining. Du klemmer på printet plast. Hvis garnet hekter seg: bytt til en ny krok før du endrer noe annet — den er forbruksvare, og du printet fem.</span><span class="en">Hand tight plus a quarter turn. You are clamping printed plastic. If the yarn catches, swap to a fresh hook before you change anything else — it is a consumable and you printed five.</span></p>
+      <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">G1: før kroken gjennom en holdt maske 50 ganger. 50/50 uten splittet garn og uten hekting.</span><span class="en">G1: push the hook through a held stitch 50 times. 50/50 passes with no split yarn and no snag.</span></p>
     </div>
   </article><article class="st" id="s6" data-step="6">
-    <div class="st-3d"><canvas data-assembly-step="6"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="6"></canvas><button class="st-play" data-replay="6" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">06</span>
         <h3><span class="no">Monter kammen</span><span class="en">Mount the comb</span></h3>
         <span class="st-t">20 min</span></div>
-      <p><span class="no">Kammen på bunnplaten, lommene mot nålen. Tre porter i — merk forskyvningen: 1 og 3 i nær rad, 2 i fjern rad. La ørebolt­ene være løse.</span><span class="en">Comb to the base, pockets facing the needle. Three gates in — note the stagger: 1 and 3 near row, 2 far row. Leave the ear bolts loose.</span></p>
+      <p><span class="no">Kammen på bunnplaten, munnene mot kroken. Tre porter i — merk forskyvningen: annenhver port sitter 3 mm høyere og heller bakover, så alle tre halser står på én linje.</span><span class="en">Comb to the base, mouths facing the hook. Three gates in — note the stagger: alternate gates sit 3 mm higher and tilt back, so all three throats present on one line.</span></p>
       <ul class="fx"><li><b>2×</b> <span class="no">M3 × 16 unbrakoskrue</span><span class="en">M3 × 16 cap screw</span></li><li><b>2×</b> <span class="no">M3 låsemutter</span><span class="en">M3 nyloc nut</span></li></ul>
       
-      <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Tre porter på plass, tunger i bunn, ingen som vipper.</span><span class="en">Three gates seated, tongues home, none rocking.</span></p>
+      <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Tre porter på plass, tunger i bunn, ingen som vipper — og en rett kant over de tre munnene treffer alle tre.</span><span class="en">Three gates seated, tongues home, none rocking — and a straightedge across the three mouths touches all three.</span></p>
     </div>
   </article><article class="st" id="s7" data-step="7">
-    <div class="st-3d"><canvas data-assembly-step="7"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="7"></canvas><button class="st-play" data-replay="7" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">07</span>
+        <h3><span class="no">Garnsnurreren</span><span class="en">The yarn spinner</span></h3>
+        <span class="st-t">20 min</span></div>
+      <p><span class="no">Et 608-lager i foten, spindelen presset på, føringsarmen ved siden av. Legg et nøste over de fire fingrene og før tråden opp gjennom øyet, så ned til strammeren.</span><span class="en">A 608 into the base, spindle pressed on, guide arm beside it. Drop a skein over the four fingers and lead the strand up through the eyelet, then down to the dancer.</span></p>
+      <ul class="fx"><li><b>4×</b> <span class="no">M5 × 10 linseskrue</span><span class="en">M5 × 10 button screw</span></li><li><b>4×</b> <span class="no">M5 T-mutter, 2020</span><span class="en">M5 T-nut, 2020</span></li></ul>
+      <p class="wn"><span class="no">Garnet snurrer, ikke tråden. Å dra fra et stillestående nøste legger inn én omdreining vri per runde, og nok vri endrer garntykkelsen — som er ett av de to tallene halsbredden er dimensjonert etter.</span><span class="en">The yarn turns, not the strand. Pulling from a stationary ball adds one twist per revolution, and enough twist changes the yarn diameter — which is one of the two numbers the gate throat is sized on.</span></p>
+      <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Et lite dytt får et fullt nøste til å snurre tre hele omdreininger, og å dra i tråden løfter ikke spindelen.</span><span class="en">A flick of a finger spins a loaded skein for three full turns, and pulling the strand does not lift the spindle.</span></p>
+    </div>
+  </article><article class="st" id="s8" data-step="8">
+    <div class="st-3d"><canvas data-assembly-step="8"></canvas><button class="st-play" data-replay="8" aria-label="Spill av">▶</button></div>
+    <div class="st-b">
+      <div class="st-h"><span class="st-n">08</span>
         <h3><span class="no">Motorer, hjul, finger</span><span class="en">Motors, wheel, finger</span></h3>
         <span class="st-t">45 min</span></div>
       <p><span class="no">Termistor i lommen på hvert motorfeste før motoren monteres. Aksel gjennom to 608-lager, tann på, pinneskrue i. Fingeren på servohornet med 40 mm filament som spiss.</span><span class="en">Thermistor into each motor mount pocket before the motor goes on. Shaft through two 608s, tooth on, grub locked. Finger onto the servo horn with 40 mm of filament as the wire tip.</span></p>
@@ -634,10 +911,10 @@
       <p class="wn"><span class="no">Monter termistorene nå. De er det eneste mellom en fastkjørt motor og brann.</span><span class="en">Fit the thermistors now. They are the only thing between a stalled motor and a fire.</span></p>
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Begge motorer går fritt for hånd; begge termistorer ligger mot motormetall.</span><span class="en">Both motors spin freely by hand; both thermistors touch motor metal.</span></p>
     </div>
-  </article><article class="st" id="s8" data-step="8">
-    <div class="st-3d"><canvas data-assembly-step="8"></canvas></div>
+  </article><article class="st" id="s9" data-step="9">
+    <div class="st-3d"><canvas data-assembly-step="9"></canvas><button class="st-play" data-replay="9" aria-label="Spill av">▶</button></div>
     <div class="st-b">
-      <div class="st-h"><span class="st-n">08</span>
+      <div class="st-h"><span class="st-n">09</span>
         <h3><span class="no">Kobling — sikring først</span><span class="en">Wire it — fuse first</span></h3>
         <span class="st-t">45 min</span></div>
       <p><span class="no">Sikring på pluss fra strømforsyningen, så nødstopp i samme linje. Drivere, motorer med hylser, termistorer til analog inn, LED på konstant 12 V. Ikke slå på ennå.</span><span class="en">Fuse on the PSU positive, then the E-stop in the same line. Drivers, motors with ferrules, thermistors to analogue in, LED to 12 V constant. Do not power up yet.</span></p>
@@ -645,55 +922,43 @@
       <p class="wn"><span class="no">Nødstoppen må bryte STRØMMEN til motorene, ikke gi signal til en pinne. Programvare kan ikke overstyre en brutt krets.</span><span class="en">The E-stop must break motor POWER, not signal a pin. Software cannot override a broken circuit.</span></p>
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Nødstopp inne gir brutt krets på motorforsyningen.</span><span class="en">E-stop pressed reads open circuit on the motor supply.</span></p>
     </div>
-  </article><article class="st" id="s9" data-step="9">
-    <div class="st-3d"><canvas data-assembly-step="9"></canvas></div>
+  </article><article class="st" id="s10" data-step="10">
+    <div class="st-3d"><canvas data-assembly-step="10"></canvas><button class="st-play" data-replay="10" aria-label="Spill av">▶</button></div>
     <div class="st-b">
-      <div class="st-h"><span class="st-n">09</span>
+      <div class="st-h"><span class="st-n">10</span>
         <h3><span class="no">Kamera, lys, oppstart</span><span class="en">Camera, light, power on</span></h3>
         <span class="st-t">40 min</span></div>
       <p><span class="no">Rett huset så halsen på midterste port fyller en tredel av bildet. Lås fokus manuelt. LED på tvers av halsen, ikke ned i den. Slå på med hånden på nødstoppen og kjør hver akse 1 mm.</span><span class="en">Aim the pod so the middle gate throat fills a third of the frame. Lock focus manually. LED across the throat, not down it. Power on with a hand on the E-stop and jog each axis 1 mm.</span></p>
-      <ul class="fx"><li><b>2×</b> <span class="no">M3 × 8 unbrakoskrue</span><span class="en">M3 × 8 cap screw</span></li><li><b>1×</b> <span class="no">M5 × 10 linseskrue</span><span class="en">M5 × 10 button screw</span></li><li><b>1×</b> <span class="no">M5 T-mutter, 2020</span><span class="en">M5 T-nut, 2020</span></li></ul>
+      <ul class="fx"><li><b>2×</b> <span class="no">M3 × 8 unbrakoskrue</span><span class="en">M3 × 8 cap screw</span></li><li><b>2×</b> <span class="no">M3 låsemutter</span><span class="en">M3 nyloc nut</span></li><li><b>1×</b> <span class="no">M5 × 10 linseskrue</span><span class="en">M5 × 10 button screw</span></li><li><b>1×</b> <span class="no">M5 T-mutter, 2020</span><span class="en">M5 T-nut, 2020</span></li></ul>
       <p class="wn"><span class="no">En føler som viser 0 eller absurd høyt er frakoblet. Fiks det før du kjører noe.</span><span class="en">A sensor reading 0 or absurdly high is disconnected. Fix it before running anything.</span></p>
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Begge akser går riktig vei; begge termistorer viser romtemperatur.</span><span class="en">Both axes jog the right way; both thermistors read room temperature.</span></p>
     </div>
-  </article><article class="st" id="s10" data-step="10">
-    <div class="st-3d"><canvas data-assembly-step="10"></canvas></div>
-    <div class="st-b">
-      <div class="st-h"><span class="st-n">10</span>
-        <h3><span class="no">T0 · T1 — fangst og hold</span><span class="en">T0 · T1 — capture and hold</span></h3>
-        <span class="st-t">60 min</span></div>
-      <p><span class="no">For hånd. Fang og slipp en bomullsløkke 100 ganger. Hekle så ti masker for hånd, legg én maskemunn i en port, og før nålen gjennom 50 ganger.</span><span class="en">By hand. Hook and release a cotton loop 100 times. Then crochet ten stitches by hand, drop one mouth into a gate, and push the needle through it 50 times.</span></p>
-      
-      
-      <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">T0 100/100 fangster. T1 50/50 gjennomføringer uten å splitte garnet.</span><span class="en">T0 100/100 captures. T1 50/50 passes without splitting the yarn.</span></p>
-    </div>
   </article><article class="st" id="s11" data-step="11">
-    <div class="st-3d"><canvas data-assembly-step="11"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="11"></canvas><button class="st-play" data-replay="11" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">11</span>
-        <h3><span class="no">T2 — den avgjørende</span><span class="en">T2 — the one that matters</span></h3>
+        <h3><span class="no">G2 — hjulet tar den ut av kammen</span><span class="en">G2 — the wheel takes it out of the comb</span></h3>
         <span class="st-t">120 min</span></div>
       <p><span class="no">Stram prøvelappen så tre maskemunner ligger i tre porter. Kjør tannen gjennom opptaksbuen: tar den løkken ut av porten og bærer den? Femti ganger, logget, med kamera.</span><span class="en">Tension the swatch so three mouths sit in three gates. Run the tooth through its pickup arc: does it take the loop out of the gate and carry it? Fifty times, logged, camera recording.</span></p>
       
-      <p class="wn"><span class="no">Hvis alle bredder feiler er svaret en tynnere nål — ikke en bredere hals. Det er ikke plass til en bredere hals.</span><span class="en">If every width fails, the answer is a thinner needle — not a wider throat. There is no room for a wider throat.</span></p>
+      <p class="wn"><span class="no">Hvis alle bredder feiler er svaret en tynnere krokspiss — ikke en bredere hals. Det er 0,2 mm å gå på i halsen, og en ny krok er fire gram.</span><span class="en">If every width fails, the answer is a thinner hook nose — not a wider throat. There is 0.2 mm of room at the throat and a reprint of the hook is four grams.</span></p>
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">50/50 opptak. Under 40/50: gå ned én halsbredde før du endrer noe annet.</span><span class="en">50/50 pickups. Below 40/50, drop to the next throat width before changing anything else.</span></p>
     </div>
   </article><article class="st" id="s12" data-step="12">
-    <div class="st-3d"><canvas data-assembly-step="12"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="12"></canvas><button class="st-play" data-replay="12" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">12</span>
-        <h3><span class="no">T3 — én ekte maske</span><span class="en">T3 — one real stitch</span></h3>
+        <h3><span class="no">G3 — én ekte maske</span><span class="en">G3 — one real stitch</span></h3>
         <span class="st-t">180 min</span></div>
-      <p><span class="no">Garn gjennom strammer og øye til fingeren. Full syklus: ta opp, stikk, legg garn, trekk gjennom to. Nøyaktig én løkke igjen. Femti på rad, eksporter loggen.</span><span class="en">Yarn through dancer and eyelet to the finger. Full cycle: pick up, plunge, yarn over, draw through two. Exactly one loop left. Fifty in a row, export the log.</span></p>
+      <p><span class="no">Garn fra snurreren gjennom strammer og øye til fingeren. Full syklus: ta opp, stikk, legg garn, trekk gjennom to. Nøyaktig én løkke igjen. Femti på rad, eksporter loggen.</span><span class="en">Yarn from the spinner through dancer and eyelet to the finger. Full cycle: pick up, plunge, yarn over, draw through two. Exactly one loop left. Fifty in a row, export the log.</span></p>
       <ul class="fx"><li><b>1×</b> <span class="no">M3 × 20 unbrakoskrue</span><span class="en">M3 × 20 cap screw</span></li><li><b>1×</b> <span class="no">M3 låsemutter</span><span class="en">M3 nyloc nut</span></li></ul>
-      
+      <p class="wn"><span class="no">Ti på rad er lenger enn noen publisert heklemaskin har kommet i omgang. Femti er målet; fire er dagens toppnivå.</span><span class="en">Ten in a row is further than any published crochet machine has reached in the round. Fifty is the target; four is the state of the art.</span></p>
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">50 på rad, én løkke hver, høydespredning under 0,6 mm.</span><span class="en">50 consecutive, one loop each, height spread under 0.6 mm.</span></p>
     </div>
   </article></div>
-
   <div class="track-h"><span class="no">Trinn 2 · M1 · steg 13–24</span><span class="en">Stage 2 · M1 · steps 13–24</span></div>
   <div class="steps"><article class="st" id="s13" data-step="13">
-    <div class="st-3d"><canvas data-assembly-step="13"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="13"></canvas><button class="st-play" data-replay="13" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">13</span>
         <h3><span class="no">Kapp dekket</span><span class="en">Cut the deck</span></h3>
@@ -704,7 +969,7 @@
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Diagonalene er like innen 1 mm og den vipper ikke.</span><span class="en">Diagonals match within 1 mm and it does not rock.</span></p>
     </div>
   </article><article class="st" id="s14" data-step="14">
-    <div class="st-3d"><canvas data-assembly-step="14"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="14"></canvas><button class="st-play" data-replay="14" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">14</span>
         <h3><span class="no">Monter dreielageret</span><span class="en">Seat the turntable bearing</span></h3>
@@ -715,7 +980,7 @@
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Navet går jevnt en hel omdreining.</span><span class="en">The hub turns smoothly through a full revolution.</span></p>
     </div>
   </article><article class="st" id="s15" data-step="15">
-    <div class="st-3d"><canvas data-assembly-step="15"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="15"></canvas><button class="st-play" data-replay="15" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">15</span>
         <h3><span class="no">Dreieskive og C-rem</span><span class="en">Platter and C belt</span></h3>
@@ -726,7 +991,7 @@
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Kantkast under 0,3 mm; remmen glipper ikke når du holder igjen.</span><span class="en">Rim runout under 0.3 mm; belt does not slip when you resist by hand.</span></p>
     </div>
   </article><article class="st" id="s16" data-step="16">
-    <div class="st-3d"><canvas data-assembly-step="16"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="16"></canvas><button class="st-play" data-replay="16" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">16</span>
         <h3><span class="no">Sett sammen mandrellen</span><span class="en">Assemble the mandrel</span></h3>
@@ -737,29 +1002,29 @@
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">De vris sammen uten makt; under 0,5 mm kast ved kronen.</span><span class="en">They twist together without force; under 0.5 mm wobble at the crown.</span></p>
     </div>
   </article><article class="st" id="s17" data-step="17">
-    <div class="st-3d"><canvas data-assembly-step="17"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="17"></canvas><button class="st-play" data-replay="17" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">17</span>
         <h3><span class="no">Z-søyle og R-slede</span><span class="en">Z column and R carriage</span></h3>
         <span class="st-t">60 min</span></div>
       <p><span class="no">To bratter på dekket, 2020-søyle mellom dem, rettet loddrett. T8-skrue til Z. R går på resten av MGN9-meteren.</span><span class="en">Two brackets to the deck, 2020 column between them, trammed vertical. T8 screw for Z. R rides the rest of the MGN9 metre.</span></p>
-      <ul class="fx"><li><b>8×</b> <span class="no">M5 × 10 linseskrue</span><span class="en">M5 × 10 button screw</span></li><li><b>8×</b> <span class="no">M5 T-mutter, 2020</span><span class="en">M5 T-nut, 2020</span></li><li><b>4×</b> <span class="no">M4 gjengeinnsats</span><span class="en">M4 brass insert</span></li></ul>
+      <ul class="fx"><li><b>8×</b> <span class="no">M5 × 10 linseskrue</span><span class="en">M5 × 10 button screw</span></li><li><b>8×</b> <span class="no">M5 T-mutter, 2020</span><span class="en">M5 T-nut, 2020</span></li><li><b>4×</b> <span class="no">M4 × 12 unbrakoskrue</span><span class="en">M4 × 12 cap screw</span></li><li><b>4×</b> <span class="no">M4 låsemutter</span><span class="en">M4 nyloc nut</span></li></ul>
       
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Loddrett innen 0,5 mm over høyden, målt mot skiven.</span><span class="en">Vertical within 0.5 mm over its height, squared off the platter.</span></p>
     </div>
   </article><article class="st" id="s18" data-step="18">
-    <div class="st-3d"><canvas data-assembly-step="18"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="18"></canvas><button class="st-play" data-replay="18" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">18</span>
         <h3><span class="no">Flytt stasjonen over</span><span class="en">Move the Station across</span></h3>
         <span class="st-t">45 min</span></div>
-      <p><span class="no">Skru stasjonen av benkeplaten — holder, skinne, hjulmotor, finger, kamera, termistorer, alt fortsatt sammenskrudd — og skru den på R-sleden. Ingenting bygges om. Benkeplaten er det eneste som blir igjen.</span><span class="en">Unbolt the Station from the bench plate — collet, rail, wheel motor, finger, camera, thermistors, all still bolted together — and bolt it onto the R carriage. Nothing is rebuilt. The bench plate is the only thing left behind.</span></p>
+      <p><span class="no">Skru stasjonen av benkeplaten — holder, skinne, hjulmotor, finger, kamera, termistorer, snurrer, alt fortsatt sammenskrudd — og skru den på R-sleden. Ingenting bygges om. Benkeplaten er det eneste som blir igjen.</span><span class="en">Unbolt the Station from the bench plate — collet, rail, wheel motor, finger, camera, thermistors, spinner, all still bolted together — and bolt it onto the R carriage. Nothing is rebuilt. The bench plate is the only thing left behind.</span></p>
       <ul class="fx"><li><b>4×</b> <span class="no">M5 × 10 linseskrue</span><span class="en">M5 × 10 button screw</span></li><li><b>4×</b> <span class="no">M5 T-mutter, 2020</span><span class="en">M5 T-nut, 2020</span></li></ul>
       
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Stasjonen peker mot mandrellen og P stikker nøyaktig som på benken.</span><span class="en">The Station faces the mandrel and P still plunges exactly as on the bench.</span></p>
     </div>
   </article><article class="st" id="s19" data-step="19">
-    <div class="st-3d"><canvas data-assembly-step="19"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="19"></canvas><button class="st-play" data-replay="19" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">19</span>
         <h3><span class="no">Hele holdekammen</span><span class="en">Full comb arc</span></h3>
@@ -770,7 +1035,7 @@
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Alle ti sitter, og tannen klarerer hver av dem med samme margin.</span><span class="en">All ten seat, and the tooth clears every one by the same margin.</span></p>
     </div>
   </article><article class="st" id="s20" data-step="20">
-    <div class="st-3d"><canvas data-assembly-step="20"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="20"></canvas><button class="st-play" data-replay="20" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">20</span>
         <h3><span class="no">Bygg åttetannshjulet</span><span class="en">Build the eight-tooth wheel</span></h3>
@@ -781,7 +1046,7 @@
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Alle åtte passerer kammen i samme høyde innen 0,2 mm.</span><span class="en">All eight pass the comb at the same height within 0.2 mm.</span></p>
     </div>
   </article><article class="st" id="s21" data-step="21">
-    <div class="st-3d"><canvas data-assembly-step="21"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="21"></canvas><button class="st-play" data-replay="21" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">21</span>
         <h3><span class="no">Karusell og fire koner</span><span class="en">Turret and four cones</span></h3>
@@ -792,7 +1057,7 @@
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Alle fire når fingeren; 90° indeksering bytter hvilken som presenteres.</span><span class="en">All four reach the finger; indexing 90° swaps which is presented.</span></p>
     </div>
   </article><article class="st" id="s22" data-step="22">
-    <div class="st-3d"><canvas data-assembly-step="22"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="22"></canvas><button class="st-play" data-replay="22" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">22</span>
         <h3><span class="no">Nedtrekkskjørt</span><span class="en">Take-down skirt</span></h3>
@@ -803,7 +1068,7 @@
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Fingrene fjærer under lett trykk og spretter tilbake.</span><span class="en">Fingers flex under light pressure and spring back.</span></p>
     </div>
   </article><article class="st" id="s23" data-step="23">
-    <div class="st-3d"><canvas data-assembly-step="23"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="23"></canvas><button class="st-play" data-replay="23" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">23</span>
         <h3><span class="no">Resten av aksene, så kabinettet</span><span class="en">Remaining axes, then the enclosure</span></h3>
@@ -814,7 +1079,7 @@
       <p class="ck"><b><span class="no">Sjekk</span><span class="en">Check</span>:</b> <span class="no">Å åpne døren gir brutt krets på motorforsyningen, som nødstoppen.</span><span class="en">Opening the door reads open circuit on the motor supply, same as the E-stop.</span></p>
     </div>
   </article><article class="st" id="s24" data-step="24">
-    <div class="st-3d"><canvas data-assembly-step="24"></canvas></div>
+    <div class="st-3d"><canvas data-assembly-step="24"></canvas><button class="st-play" data-replay="24" aria-label="Spill av">▶</button></div>
     <div class="st-b">
       <div class="st-h"><span class="st-n">24</span>
         <h3><span class="no">Den første lua</span><span class="en">The first hat</span></h3>
@@ -829,162 +1094,159 @@
 
 <section id="buy">
   <p class="eyebrow"><span class="no">Innkjøp · trinn 1</span><span class="en">Shopping · stage 1</span></p>
-  <h2>6 124 kr</h2>
-  <p class="sub" style="margin-bottom:22px"><span class="no">Kun norske butikker med lager i Norge. Ingen tre ukers venting, ingen toll.</span><span class="en">Norwegian shops with domestic stock only. No three-week wait, no customs.</span></p>
+  <h2>6 248 kr</h2>
+  <p class="sub" style="margin-bottom:20px"><span class="no">Kun norske butikker med lager i Norge. Ingen tre ukers venting, ingen toll. Men les portene over først — dette er listen du åpner etter G0, ikke før.</span><span class="en">Norwegian shops with domestic stock only. No three-week wait, no customs. But read the gates above first — this is the list you open after G0, not before.</span></p>
+  <div class="note q" style="margin-bottom:18px"><p style="margin-bottom:0"><span class="no"><b>26 av 26 lenker svarte</b> da de sist ble åpnet av en maskin, 2026-08-18. Ingen døde lenker. Prikken foran butikknavnet er den målingen. To domener måtte byttes fordi de ikke lenger fantes — det er den slags som koster en lørdag.</span><span class="en"><b>26 of 26 links answered</b> when a machine last opened them, 2026-08-18. No dead links. The dot before each shop name is that measurement. Two domains had to be replaced because they no longer existed — that is the kind of thing that costs a Saturday.</span></p></div>
   <div class="sc"><table>
     <thead><tr><th><span class="no">Vare</span><span class="en">Item</span></th><th class="n"><span class="no">Ant</span><span class="en">Qty</span></th>
-    <th><span class="no">Butikk</span><span class="en">Shop</span></th><th class="n">kr</th><th class="n"><span class="no">Status</span><span class="en">Status</span></th></tr></thead>
+    <th><span class="no">Butikk</span><span class="en">Shop</span></th><th class="n">kr</th><th class="n"><span class="no">Pris</span><span class="en">Price</span></th></tr></thead>
     <tbody><tr class="">
     <td>NEMA17 stepper motor, 1.8 deg, 5.5 kg/cm</td>
     <td class="n">2</td>
-    <td><a href="https://www.elefun.no/p/produkter_produktark.aspx?v=50218" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.elefun.no/p/produkter_produktark.aspx?v=50218" target="_blank" rel="noreferrer">Elefun</a></td>
     <td class="n">590</td>
-    <td class="n"><span class="ok"><span class="no">bekreftet</span><span class="en">confirmed</span></span></td></tr><tr class="">
+    <td class="n"><span class="ok"><span class="no">pris bekreftet</span><span class="en">price confirmed</span></span></td></tr><tr class="">
     <td>HIWIN MGN9 linear rail, 1 m</td>
     <td class="n">1</td>
-    <td><a href="https://www.elefun.no/vare-61587/3d-print-selvbyggerutstyr-lineare-skinner-hiwin-linear-guide-rail-mgn9-9mm-x-1000mm" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.elefun.no/vare-61587/3d-print-selvbyggerutstyr-lineare-skinner-hiwin-linear-guide-rail-mgn9-9mm-x-1000mm" target="_blank" rel="noreferrer">Elefun</a></td>
     <td class="n">895</td>
-    <td class="n"><span class="ok"><span class="no">bekreftet</span><span class="en">confirmed</span></span></td></tr><tr class="">
+    <td class="n"><span class="ok"><span class="no">pris bekreftet</span><span class="en">price confirmed</span></span></td></tr><tr class="">
     <td>HIWIN MGN9C carriage block</td>
     <td class="n">1</td>
-    <td><a href="https://www.elefun.no/vare-61587/3d-print-selvbyggerutstyr-lineare-skinner-hiwin-linear-guide-rail-mgn9-9mm-x-1000mm" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.elefun.no/vare-61587/3d-print-selvbyggerutstyr-lineare-skinner-hiwin-linear-guide-rail-mgn9-9mm-x-1000mm" target="_blank" rel="noreferrer">Elefun</a></td>
     <td class="n">195</td>
-    <td class="n"><span class="ok"><span class="no">bekreftet</span><span class="en">confirmed</span></span></td></tr><tr class="">
+    <td class="n"><span class="ok"><span class="no">pris bekreftet</span><span class="en">price confirmed</span></span></td></tr><tr class="">
     <td>GT2 timing belt, 6 mm, per metre</td>
     <td class="n">1</td>
-    <td><a href="https://www.elefun.no/p/kat.aspx?k=1405" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.elefun.no/p/kat.aspx?k=1405" target="_blank" rel="noreferrer">Elefun</a></td>
     <td class="n">59</td>
-    <td class="n"><span class="ok"><span class="no">bekreftet</span><span class="en">confirmed</span></span></td></tr><tr class="">
+    <td class="n"><span class="ok"><span class="no">pris bekreftet</span><span class="en">price confirmed</span></span></td></tr><tr class="">
     <td>GT2 timing pulley, 20 tooth, 5 mm bore</td>
     <td class="n">2</td>
-    <td><a href="https://www.elefun.no/p/kat.aspx?k=1405" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.elefun.no/p/kat.aspx?k=1405" target="_blank" rel="noreferrer">Elefun</a></td>
     <td class="n">118</td>
-    <td class="n"><span class="ok"><span class="no">bekreftet</span><span class="en">confirmed</span></span></td></tr><tr class="">
+    <td class="n"><span class="ok"><span class="no">pris bekreftet</span><span class="en">price confirmed</span></span></td></tr><tr class="">
     <td>608ZZ ball bearing, 8x22x7</td>
-    <td class="n">4</td>
-    <td><a href="https://www.elefun.no/vare-12179/kulelager-8x22x7mm-608zz" target="_blank" rel="noreferrer">Elefun</a></td>
-    <td class="n">116</td>
-    <td class="n"><span class="ok"><span class="no">bekreftet</span><span class="en">confirmed</span></span></td></tr><tr class="unv">
+    <td class="n">8</td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.elefun.no/vare-12179/kulelager-8x22x7mm-608zz" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td class="n">232</td>
+    <td class="n"><span class="ok"><span class="no">pris bekreftet</span><span class="en">price confirmed</span></span></td></tr><tr class="unv">
     <td>T8 lead screw with brass nut, 200 mm</td>
     <td class="n">1</td>
-    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
     <td class="n">149</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="">
     <td>Flexible shaft coupling 5 mm x 8 mm</td>
     <td class="n">1</td>
-    <td><a href="https://www.elefun.no/p/kat.aspx?k=1405" target="_blank" rel="noreferrer">Elefun</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.elefun.no/p/kat.aspx?k=1405" target="_blank" rel="noreferrer">Elefun</a></td>
     <td class="n">79</td>
-    <td class="n"><span class="ok"><span class="no">bekreftet</span><span class="en">confirmed</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="ok"><span class="no">pris bekreftet</span><span class="en">price confirmed</span></span></td></tr><tr class="unv">
     <td>2020 aluminium extrusion, 1 m</td>
     <td class="n">2</td>
-    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
     <td class="n">238</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="">
     <td>Arduino Nano ESP32 (ESP32-S3), pin headers fitted</td>
     <td class="n">1</td>
-    <td><a href="https://www.kjell.com/no/produkter/elektro-og-verktoy/elektronikk/arduino/utviklingskort/arduino-nano-esp32-utviklingskort-med-wifi-og-bluetooth-p88443" target="_blank" rel="noreferrer">Kjell &amp; Company</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.kjell.com/no/produkter/elektro-og-verktoy/elektronikk/arduino/utviklingskort/arduino-nano-esp32-utviklingskort-med-wifi-og-bluetooth-p88443" target="_blank" rel="noreferrer">Kjell &amp; Company</a></td>
     <td class="n">259</td>
-    <td class="n"><span class="ok"><span class="no">bekreftet</span><span class="en">confirmed</span></span></td></tr><tr class="">
+    <td class="n"><span class="ok"><span class="no">pris bekreftet</span><span class="en">price confirmed</span></span></td></tr><tr class="">
     <td>StepStick with Trinamic TMC2209, UART</td>
     <td class="n">3</td>
-    <td><a href="https://www.zeptobit.com/index.php?category=21" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.zeptobit.com/index.php?category=21" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
     <td class="n">357</td>
-    <td class="n"><span class="ok"><span class="no">bekreftet</span><span class="en">confirmed</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="ok"><span class="no">pris bekreftet</span><span class="en">price confirmed</span></span></td></tr><tr class="unv">
     <td>12 V DC power supply, 5 A, enclosed CE-marked</td>
     <td class="n">1</td>
-    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
     <td class="n">249</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>Hook-up wire, ferrules and terminal blocks</td>
     <td class="n">1</td>
-    <td><a href="https://www.kjell.com/no/produkter/elektro-og-verktoy/elektronikk" target="_blank" rel="noreferrer">Kjell &amp; Company</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.kjell.com/no/produkter/elektro-og-verktoy/elektronikk" target="_blank" rel="noreferrer">Kjell &amp; Company</a></td>
     <td class="n">199</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>USB webcam, 1080p, manual focus preferred</td>
     <td class="n">1</td>
-    <td><a href="https://www.kjell.com/no/produkter/datamaskin-og-kontor/datatilbehor/webkamera" target="_blank" rel="noreferrer">Kjell &amp; Company</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.kjell.com/no/produkter/datamaskin-og-kontor/datatilbehor/webkamera" target="_blank" rel="noreferrer">Kjell &amp; Company</a></td>
     <td class="n">449</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>NTC 3950 100k thermistor, cartridge, 1 m lead</td>
     <td class="n">3</td>
-    <td><a href="https://3dprintnorge.net/produkt/deler/mekaniske-deler/thermistor-ntc-3950" target="_blank" rel="noreferrer">3D Print Norge</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.3djake.no/search?query=termistor" target="_blank" rel="noreferrer">3DJake Norge</a></td>
     <td class="n">207</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>LED strip, 12 V, warm white, 0.5 m</td>
     <td class="n">1</td>
-    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
     <td class="n">89</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>Latching mushroom emergency stop, NC contact</td>
     <td class="n">1</td>
-    <td><a href="https://www.elfadistrelec.no/" target="_blank" rel="noreferrer">Elfa Distrelec Norge</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.elfadistrelec.no/" target="_blank" rel="noreferrer">Elfa Distrelec Norge</a></td>
     <td class="n">249</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>Inline blade fuse holder + 7.5 A fuses</td>
     <td class="n">1</td>
-    <td><a href="https://www.biltema.no/" target="_blank" rel="noreferrer">Biltema</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.biltema.no/" target="_blank" rel="noreferrer">Biltema</a></td>
     <td class="n">79</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>Smoke alarm (mount above the machine)</td>
     <td class="n">1</td>
-    <td><a href="https://www.biltema.no/" target="_blank" rel="noreferrer">Biltema</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.biltema.no/" target="_blank" rel="noreferrer">Biltema</a></td>
     <td class="n">149</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>M3 socket-head cap screws, assorted 8/10/16/20 mm</td>
     <td class="n">1</td>
-    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
     <td class="n">199</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
+    <td>M3 + M4 hex nuts and nylocs, assorted</td>
+    <td class="n">1</td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td class="n">129</td>
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>M5 button-head screws 10 mm + T-nuts for 2020</td>
     <td class="n">1</td>
-    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
     <td class="n">159</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
-    <td>M3 + M4 heat-set brass inserts, knurled</td>
-    <td class="n">1</td>
-    <td><a href="https://www.zeptobit.com/" target="_blank" rel="noreferrer">ZeptoBit AS</a></td>
-    <td class="n">179</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
-    <td>Ryanål (rya latch hook), 15.5 cm</td>
-    <td class="n">2</td>
-    <td><a href="https://panduro.com/" target="_blank" rel="noreferrer">Panduro</a></td>
-    <td class="n">138</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>Ceramic yarn eyelet / PTFE tube</td>
-    <td class="n">2</td>
-    <td><a href="https://3dprintnorge.net/" target="_blank" rel="noreferrer">3D Print Norge</a></td>
-    <td class="n">98</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n">6</td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.3djake.no/filamenter" target="_blank" rel="noreferrer">3DJake Norge</a></td>
+    <td class="n">294</td>
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>DK / Cotton 8-8 cotton yarn, 4.0 mm gauge</td>
     <td class="n">2</td>
-    <td><a href="https://www.hobbygross.no/" target="_blank" rel="noreferrer">local yarn shop</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.hobbii.no/garn" target="_blank" rel="noreferrer">Hobbii</a></td>
     <td class="n">118</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>PETG filament, 1 kg</td>
     <td class="n">1</td>
-    <td><a href="https://3dprintnorge.net/" target="_blank" rel="noreferrer">3D Print Norge</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.3djake.no/filament/petg" target="_blank" rel="noreferrer">3DJake Norge</a></td>
     <td class="n">279</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr><tr class="unv">
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr><tr class="unv">
     <td>PLA filament, 1 kg</td>
     <td class="n">1</td>
-    <td><a href="https://3dprintnorge.net/" target="_blank" rel="noreferrer">3D Print Norge</a></td>
+    <td><span class="lk ok" title="200">●</span><a href="https://www.3djake.no/filament/pla" target="_blank" rel="noreferrer">3DJake Norge</a></td>
     <td class="n">229</td>
-    <td class="n"><span class="td"><span class="no">sjekk</span><span class="en">check</span></span></td></tr></tbody>
+    <td class="n"><span class="td"><span class="no">sjekk pris</span><span class="en">check price</span></span></td></tr></tbody>
   </table></div>
-  <div class="note" style="margin-top:18px"><p><span class="no">&lt;b&gt;18 av 27 linjer må sjekkes mot butikksiden før du bestiller.&lt;/b&gt; Prisene på disse er anslag.</span><span class="en">&lt;b&gt;18 of 27 lines need checking against the shop page before you order.&lt;/b&gt; Those prices are estimates.</span></p></div>
+  <div class="note" style="margin-top:18px"><p style="margin-bottom:0"><span class="no">17 av 26 linjer har anslått pris. Lenken virker, men noen må se på prisen med øynene før du bestiller.</span><span class="en">17 of 26 lines carry an estimated price. The link resolves, but somebody has to read the price with their eyes before you order.</span></p></div>
 
-  <p class="eyebrow" style="margin-top:40px"><span class="no">Skruer, begge trinn</span><span class="en">Fasteners, both stages</span></p>
+  <p class="eyebrow" style="margin-top:36px"><span class="no">Skruer og muttere, begge trinn</span><span class="en">Fasteners, both stages</span></p>
   <div class="sc"><table>
     <thead><tr><th><span class="no">Feste</span><span class="en">Fastener</span></th><th class="n"><span class="no">Antall</span><span class="en">Total</span></th></tr></thead>
-    <tbody><tr><td><span class="no">M3 gjengeinnsats</span><span class="en">M3 brass insert</span></td><td class="n">2</td></tr><tr><td><span class="no">M3 låsemutter</span><span class="en">M3 nyloc nut</span></td><td class="n">8</td></tr><tr><td><span class="no">M3 × 10 unbrakoskrue</span><span class="en">M3 × 10 cap screw</span></td><td class="n">22</td></tr><tr><td><span class="no">M3 × 16 unbrakoskrue</span><span class="en">M3 × 16 cap screw</span></td><td class="n">13</td></tr><tr><td><span class="no">M3 × 20 unbrakoskrue</span><span class="en">M3 × 20 cap screw</span></td><td class="n">6</td></tr><tr><td><span class="no">M3 × 8 unbrakoskrue</span><span class="en">M3 × 8 cap screw</span></td><td class="n">2</td></tr><tr><td><span class="no">M4 gjengeinnsats</span><span class="en">M4 brass insert</span></td><td class="n">8</td></tr><tr><td><span class="no">M4 låsemutter</span><span class="en">M4 nyloc nut</span></td><td class="n">2</td></tr><tr><td><span class="no">M4 × 12 unbrakoskrue</span><span class="en">M4 × 12 cap screw</span></td><td class="n">6</td></tr><tr><td><span class="no">M5 T-mutter, 2020</span><span class="en">M5 T-nut, 2020</span></td><td class="n">33</td></tr><tr><td><span class="no">M5 × 10 linseskrue</span><span class="en">M5 × 10 button screw</span></td><td class="n">33</td></tr><tr><td><span class="no">M5 × 16 linseskrue</span><span class="en">M5 × 16 button screw</span></td><td class="n">12</td></tr></tbody>
+    <tbody><tr><td><span class="no">M3 låsemutter</span><span class="en">M3 nyloc nut</span></td><td class="n">10</td></tr><tr><td><span class="no">M3 × 10 unbrakoskrue</span><span class="en">M3 × 10 cap screw</span></td><td class="n">22</td></tr><tr><td><span class="no">M3 × 16 unbrakoskrue</span><span class="en">M3 × 16 cap screw</span></td><td class="n">13</td></tr><tr><td><span class="no">M3 × 20 unbrakoskrue</span><span class="en">M3 × 20 cap screw</span></td><td class="n">6</td></tr><tr><td><span class="no">M3 × 8 unbrakoskrue</span><span class="en">M3 × 8 cap screw</span></td><td class="n">2</td></tr><tr><td><span class="no">M4 låsemutter</span><span class="en">M4 nyloc nut</span></td><td class="n">10</td></tr><tr><td><span class="no">M4 × 12 unbrakoskrue</span><span class="en">M4 × 12 cap screw</span></td><td class="n">14</td></tr><tr><td><span class="no">M5 T-mutter, 2020</span><span class="en">M5 T-nut, 2020</span></td><td class="n">37</td></tr><tr><td><span class="no">M5 × 10 linseskrue</span><span class="en">M5 × 10 button screw</span></td><td class="n">37</td></tr><tr><td><span class="no">M5 × 16 linseskrue</span><span class="en">M5 × 16 button screw</span></td><td class="n">12</td></tr></tbody>
   </table></div>
+  <p style="margin-top:14px;font-size:13.5px;color:var(--ink-faint)"><span class="no">Ingen gjengeinnsatser på listen. Hvert gjengede hull i printet plast er en sekskantmutter som skyves inn i en lomme fra siden — ingen loddebolt, ingen 240 °C, ingen os, og ingen skjeve innsatser som gjør en del til søppel.</span><span class="en">No threaded inserts on the list. Every threaded hole in printed plastic is a hex nut that slides into a side-entry pocket — no soldering iron, no 240 °C, no fumes, and no crooked insert turning a part into scrap.</span></p>
 </section>
 
 <section id="safety">
   <p class="eyebrow"><span class="no">Sikkerhet</span><span class="en">Safety</span></p>
   <h2><span class="no">Fart og brann er samme sak</span><span class="en">Speed and fire are one problem</span></h2>
   <p class="sub"><span class="no">Syklustid er arbeidssyklus, og arbeidssyklus lager varme. Derfor er farten ikke et tall i programmet — den styres av målt temperatur.</span><span class="en">Cycle rate is duty cycle, and duty cycle makes heat. So speed is not a number in the program — it is governed by measured temperature.</span></p>
-  <div class="stats" style="margin-top:24px">
+  <div class="stats" style="margin-top:22px">
     <div class="stat"><div class="k">70°</div>
       <div class="l"><span class="no">utkobling i fastvare</span><span class="en">firmware cutout</span></div></div>
     <div class="stat"><div class="k">8 t 46</div>
@@ -994,15 +1256,26 @@
     <div class="stat"><div class="k">4</div>
       <div class="l"><span class="no">sikkerhetslag</span><span class="en">safety layers</span></div></div>
   </div>
-  <div class="note" style="margin-top:22px">
+  <div class="note" style="margin-top:20px">
     <p><span class="no">Sikring på forsyningen, nødstopp med lås i motorlinjen som programvaren ikke kan overstyre, røykvarsler over maskinen, og dørbryter som kutter strømmen. Alle fire står på delelisten.</span><span class="en">Fuse on the supply, latching E-stop in the motor line that software cannot override, smoke alarm above the machine, and a door interlock. All four are on the parts list.</span></p>
     <p><span class="no">En frakoblet føler viser brutt krets, og brutt krets behandles som feil — aldri som «kald». Det er nøyaktig slik en termisk sikring stille slutter å finnes.</span><span class="en">A disconnected sensor reads open circuit, and open circuit is treated as a fault — never as “cold”. That is exactly how a thermal cutout silently stops existing.</span></p>
-    <p><span class="no">Ikke la maskinen gå uten tilsyn før du har sett den fullføre en hel lue mens du er våken.</span><span class="en">Do not leave it running unattended until you have watched it finish a whole hat awake.</span></p>
+    <p style="margin-bottom:0"><span class="no">Og siden kroken nå er printet: ingenting på denne maskinen er skarpt. Det er ikke pynt — det endrer hva det er forsvarlig å la stå og gå i et rom der det bor folk.</span><span class="en">And since the hook is now printed: nothing on this machine is sharp. That is not decoration — it changes what it is reasonable to leave running in a room where people live.</span></p>
+  </div>
+</section>
+
+<section id="patent">
+  <p class="eyebrow"><span class="no">Patent</span><span class="en">Patent</span></p>
+  <h2><span class="no">Utkastet dekker ikke det du bygger</span><span class="en">The draft does not cover what you are building</span></h2>
+  <p class="sub" style="margin-bottom:20px"><span class="no">Patentutkastet fra HEKLOMAT-dossieret har 18 krav og 4 uavhengige. Det er godt skrevet. Men det ble skrevet om en annen maskin.</span><span class="en">The patent draft in the HEKLOMAT dossier has 18 claims, 4 independent. It is well written. But it was written about a different machine.</span></p>
+  <div class="note">
+    <p><span class="no"><b>Krav 1</b> beskriver et presentasjonshjul med «løkkegripende tenner», og <b>krav 2</b> sier at tennene er <em>latch-nåler</em>. Maskinen på denne siden har ingen latch-nåler og ingen nåler i det hele tatt — den har printede porter. Krav 1 leser trolig på en tannbåren port, men det er «trolig», og det er den slags «trolig» en innsigelse lever av.</span><span class="en"><b>Claim 1</b> describes a presentation wheel with “loop-engaging teeth”, and <b>claim 2</b> says the teeth are <em>latch needles</em>. The machine on this page has no latch needles and no needles at all — it has printed gates. Claim 1 probably reads on a tooth-carried gate, but that is “probably”, and that is the kind of “probably” an opposition feeds on.</span></p>
+    <p><span class="no"><b>Og den faktisk nye biten er ikke krevd i det hele tatt.</b> Den faste holdekammen — som er det som gjør at hjulet plukker fra en kjent posisjon i stedet for å lete — finnes ikke i noe krav. Heller ikke den todelte forskyvningen som gjør en 8 mm hals mulig ved 5,6 mm deling. Det er de to tingene som skiller denne maskinen fra både Croche-Matic og CroMat.</span><span class="en"><b>And the genuinely new part is not claimed at all.</b> The fixed retention comb — the thing that makes the wheel pick up from a known pose instead of searching — appears in no claim. Neither does the two-row stagger that makes an 8 mm throat possible at 5.6 mm pitch. Those are the two things that separate this machine from both Croche-Matic and CroMat.</span></p>
+    <p style="margin-bottom:0"><span class="no"><b>Rekkefølge.</b> Norge følger EPC, som ikke har noen nådeperiode: å publisere beskrivelsen ødelegger dens egen nyhet samme dag. Denne siden er uoppført og ikke indeksert, men en uoppført URL er uklarhet, ikke hemmelighold. Snakk med en patentfullmektig om kravene til port og kam <em>før</em> noe av dette deles bredere — og send skjermbilder til en venn, ikke lenken.</span><span class="en"><b>Order of operations.</b> Norway follows the EPC, which has no grace period: publishing the disclosure destroys its own novelty on the day it goes up. This page is unlisted and not indexed, but an unlisted URL is obscurity, not confidentiality. Talk to a patent attorney about gate and comb claims <em>before</em> any of this is shared more widely — and send a friend screenshots, not the link.</span></p>
   </div>
 </section>
 
 <footer>
-  <p>HEKLO · HEKLO Station · HEKLO M1 — MASKLAB. <span class="no">Alle tall på denne siden er beregnet fra maskindefinisjonen, ikke skrevet inn for hånd.</span><span class="en">Every number on this page is computed from the machine definition, not typed in by hand.</span></p>
+  <p>HEKLO · HEKLO Station · HEKLO M1 — MASKLAB. <span class="no">Hvert tall på denne siden er regnet ut fra maskindefinisjonen, ikke skrevet inn for hånd. Verifikasjonen kjører 243 kontroller.</span><span class="en">Every number on this page is computed from the machine definition, not typed in by hand. The harness runs 243 checks.</span></p>
   <p><span class="no">Uoppført side. Ikke lenket fra Masklab og ikke indeksert.</span><span class="en">Unlisted page. Not linked from Masklab and not indexed.</span></p>
 </footer>
 
@@ -1017,7 +1290,7 @@
 </div>
 
 <script type="module">
-import { thumbPart, prepareSteps, livePart, liveAssembly } from './viewer.js';
+import { thumbPart, prepareSteps, livePart, liveAssembly, liveSim } from './viewer.js';
 
 /* language */
 const root = document.documentElement;
@@ -1034,8 +1307,12 @@ bNo.onclick = () => setLang('no');
 bEn.onclick = () => setLang('en');
 try { const s = localStorage.getItem('heklo-lang'); if (s) setLang(s); } catch {}
 
-/* assembly data, shared by the hero and every step thumbnail */
-const data = await fetch('assembly.json').then(r => r.json());
+const [data, hats] = await Promise.all([
+  fetch('assembly.json').then(r => r.json()),
+  fetch('hat.json').then(r => r.json()),
+]);
+const hat = hats.hats.find(h => h.id === 'norway26') ?? hats.hats[0];
+data.hatPalette = hat.palette;
 
 /* hero */
 const hero = await liveAssembly(document.getElementById('hero'), data);
@@ -1048,31 +1325,112 @@ for (const b of document.querySelectorAll('.v-tabs button')) {
   };
 }
 
-/* Thumbnails share ONE context, drawn strictly one at a time — a browser caps
-   live WebGL contexts at about sixteen and this page has forty-eight canvases. */
+/* ---- thumbnails and animated steps, all through ONE shared context ------- */
+
 let queue = Promise.resolve();
 let drawStep = null;
 
-/* One WebGL context serves every thumbnail, drawn strictly one at a time.
-   The parts scene and the assembly scene both stay resident, so alternating
-   between a part card and a step card costs a camera move, not a rebuild. */
-async function paint(c) {
-  if (c.dataset.stl) { await thumbPart(c, c.dataset.stl); return; }
+async function paint(c, t = 1) {
+  if (c.dataset.stl) { await thumbPart(c, c.dataset.stl, c.dataset.id); return; }
   if (!drawStep) drawStep = await prepareSteps(data);
-  await drawStep(c, Number(c.dataset.assemblyStep));
+  await drawStep(c, Number(c.dataset.assemblyStep), t);
 }
 
+/**
+ * Parts are painted once; step diagrams are repainted every time they come
+ * back into view.
+ *
+ * A step card holds a bitmap, and a bitmap can go stale — an animation that was
+ * cancelled by a fast scroll, a device-pixel-ratio change, a repaint that lost
+ * a race for the shared context. Repainting on re-entry costs one render and
+ * makes every one of those self-healing instead of leaving a blank card.
+ */
 const io = new IntersectionObserver((entries) => {
   for (const e of entries) {
     if (!e.isIntersecting) continue;
     const c = e.target;
-    io.unobserve(c);
+    if (c.dataset.stl) io.unobserve(c);
     queue = queue.then(() => paint(c)).catch(() => {});
   }
-}, { rootMargin: '400px' });
+}, { rootMargin: '300px' });
 for (const c of document.querySelectorAll('canvas[data-stl], canvas[data-assembly-step]')) io.observe(c);
 
-/* Redraw thumbnails on resize, since a blit is a fixed-size image. */
+/**
+ * Animate ONE step at a time.
+ *
+ * Twenty-four simultaneous animations through a single shared renderer is a
+ * slideshow; one at a time is an instruction. A step plays when it first scrolls
+ * into view and whenever you press its button, and anything already playing is
+ * cut off rather than queued behind it.
+ */
+let playing = null;
+function play(canvas) {
+  if (!canvas || !canvas.dataset.assemblyStep) return Promise.resolve();
+  if (playing) playing.cancelled = true;
+  const token = { cancelled: false };
+  playing = token;
+  const card = canvas.closest('.st');
+  if (card) card.classList.add('playing');
+  const dur = 1100;
+  const t0 = performance.now();
+  // A cancelled animation must SETTLE, not freeze. Scrolling past a step used
+  // to abandon it mid-flight, leaving the card showing the frame where its
+  // parts were still 300 mm out — which for a big part is an empty card.
+  const settle = () => {
+    if (card) card.classList.remove('playing');
+    return paint(canvas, 1).catch(() => {});
+  };
+  return new Promise((resolve) => {
+    (function frame(now) {
+      if (token.cancelled) return settle().then(resolve);
+      const t = Math.min(1, (now - t0) / dur);
+      paint(canvas, t).then(() => {
+        if (t < 1 && !token.cancelled) requestAnimationFrame(frame);
+        else settle().then(resolve);
+      }).catch(() => settle().then(resolve));
+    })(performance.now());
+  });
+}
+
+for (const b of document.querySelectorAll('.st-play')) {
+  b.onclick = () => {
+    const c = b.parentElement.querySelector('canvas');
+    queue = queue.then(() => play(c)).catch(() => {});
+  };
+}
+
+/**
+ * Play the step you are actually looking at.
+ *
+ * Animating each step as it scrolls past sounds better than it is: the
+ * observer fires for a whole screenful at once, every animation renders and
+ * blits at full size, and chaining them through one shared context puts the
+ * page far enough behind that it stops painting at all. So exactly one step
+ * animates — whichever is nearest the middle of the screen — and only when it
+ * changes, and only once.
+ */
+const played = new Set();
+let scrollT;
+addEventListener('scroll', () => {
+  clearTimeout(scrollT);
+  scrollT = setTimeout(() => {
+    const mid = innerHeight / 2;
+    let best = null;
+    let bestD = Infinity;
+    for (const c of document.querySelectorAll('canvas[data-assembly-step]')) {
+      const r = c.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) continue;
+      const d = Math.abs(r.top + r.height / 2 - mid);
+      if (d < bestD) { bestD = d; best = c; }
+    }
+    if (!best) return;
+    const n = best.dataset.assemblyStep;
+    if (played.has(n)) return;
+    played.add(n);
+    queue = queue.then(() => play(best)).catch(() => {});
+  }, 260);
+}, { passive: true });
+
 let rt;
 addEventListener('resize', () => {
   clearTimeout(rt);
@@ -1085,7 +1443,8 @@ addEventListener('resize', () => {
   }, 250);
 });
 
-/* Click a part to inspect it properly. One live context, disposed on close. */
+/* ---- part modal ---------------------------------------------------------- */
+
 const modal = document.getElementById('modal');
 const modalC = document.getElementById('modalC');
 const modalT = document.getElementById('modalT');
@@ -1107,9 +1466,108 @@ for (const b of document.querySelectorAll('.pc-3d[data-open]')) {
     modalD.href = 'stl/' + file;
     modal.hidden = false;
     if (live) live.dispose();
-    live = await livePart(modalC, file);
+    live = await livePart(modalC, file, b.dataset.id);
   };
 }
+
+/* ---- the simulation ------------------------------------------------------ */
+
+const hStitch = document.getElementById('hStitch');
+const hRound = document.getElementById('hRound');
+const hTime = document.getElementById('hTime');
+const hLeft = document.getElementById('hLeft');
+const hSw = document.getElementById('hSw');
+const seek = document.getElementById('simSeek');
+const playBtn = document.getElementById('simPlay');
+const isEn = () => root.classList.contains('lang-en');
+const hm = (ms) => {
+  const m = Math.round(ms / 60000);
+  const h = Math.floor(m / 60);
+  return h ? h + (isEn() ? ' h ' : ' t ') + String(m % 60).padStart(2,'0') : m + ' m';
+};
+
+/**
+ * Build the simulator only when somebody scrolls to it. It is a third WebGL
+ * context and 3 694 instanced loops; paying for that on page load makes the
+ * hero janky for every visitor who never reaches this section.
+ */
+let seeking = false;
+let sim = null;
+const simCanvas = document.getElementById('simC');
+const simOpts = {
+  onTick: (s) => {
+    hStitch.textContent = s.index.toLocaleString('nb-NO');
+    hRound.textContent = s.round + ' / ' + s.rounds;
+    hTime.textContent = hm(s.elapsedMs);
+    hLeft.textContent = hm(s.remainMs);
+    hSw.style.background = hat.palette[s.color] ?? '#000';
+    if (!seeking) seek.value = String(Math.round((s.index / s.total) * 1000));
+  },
+  onDone: () => { playBtn.textContent = isEn() ? 'Play' : 'Spill av'; playBtn.classList.remove('on'); },
+};
+
+let simReady = null;
+function ensureSim() {
+  if (!simReady) simReady = liveSim(simCanvas, hat, simOpts).then((s) => { sim = s; return s; });
+  return simReady;
+}
+new IntersectionObserver((es, ob) => {
+  for (const e of es) if (e.isIntersecting) { ob.disconnect(); ensureSim(); }
+}, { rootMargin: '200px' }).observe(simCanvas);
+
+playBtn.onclick = async () => {
+  await ensureSim();
+  const on = sim.toggle();
+  playBtn.classList.toggle('on', on);
+  playBtn.textContent = on ? (isEn() ? 'Pause' : 'Pause') : (isEn() ? 'Play' : 'Spill av');
+};
+document.getElementById('simReset').onclick = async () => {
+  await ensureSim();
+  sim.pause(); sim.reset();
+  playBtn.classList.remove('on');
+  playBtn.textContent = isEn() ? 'Play' : 'Spill av';
+};
+for (const b of document.querySelectorAll('#simSpd button')) {
+  b.onclick = async () => {
+    for (const o of document.querySelectorAll('#simSpd button')) o.setAttribute('aria-pressed','false');
+    b.setAttribute('aria-pressed','true');
+    await ensureSim();
+    sim.setSpeed(Number(b.dataset.x));
+  };
+}
+seek.oninput = async () => { seeking = true; await ensureSim(); sim.seek(Number(seek.value) / 1000); };
+seek.onchange = () => { seeking = false; };
+
+/* ---- the size control ---------------------------------------------------- */
+
+const SIZES = [{"cm":50,"bodyCount":90,"crownRounds":19,"brimRounds":9,"crownSum":1027,"brimSum":1040,"suMm":5.6,"maxRmm":115.9},{"cm":52,"bodyCount":92,"crownRounds":19,"brimRounds":9,"crownSum":1051,"brimSum":1058,"suMm":5.6,"maxRmm":117.6},{"cm":54,"bodyCount":96,"crownRounds":19,"brimRounds":9,"crownSum":1093,"brimSum":1107,"suMm":5.6,"maxRmm":123},{"cm":56,"bodyCount":100,"crownRounds":19,"brimRounds":9,"crownSum":1140,"brimSum":1154,"suMm":5.6,"maxRmm":128.3},{"cm":58,"bodyCount":104,"crownRounds":19,"brimRounds":9,"crownSum":1187,"brimSum":1201,"suMm":5.6,"maxRmm":133.7},{"cm":60,"bodyCount":108,"crownRounds":19,"brimRounds":9,"crownSum":1230,"brimSum":1250,"suMm":5.6,"maxRmm":139},{"cm":62,"bodyCount":110,"crownRounds":19,"brimRounds":9,"crownSum":1254,"brimSum":1268,"suMm":5.6,"maxRmm":140.8}];
+const REF = { stitches: 3694, colorChanges: 1328 };
+const CYCLE = 4800;
+const COLOR_MS = 1500;
+
+const sCm = document.getElementById('sCm');
+const sR = document.getElementById('sR');
+
+function sizeUpdate() {
+  const cm = Number(sCm.value);
+  const rounds = Number(sR.value);
+  const row = SIZES.reduce((a, b) => Math.abs(b.cm - cm) < Math.abs(a.cm - cm) ? b : a);
+  const wall = Math.max(1, rounds - row.crownRounds - row.brimRounds);
+  const stitches = row.crownSum + wall * row.bodyCount + row.brimSum;
+  // Colour changes scale with the work, since the chart repeats around the hat.
+  const changes = Math.round(REF.colorChanges * (stitches / REF.stitches));
+  const ms = stitches * CYCLE + changes * COLOR_MS;
+
+  document.getElementById('vCm').textContent = String(cm);
+  document.getElementById('vR').textContent = String(rounds);
+  document.getElementById('vSt').textContent = stitches.toLocaleString('nb-NO');
+  document.getElementById('vBody').textContent = String(row.bodyCount);
+  document.getElementById('vYarn').textContent = Math.round(stitches * row.suMm * 4.2 / 1000) + ' m';
+  document.getElementById('vTime').textContent = hm(ms);
+}
+sCm.oninput = sizeUpdate;
+sR.oninput = sizeUpdate;
+sizeUpdate();
 </script>
 </body>
 </html>
