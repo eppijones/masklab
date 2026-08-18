@@ -14,7 +14,9 @@ with it, in the order the work actually happens.
 
 HEKLO's printed **gate throat** — which clamps a stitch mouth open at a known
 pose — mounted on HEKLOMAT's recirculating **wheel tooth**, plus a fixed
-**retention comb**.
+**retention comb**. The tool is a **printed hook**: the gate does the job a
+latch needle would, so there is no needle, nothing sharp, and no soldering
+iron anywhere in the build.
 
 The comb is what makes the merge work. On a wheel alone, each gate releases its
 loop once the hook passes and the fabric relaxes, so the next round's pickup is
@@ -54,13 +56,24 @@ safe maximum and stays there. The time is a result, not a promise.
 A disconnected thermistor reads open circuit, and open circuit is treated as a
 fault — never as "cold". That is how a thermal cutout silently stops existing.
 
+## The odds, up front
+
+`machine/reliability.ts` is the honest answer to "will this work", as a chain of
+stage gates with a probability and a cost-at-risk each. It multiplies out to
+about **1%** for a finished hat — which is what a first-of-its-kind mechanism
+nobody has tested on yarn deserves. The useful number is the other one: **320 kr
+and an evening** answers gate G0, the question every predecessor design skipped.
+
+Test order is now cheapest-question-first. G0 uses printed gates, hand-crocheted
+cotton and no motors at all.
+
 ## Commands
 
 ```bash
 ./node_modules/.bin/tsx invent_v1/scripts/verify.ts
 ```
 
-The gate. 153 checks across eight groups: STL geometry re-parsed from the bytes,
+The gate. 243 checks across nine groups: STL geometry re-parsed from the bytes,
 part-to-part fit, Norwegian sourcing, guide fastener reconciliation, the derived
 frame graph, the machine program against all 8 hats, protocol round-trips, and a
 simulator conformance run. Run it before you print, order, or believe anything.
@@ -118,5 +131,14 @@ Not yet built: the browser control UI on top of the transport layer, the ESP32
 firmware, the camera detector, and the 3D twin. The protocol and simulator they
 sit on are done and tested, so that work has somewhere to land.
 
-Nine of 27 BOM lines are price-confirmed against the live shop page. The rest
+Nine of 26 BOM lines are price-confirmed against the live shop page. The rest
 are flagged **må sjekkes** on the site and must be opened by eye before ordering.
+
+```bash
+./node_modules/.bin/tsx invent_v1/scripts/check-links.ts
+```
+
+Opens every vendor URL and writes `data/link-check.json`, which the site renders
+and the harness reads. This is its own command because the harness is offline —
+and it earned its keep immediately: two vendor domains had stopped resolving
+entirely, which a count of link *strings* could never have caught.

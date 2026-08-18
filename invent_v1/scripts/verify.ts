@@ -23,10 +23,35 @@ import { frameGraphProblems, frames } from '../machine/frames.ts';
 import { homeValues } from '../machine/axes.ts';
 import { isFiniteMat, originOf } from '../machine/mat4.ts';
 import { LIMITS } from '../machine/thermal.ts';
-import { FIT, MAX_PART_MM, NEEDLE_DIA_MM, YARN_DIA_MM, THROAT_MARGIN_MM } from '../machine/units.ts';
+import {
+  COMB_ROWS,
+  COMB_ROW_DZ_MM,
+  FIT,
+  GATE_PITCH_MM,
+  GATE_THROAT_MM,
+  HOOK_NOSE_MM,
+  MAX_PART_MM,
+  ROUNDS,
+  SIZE_CM,
+  STITCH_W_MM,
+  YARN_DIA_MM,
+  THROAT_MARGIN_MM,
+  combRowsNeeded,
+  throatRequirementMm,
+} from '../machine/units.ts';
 import { crc8, decodeCommand, encode, parse, type Command, type Verb } from '../control/protocol.ts';
 import { SimTransport } from '../control/transport.ts';
 import { ALL_STEPS, FASTENERS, MACHINE_MINUTES, TOTAL_MINUTES, fastenerDemand } from '../guide/steps.ts';
+import { programme } from '../machine/programme.ts';
+import { MANDREL_R_CAP } from '../parts/full.ts';
+import {
+  GATES,
+  LEARN_COST_NOK,
+  P_HAT,
+  STITCH_MODEL,
+  pHat,
+  requiredPStitch,
+} from '../machine/reliability.ts';
 import { MATES, PARTS, PART_BY_ID } from '../parts/registry.ts';
 import type { PartInterface } from '../parts/types.ts';
 
@@ -167,6 +192,23 @@ if (G('A', 'geometry — the bytes that go to the printer')) {
       );
     }
 
+    // The PUBLISHED directory must hold exactly the parts that exist. Renaming
+    // needle-collet to hook-collet left the old file downloadable from the site
+    // with nothing linking to it, which is worse than a broken link: it is a
+    // part that does not exist, in a format somebody would send to a printer.
+    const pubStl = join(ROOT, '..', 'public', 'system', 'stl');
+    if (existsSync(pubStl)) {
+      const published = readdirSync(pubStl).filter((f) => f.endsWith('.stl'));
+      const known = new Set(manifest.parts.map((m) => m.file));
+      const orphans = published.filter((f) => !known.has(f));
+      check(
+        orphans.length === 0,
+        orphans.length
+          ? `orphaned STLs published: ${orphans.join(', ')}`
+          : `public/system/stl holds exactly the ${published.length} current parts`,
+      );
+    }
+
     const g = manifest.parts.reduce((s, m) => s + m.grams * m.qty, 0);
     note(`${manifest.parts.reduce((s, m) => s + m.qty, 0)} pieces, ${g.toFixed(0)} g total`);
   }
@@ -201,13 +243,13 @@ if (G('B', 'fit — a watertight part can still not fit its neighbour')) {
       continue;
     }
 
-    if (m.type === 'clearance' && A.found.kind === 'bore' && B.found.kind === 'throat') {
-      // The needle bore tells us the needle diameter; the throat must pass it
-      // plus two yarn thicknesses plus a working margin.
-      const need = NEEDLE_DIA_MM + 2 * YARN_DIA_MM + THROAT_MARGIN_MM;
+    if (m.type === 'clearance' && A.found.kind === 'blade' && B.found.kind === 'throat') {
+      // The hook NOSE is what passes through; the throat must pass it plus two
+      // yarn thicknesses plus a working margin.
+      const need = throatRequirementMm(A.found.dia, YARN_DIA_MM);
       check(
         B.found.width >= need,
-        `throat ${B.found.width.toFixed(1)} mm vs needle ${NEEDLE_DIA_MM} + 2x yarn ${YARN_DIA_MM} + margin ${THROAT_MARGIN_MM} = ${need.toFixed(1)} mm needed`,
+        `throat ${B.found.width.toFixed(1)} mm vs hook nose ${A.found.dia} + 2x yarn ${YARN_DIA_MM} + margin ${THROAT_MARGIN_MM} = ${need.toFixed(1)} mm needed (${(B.found.width - need).toFixed(2)} mm in hand)`,
       );
       if (B.found.width < need) note(m.why);
       continue;
@@ -267,6 +309,78 @@ if (G('B', 'fit — a watertight part can still not fit its neighbour')) {
   }
 }
 
+/* ========================================== B2: the constraints that bite = */
+
+if (G('B2', 'constraints — the arithmetic nobody was checking')) {
+  // 1. The inequality the mechanism lives on, stated once, checked here.
+  const need = throatRequirementMm();
+  check(
+    GATE_THROAT_MM >= need,
+    `throat ${GATE_THROAT_MM} mm >= hook nose ${HOOK_NOSE_MM} + 2x yarn ${YARN_DIA_MM} + margin ${THROAT_MARGIN_MM} = ${need.toFixed(1)} mm`,
+  );
+  note(`${(GATE_THROAT_MM - need).toFixed(2)} mm in hand — the tightest number on the machine`);
+
+  // 2. An aperture of this width cannot repeat at the stitch pitch in one row.
+  //    That is arithmetic, and it is the reason the comb is staggered at all.
+  //    Nothing compared these two numbers before, so a two-row comb could have
+  //    silently become an impossible one-row comb on any edit.
+  const rowsNeeded = combRowsNeeded();
+  check(
+    COMB_ROWS >= rowsNeeded,
+    `gate pitch ${GATE_PITCH_MM.toFixed(1)} mm at ${STITCH_W_MM} mm stitch pitch needs ${rowsNeeded} comb rows, design has ${COMB_ROWS}`,
+  );
+
+  // 3. What the stagger costs the FABRIC. The previous revision staggered rows
+  //    radially by a full gate depth — 10.2 mm — which asked every second
+  //    stitch to leave the circle its neighbours sit on. This is the check that
+  //    would have caught it.
+  check(
+    COMB_ROW_DZ_MM <= STITCH_W_MM,
+    `row stagger asks the edge for ${COMB_ROW_DZ_MM} mm of excursion, under one stitch pitch (${STITCH_W_MM} mm)`,
+  );
+
+  // 4. Nothing sharp. The hook is printed; there is no needle on this machine.
+  const sharp = PARTS.filter((p) => /needle|nal|nål/i.test(`${p.id} ${p.name}`));
+  check(sharp.length === 0, sharp.length ? `sharp/needle parts still present: ${sharp.map((p) => p.id).join(', ')}` : 'no needle parts — the hook is printed');
+
+  // 5. Nothing soldered. Every threaded hole in plastic is a captive nut.
+  const insertSkus = Object.keys(fastenerDemand()).filter((s) => /INSERT/i.test(s));
+  check(insertSkus.length === 0, insertSkus.length ? `heat-set inserts still called for: ${insertSkus.join(', ')}` : 'no heat-set inserts — no soldering iron in the build');
+  const insertLines = BOM.filter((l) => /innsats|insert/i.test(`${l.item} ${l.itemNo}`));
+  check(insertLines.length === 0, insertLines.length ? `insert lines still on the BOM: ${insertLines.map((l) => l.id).join(', ')}` : 'no insert line on the shopping list');
+
+  // 6. Every printed part that needs a nut must also buy that nut.
+  const nutDemand = Object.entries(fastenerDemand()).filter(([s]) => /NUT/.test(s));
+  check(nutDemand.length > 0, `${nutDemand.reduce((a, [, q]) => a + q, 0)} captive nuts called out across the guide`);
+
+  // 7. The size range has to be a range, and the nominal has to sit inside it.
+  check(
+    SIZE_CM.min < SIZE_CM.nominal && SIZE_CM.nominal < SIZE_CM.max,
+    `hat sizes ${SIZE_CM.min}-${SIZE_CM.max} cm with ${SIZE_CM.nominal} cm nominal`,
+  );
+  check(
+    ROUNDS.min < ROUNDS.nominal && ROUNDS.nominal < ROUNDS.max,
+    `round count ${ROUNDS.min}-${ROUNDS.max} with ${ROUNDS.nominal} nominal`,
+  );
+
+  // 8. The probability chain must be probabilities, and must not flatter.
+  const bad = GATES.filter((g) => !(g.p > 0 && g.p <= 1));
+  check(bad.length === 0, `all ${GATES.length} stage gates carry a probability in (0, 1]`);
+  check(
+    P_HAT < 0.5,
+    `P(finished hat) = ${(P_HAT * 100).toFixed(1)}% — a first-of-its-kind machine that claims better than even odds is not being honest`,
+  );
+  note(`cheapest decision point: ${LEARN_COST_NOK} kr answers G0 and G1`);
+
+  // 9. Consecutive stitches is the number that kills unattended operation.
+  const p999 = pHat(0.999, STITCH_MODEL.refStitches);
+  check(
+    p999 < 0.05,
+    `even at 99.9% per stitch, P(unattended hat) = ${(p999 * 100).toFixed(2)}% over ${STITCH_MODEL.refStitches} stitches`,
+  );
+  note(`to reach a 50% chance of an unattended hat you need ${(requiredPStitch(0.5, STITCH_MODEL.refStitches) * 100).toFixed(4)}% per stitch`);
+}
+
 /* =========================================================== C: sourcing = */
 
 if (G('C', 'sourcing — Norwegian, linked, dated, and reused')) {
@@ -297,6 +411,28 @@ if (G('C', 'sourcing — Norwegian, linked, dated, and reused')) {
   }
   const conflicting = [...dupes].filter(([, s]) => s.size > 1);
   check(conflicting.length === 0, 'no duplicate line id at a conflicting price');
+
+  // Link liveness. The harness is deliberately offline, so it reads the dated
+  // artifact that check-links.ts writes rather than making requests itself.
+  // "27 vendor links" used to be a count of STRINGS: five of them pointed at
+  // two domains that no longer resolved at all, and nothing here could see it.
+  const lcPath = join(ROOT, 'data', 'link-check.json');
+  if (!existsSync(lcPath)) {
+    check(false, 'data/link-check.json missing — run: tsx invent_v1/scripts/check-links.ts');
+  } else {
+    const lc = JSON.parse(readFileSync(lcPath, 'utf8')) as {
+      checkedAt: string;
+      total: number;
+      ok: number;
+      dead: number;
+      results: { id: string; state: string }[];
+    };
+    check(lc.dead === 0, `${lc.ok}/${lc.total} vendor links answered when last opened (${lc.checkedAt})`);
+    const missing = BOM.filter((l) => !lc.results.some((r) => r.id === l.id));
+    check(missing.length === 0, missing.length ? `not link-checked: ${missing.map((l) => l.id).join(', ')}` : 'every BOM line has been link-checked');
+    const lcAge = (today - Date.parse(lc.checkedAt)) / 86_400_000;
+    check(lcAge <= staleDays, `link check is ${Math.round(lcAge)} days old`);
+  }
 
   const v = verifiedShare('bench');
   note(`bench total ${totalNok('bench').toLocaleString('nb-NO')} NOK across ${v.total} lines`);
@@ -396,6 +532,8 @@ if (G('F', 'program — the machine and the pattern agree')) {
     const snap = JSON.parse(readFileSync(snapPath, 'utf8')) as {
       hats: {
         id: string;
+        omkretsCm: number;
+        hookMm: number;
         totalStitches: number;
         totalRounds: number;
         rounds: { num: number; count: number; colors: number[]; inc: number[] }[];
@@ -423,6 +561,37 @@ if (G('F', 'program — the machine and the pattern agree')) {
         problems.length === 0,
         `${h.id.padEnd(20)} ${String(h.totalStitches).padStart(5)} st, ${h.totalRounds} rounds  ${problems.join('; ') || 'consistent'}`,
       );
+    }
+
+    // The parametric model is a SECOND implementation of the app's round
+    // schedule, living in machine/programme.ts so the browser, the builder and
+    // this harness can all read it without pulling in THREE. A second
+    // implementation is only safe if something replays the first through it.
+    for (const h of snap.hats) {
+      const p = programme(h.omkretsCm, h.totalRounds, h.hookMm);
+      const drift = Math.abs(p.totalStitches - h.totalStitches) / h.totalStitches;
+      check(
+        drift <= 0.05,
+        `${h.id.padEnd(20)} parametric model ${p.totalStitches} vs snapshot ${h.totalStitches} — ${(drift * 100).toFixed(1)}% drift`,
+      );
+    }
+    // The size range has to actually produce hats across its whole span.
+    for (const cm of [SIZE_CM.min, SIZE_CM.nominal, SIZE_CM.max]) {
+      const p = programme(cm, ROUNDS.nominal);
+      // The WALL radius is what has to fit the former; the brim deliberately
+      // hangs past its edge, because the mandrel is a take-down datum and not
+      // a mould. Checking the brim against the plate would reject sizes the
+      // machine can actually make.
+      const wallR = (p.bodyCount * p.suMm) / (2 * Math.PI);
+      check(
+        p.totalStitches > 1500 && wallR < MANDREL_R_CAP,
+        `${cm} cm: ${p.bodyCount} st/round, wall radius ${wallR.toFixed(0)} mm inside the ${MANDREL_R_CAP} mm former, brim ${p.maxRmm} mm hangs past it, ${p.yarnM.toFixed(0)} m of yarn`,
+      );
+    }
+    // Rounds are a parameter too, and the extremes must stay sane.
+    for (const r of [ROUNDS.min, ROUNDS.max]) {
+      const p = programme(SIZE_CM.nominal, r);
+      check(p.rounds === r && p.wallRounds >= 1, `${r} rounds resolves to ${p.wallRounds} wall rounds`);
     }
 
     const monotonic = snap.hats.every((h) => {

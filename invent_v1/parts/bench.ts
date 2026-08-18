@@ -3,35 +3,46 @@
  * run standalone.
  *
  * This is NOT a jig. Every purchased item here migrates into the full build
- * untouched — the needle carriage, the latch drive, the camera pod, the LED,
- * the thermal sensors, the ESP32, the drivers and the PSU. The only bench-only
+ * untouched — the hook carriage, the wheel drive, the camera pod, the LED, the
+ * thermal sensors, the ESP32, the drivers and the PSU. The only bench-only
  * items are printed (a few kroner of filament) and one temporary mount that the
  * final deck replaces. Every source line carries usedInFull, and the harness
  * fails the build if a bench purchase is not reused.
  *
  * What it answers, in order, each with a stop rule:
- *   T0  the latch hook catches and releases DK cotton
- *   T1  a printed throat holds a hand-made V open at a known pose
- *   T2  the wheel tooth picks a V out of the TENSIONED COMB   <- the new step
- *   T3  one fastmaske: draw-through-two, loop count 1 at the end
+ *   G0  a printed gate CATCHES a live stitch off a moving fabric edge
+ *   G1  the gate holds it while a printed hook passes through
+ *   G2  the wheel tooth picks a V out of the TENSIONED COMB
+ *   G3  one fastmaske: draw-through-two, loop count 1 at the end
  *
- * T2 is the one nobody in any of the four predecessor dossiers tested, and it
- * is the step the whole gate-wheel idea rests on.
+ * G0 comes first because it is the question every predecessor skipped and the
+ * only one that can be answered for the price of filament. If a gate cannot
+ * take a stitch off a turning tube by hand, no amount of motion hardware will
+ * make it take one at speed — and that is worth knowing before 6 124 kr of
+ * motors, rails and drivers arrive in the post. See machine/reliability.ts.
+ *
+ * Nothing on this rig is sharp and nothing is soldered. The hook is printed
+ * (there is no latch needle) and every threaded hole in plastic is a captive
+ * nut (there are no heat-set inserts).
  */
 
 import {
   at,
   at2,
   bore,
+  circle,
+  cone,
   cube,
   cyl,
   extrude,
   filletOut,
-  insertPocket,
+  hull,
+  nutPocket,
   poly,
   rect,
   roundedRect,
   slot2,
+  sphere,
   subtract,
   subtract2,
   union,
@@ -39,27 +50,33 @@ import {
 } from '../cad/ops.ts';
 import type { Solid } from '../cad/solid.ts';
 import {
+  BEARING_608,
   CLEARANCE,
-  INSERT_BORE,
-  INSERT_DEPTH,
   MG90S,
   MGN9,
   MGN9_HOLES,
   NEMA17,
   NEMA17_HOLES,
   NTC,
+  NUT_AF,
+  NUT_THICK,
 } from './dims.ts';
 import {
   COMB_GATES_BENCH,
+  COMB_ROW_DZ_MM,
   COMB_ROW_OFFSET_MM,
+  COMB_ROW_TILT_DEG,
   GATE_D_MM,
   GATE_H_MM,
   GATE_THROAT_MM,
   GATE_THROAT_SWEEP_MM,
   GATE_W_MM,
   GATE_WALL_MM,
+  HOOK_FREE_LEN_MM,
+  HOOK_GROOVE_MM,
+  HOOK_NOSE_MM,
+  HOOK_SHAFT_MM,
   MIN_WALL_MM,
-  NEEDLE_DIA_MM,
   STITCH_W_MM,
   WHEEL_TEETH,
 } from '../machine/units.ts';
@@ -201,7 +218,7 @@ const gateVariants: PartDef[] = GATE_THROAT_SWEEP_MM.map((throat) => ({
  * it to the primary mechanism.
  */
 function combSegment(d: Record<string, number>): Solid {
-  const { gates, pitch, wall, h, seatW, seatD, ear, rowOffset } = d;
+  const { gates, pitch, wall, h, seatW, seatD, ear, rowOffset, rowDz, rowTilt } = d;
   // Gate section plus a mounting ear at each end. The ears exist because the
   // bench comb is a short rail — nowhere near enough material to also carry
   // two M3 slots without cutting it in half.
@@ -216,18 +233,32 @@ function combSegment(d: Record<string, number>): Solid {
   const pocket = 5; // matches the gate tongue
   for (let i = 0; i < gates; i++) {
     const x = -gateLen / 2 + wall + pitch * (i + 0.5);
-    // THE STAGGER. Alternate gates sit on an inner and an outer row. The stitch
-    // mouths they hold stay one pitch apart, but each gate body gets two
-    // pitches of width — which is the only reason a throat wide enough to pass
-    // the needle and both legs of the V can exist at all. See units.ts.
-    const y = (i % 2 === 0 ? -1 : +1) * (rowOffset / 2);
+    const upper = i % 2 === 0;
 
-    // A BLIND pocket from the top face, so the gate has a shoulder to sit on
+    // THE STAGGER, and the thing it must not do.
+    //
+    // An 8 mm aperture cannot repeat every 5.6 mm, so alternate gates need
+    // separate rows. The previous revision put those rows 10.2 mm apart
+    // RADIALLY, which asked every second stitch on the working edge to be
+    // dragged 10 mm out of the circle its neighbours sit on. No edge of DK
+    // cotton does that without distorting the round, and nothing in the harness
+    // was comparing the offset against anything, so it passed 203 checks.
+    //
+    // The rows are now separated in HEIGHT and tilted back toward a common
+    // mouth line: every throat presents at the same radius, and the fabric is
+    // asked for +/- 3 mm of height across one stitch instead of 10 mm of reach.
+    const z = h / 2 + (upper ? +rowDz : -rowDz) / 2;
+    const tilt = upper ? -rowTilt : +rowTilt;
+    // Seat depth position follows from the tilt, so the two rows converge
+    // rather than merely sitting at different heights.
+    const y = (upper ? +1 : -1) * (rowOffset / 2 - seatD / 2 - wall);
+
+    // A BLIND pocket, angled with its row, so the gate has a shoulder to sit on
     // rather than dropping straight through...
-    seats.push(at(cube(seatW, seatD, pocket + 2, true), [x, y, h - pocket / 2 + 1]));
+    seats.push(at(cube(seatW, seatD, pocket + 2, true), [x, y, z], [tilt, 0, 0]));
     // ...and a through hole, so a seized gate comes out with a 2 mm pin from
     // below instead of a knife from above. You will do this a lot during T2.
-    seats.push(at(cyl(h + 4, 1.1, 24), [x, y, h / 2]));
+    seats.push(at(cyl(h + 8, 1.1, 24), [x, y, h / 2], [tilt, 0, 0]));
   }
 
   // Slotted mounts on the ears, clear of the gate pockets. Slotted rather than
@@ -251,9 +282,11 @@ const comb: PartDef = {
     gates: COMB_GATES_BENCH,
     pitch: STITCH_W_MM,
     wall: 2.4,
-    h: 10,
+    h: 14,
     ear: 16,
     rowOffset: COMB_ROW_OFFSET_MM,
+    rowDz: COMB_ROW_DZ_MM,
+    rowTilt: COMB_ROW_TILT_DEG,
     seatW: GATE_W_MM - 2 * GATE_WALL_MM + 0.25,
     seatD: 2 * GATE_WALL_MM + 0.25,
   },
@@ -377,25 +410,139 @@ const tooth: PartDef = {
 };
 
 /* ------------------------------------------------------------------------- */
-/* 4. Needle collet — the swappable part                                      */
+/* 4. The hook — printed, and the reason nothing here is sharp                */
 /* ------------------------------------------------------------------------- */
 
 /**
- * Clamps the latch needle. Deliberately its own 3 g part: the bench rig starts
- * with a Panduro ryanal (a rya latch hook, ~3 mm, on the shelf in a high-street
- * shop) and may end up on a knitting-machine needle (~1.8 mm, a specialist
- * order). Swapping is a reprint of this one piece rather than a redesign.
+ * A crochet hook, printed.
+ *
+ * Every predecessor design bought a latch needle, because a latch is how a
+ * knitting machine holds a loop closed while the next one goes past. This
+ * machine does not need one: the GATE holds the loop open at a known pose,
+ * which is the entire reason the gate exists. Keeping a latch as well would be
+ * two mechanisms doing one job — and it would leave the only sharp steel part
+ * in a machine that is otherwise printed plastic and screws.
+ *
+ * Three things follow, and all three are improvements:
+ *   - nothing on the machine can stab anybody, which changes what it is
+ *     reasonable to leave running in a room where people live;
+ *   - the nose diameter becomes a number we choose rather than whatever the
+ *     craft shop stocked, and nose diameter is one of two terms in the throat
+ *     inequality that decides whether the mechanism is possible at all;
+ *   - it is a consumable. Cotton polishes and then abrades a printed nose, so
+ *     print five, swap when the yarn starts catching, and write down the round.
+ *
+ * Printed nose-up so the hook curve is built in-plane: laid flat, the throat
+ * undercut needs support exactly where the yarn runs, and support scars are
+ * what turn a smooth draw into a snag.
  */
-function needleCollet(d: Record<string, number>): Solid {
+function crochetHook(d: Record<string, number>): Solid {
+  const { nose, shaft, len, groove, shankLen } = d;
+
+  // Working nose: a cylinder capped with a hemisphere, so nothing presents an
+  // edge to the yarn on the way in.
+  const noseRod = at(cyl(len, nose / 2, 48), [0, 0, len / 2]);
+  const tip = at(sphere(nose / 2, 32), [0, 0, len]);
+
+  // The throat: a spherical scoop just under the tip. It has to swallow ONE
+  // strand and refuse two — a groove deep enough for two is how a hook picks up
+  // the wrong yarn and pulls a colour change into the previous stitch.
+  const throat = at(sphere(groove / 2, 32), [nose / 2 - groove / 2 + 0.35, 0, len - nose * 0.62]);
+  // Lead-out under the throat so the caught strand rides up and out rather than
+  // wedging against the shoulder.
+  const ramp = at(
+    cone(nose * 1.5, groove / 2, 0.2, 32),
+    [nose / 2 - groove / 2 + 0.35, 0, len - nose * 1.35],
+  );
+
+  // Shank: thicker, because a 3 mm printed beam 42 mm long is a lever that
+  // breaks. It never enters the gate, so it costs nothing to make it stiff.
+  const shank = at(cyl(shankLen, shaft / 2, 48), [0, 0, -shankLen / 2]);
+  // Blend nose to shank rather than stepping — a step is a stress riser and it
+  // is also somewhere for a strand to hang up.
+  const blend = at(cone(4, shaft / 2, nose / 2, 48), [0, 0, 2]);
+  // A flat on the shank so the collet clamps against something that cannot
+  // rotate. Hook orientation IS the yarn-over geometry; a hook that creeps
+  // round in its clamp mis-presents the throat and the stitch fails silently.
+  const flat = at(cube(shaft, shaft, shankLen + 2, true), [0, shaft * 0.72, -shankLen / 2]);
+
+  return subtract(union(noseRod, tip, blend, shank), throat, ramp, flat);
+}
+
+const HOOK_DIMS = {
+  nose: HOOK_NOSE_MM,
+  shaft: HOOK_SHAFT_MM,
+  len: HOOK_FREE_LEN_MM * 0.42,
+  groove: HOOK_GROOVE_MM,
+  shankLen: HOOK_FREE_LEN_MM,
+};
+
+const hook: PartDef = {
+  id: 'crochet-hook',
+  name: `Printed crochet hook — ${HOOK_NOSE_MM.toFixed(1)} mm nose`,
+  nameNo: `Printet heklekrok — ${HOOK_NOSE_MM.toFixed(1)} mm spiss`,
+  kind: 'printed',
+  group: 'head',
+  tracks: ['bench', 'full'],
+  dims: HOOK_DIMS,
+  qty: 5,
+  mount: { frame: 'P', position: [0, 0, 26], rotationDeg: [90, 0, 0] },
+  build: crochetHook,
+  print: petg({
+    layerMm: 0.12,
+    walls: 6,
+    infillPct: 100,
+    orientationDeg: [0, 0, 0],
+    orientationWhy:
+      'Nose up, solid, 0.12 mm layers. This is the one part where surface finish is a function and not a preference — every layer line is something cotton can catch on.',
+  }),
+  interfaces: [
+    {
+      kind: 'shaft',
+      id: 'shank',
+      dia: HOOK_SHAFT_MM,
+      len: HOOK_FREE_LEN_MM,
+      at: [0, 0, 0],
+      axis: [0, 0, 1],
+    },
+    // The nose is what has to fit through a gate throat, so it is declared
+    // separately from the shank. Conflating them is how a check ends up
+    // comparing the wrong diameter against the aperture.
+    {
+      kind: 'blade',
+      id: 'nose',
+      dia: HOOK_NOSE_MM,
+      at: [0, 0, HOOK_DIMS.len],
+    },
+  ],
+  note: 'A consumable. Five per spool of filament, and the round number where one starts snagging is data worth keeping.',
+};
+
+/* ------------------------------------------------------------------------- */
+/* 4b. Hook collet — the swappable part                                       */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Clamps the hook shank to the plunge carriage. Its own 12 g part so that
+ * changing nose diameter — the experiment that fixes a failing T2 — is a
+ * reprint of one small piece rather than a redesign of the head.
+ */
+function hookCollet(d: Record<string, number>): Solid {
   const { dia, len, w } = d;
 
   const body = extrude(roundedRect(w, w, 1.5), len);
-  const boreHole = at(cyl(len + 4, dia / 2 + 0.05, 32), [0, 0, len / 2]);
+  const boreHole = at(cyl(len + 4, dia / 2 + 0.075, 32), [0, 0, len / 2]);
+  // Matching flat, so the hook seats one way round and stays there.
+  const key = at(cube(dia, dia, len + 4, true), [0, dia * 0.72, len / 2]);
   // Clamp slit plus a cross bolt: tightening pinches the bore instead of
   // relying on a printed interference fit, which cracks.
   const slit = at(cube(0.9, w + 2, len + 2, true), [0, 0, len / 2]);
   const clampBolt = at(cyl(w + 4, CLEARANCE.M3 / 2, 24), [0, 0, len * 0.7], [0, 90, 0]);
-  const clampNut = at(cube(5.6, 2.6, 6, true), [-w / 2 + 2.6, 0, len * 0.7], [0, 0, 0]);
+  const clampNut = at(
+    nutPocket(NUT_AF.M3, NUT_THICK.M3, w / 2, CLEARANCE.M3),
+    [-w / 2 + 2.6, 0, len * 0.7],
+    [0, 90, 0],
+  );
 
   const mount = at(
     subtract(
@@ -405,20 +552,20 @@ function needleCollet(d: Record<string, number>): Solid {
     [0, 0, -2.5],
   );
 
-  return subtract(union(body, mount), boreHole, slit, clampBolt, clampNut);
+  return subtract(union(body, mount), boreHole, key, slit, clampBolt, clampNut);
 }
 
 const collet: PartDef = {
-  id: 'needle-collet',
-  name: 'Latch-needle collet',
-  nameNo: 'Nalholder',
+  id: 'hook-collet',
+  name: 'Hook collet',
+  nameNo: 'Krokholder',
   kind: 'printed',
   group: 'head',
   tracks: ['bench', 'full'],
-  dims: { dia: NEEDLE_DIA_MM, len: 26, w: 14 },
+  dims: { dia: HOOK_SHAFT_MM, len: 26, w: 14 },
   qty: 2,
   mount: { frame: 'P', position: [0, 0, 6], rotationDeg: [90, 0, 0] },
-  build: needleCollet,
+  build: hookCollet,
   print: petg({
     walls: 5,
     infillPct: 60,
@@ -427,12 +574,12 @@ const collet: PartDef = {
   interfaces: [
     {
       kind: 'bore',
-      id: 'needle',
-      dia: NEEDLE_DIA_MM + 0.1,
+      id: 'shank',
+      dia: HOOK_SHAFT_MM + 0.15,
       depth: 26,
       at: [0, 0, 13],
       axis: [0, 0, 1],
-      fit: 'press',
+      fit: 'slip',
     },
     {
       kind: 'boltPattern',
@@ -450,7 +597,7 @@ const collet: PartDef = {
     { sku: 'M3x20-SHCS', qty: 1 },
     { sku: 'M3-NUT', qty: 1 },
   ],
-  note: 'Print one for the ryanal (3.0 mm) and one for a machine needle (1.8 mm) — change dims.dia and reprint.',
+  note: 'Swapping hook nose diameter is a reprint of this and the hook — no other part moves.',
 };
 
 /* ------------------------------------------------------------------------- */
@@ -589,6 +736,17 @@ function cameraPod(d: Record<string, number>): Solid {
   );
 
   const arm = at(extrude(roundedRect(armLen, 14, 2), 6), [-(armLen / 2 + camW / 2), 0, 3]);
+
+  // Lid ears. The nut pockets used to be sunk into the shell corners, where
+  // there is 1.5 mm of wall and a hex pocket needs 3.3 — so the subtraction cut
+  // the corners clean off and the build gate reported three separate bodies.
+  // Two ears give the nuts somewhere to live that is not structural wall.
+  const ears = [1, -1].map((sgn) =>
+    at(
+      extrude(roundedRect(13, 12, 2.5), 7),
+      [sgn * (camW / 2 + t + 4.5), sgn * (camD / 2 - 3), camH + t - 7],
+    ),
+  );
   const clamp = at(
     subtract(
       extrude(roundedRect(20, 24, 2), 8),
@@ -597,13 +755,18 @@ function cameraPod(d: Record<string, number>): Solid {
     [-(armLen + camW / 2), 0, 4],
   );
 
-  // Insert pockets so the lid can be opened repeatedly without stripping PETG.
-  const inserts = [
-    [camW / 2 + t / 2, camD / 2 + t / 2],
-    [-(camW / 2 + t / 2), -(camD / 2 + t / 2)],
-  ].map(([x, y]) => at(insertPocket(INSERT_BORE.M3, INSERT_DEPTH.M3), [x, y, camH + t]));
+  // Captive nuts so the lid can be opened repeatedly without stripping PETG —
+  // and without a soldering iron. Tapped PETG survives about two assemblies;
+  // you will open this pod every time the camera needs re-aiming.
+  const inserts = [1, -1].map((sgn) =>
+    at(
+      nutPocket(NUT_AF.M3, NUT_THICK.M3, 9, CLEARANCE.M3),
+      [sgn * (camW / 2 + t + 4.5), sgn * (camD / 2 - 3), camH + t - 3.5],
+      [0, 0, sgn > 0 ? 90 : -90],
+    ),
+  );
 
-  return subtract(union(shell, arm, clamp), ...inserts);
+  return subtract(union(shell, arm, clamp, ...ears), ...inserts);
 }
 
 const camera: PartDef = {
@@ -629,8 +792,8 @@ const camera: PartDef = {
       thread: 'M3',
       holeDia: CLEARANCE.M3,
       positions: [
-        [19, 19],
-        [-19, -19],
+        [23.5, 13],
+        [-23.5, -13],
       ],
       at: [0, 0, 27],
       normal: [0, 0, 1],
@@ -752,6 +915,224 @@ const shaft: PartDef = {
 };
 
 /* ------------------------------------------------------------------------- */
+/* 7d. The yarn spinner — how a shop skein becomes machine feed               */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Yarn does not arrive machine-ready, and every earlier revision of this design
+ * quietly assumed it did.
+ *
+ * A ball of DK cotton pulled from the outside rolls around the floor; pulled
+ * from the centre it collapses into a tangle somewhere around the third hour.
+ * Either way the strand picks up one twist per revolution, and cotton is a
+ * plied yarn — feed it enough same-direction twist and the plies either bind or
+ * unwind, which changes the yarn's diameter, which changes the one number the
+ * whole gate inequality is built on.
+ *
+ * So the yarn turns instead of the strand: the skein sits on a spindle that
+ * spins on a 608, and the strand leaves it sideways with zero added twist. This
+ * is what a shop calls a garnvinde and what the linked search calls a yarn
+ * spinner, and it costs one bearing you have already bought four of.
+ *
+ * Three printed parts per colour. Four colours on the full machine, one on the
+ * bench — and the bench one is the same part, so nothing is thrown away.
+ */
+function swiftBase(d: Record<string, number>): Solid {
+  const { dia, t, bearingOd, bearingW } = d;
+
+  const plate = extrude(roundedRect(dia, dia, 8), t);
+  // Bearing seat, blind, so the outer race lands on a shoulder and the spindle
+  // cannot walk down under the weight of a full 200 g skein.
+  const seat = at(cyl(bearingW + 0.4, bearingOd / 2 + 0.1, 64), [0, 0, t - bearingW / 2 + 0.2]);
+  // Clearance under the inner race so the spindle boss has somewhere to go.
+  const relief = at(cyl(t, bearingOd / 2 - 4, 48), [0, 0, (t - bearingW) / 2 - 1]);
+  // Slotted feet: the spinner wants to sit wherever the bench has room, and
+  // "wherever there is room" is not a hole you can drill in advance.
+  const feet = [-1, 1].map((s) =>
+    at(extrude(slot2(CLEARANCE.M5, 10), t + 4), [s * (dia / 2 - 9), 0, t / 2], [0, 0, 90]),
+  );
+
+  return subtract(plate, seat, relief, ...feet);
+}
+
+const swiftBasePart: PartDef = {
+  id: 'swift-base',
+  name: 'Yarn spinner base',
+  nameNo: 'Garnsnurrer — fot',
+  kind: 'printed',
+  group: 'yarn',
+  tracks: ['bench', 'full'],
+  dims: { dia: 78, t: 10, bearingOd: BEARING_608.od, bearingW: BEARING_608.w },
+  qty: 4,
+  mount: { frame: 'base', position: [300, 74, -14] },
+  repeats: [
+    { position: [300, 74, -14] as const },
+    { position: [300, 146, -14] as const },
+    { position: [372, 74, -14] as const },
+    { position: [372, 146, -14] as const },
+  ],
+  build: swiftBase,
+  print: petg({
+    infillPct: 30,
+    orientationWhy: 'Flat, bearing seat up. Print the seat last so its first layer is not the one fighting the bed.',
+  }),
+  interfaces: [
+    { kind: 'bore', id: 'bearing', dia: BEARING_608.od + 0.2, depth: BEARING_608.w, at: [0, 0, 5], axis: [0, 0, 1], fit: 'press' },
+  ],
+  fasteners: [
+    { sku: 'M5x10-BHCS', qty: 2 },
+    { sku: 'M5-TNUT', qty: 2 },
+  ],
+  note: 'One 608 per spinner. You already bought four for the wheel and the dancer, so this is the cheapest subsystem on the machine.',
+};
+
+/**
+ * The spindle the skein rides on.
+ *
+ * Sprung fingers rather than a fixed cone, because Norwegian shop yarn is not
+ * one shape: a Cotton 8/8 nøste has no core at all, a cake has a 25 mm hollow,
+ * and a cone has a 40 mm base. Four fingers that flex take all three, and a
+ * skein that is slightly loose on the spindle is fine — it is being unwound,
+ * not driven.
+ */
+function swiftSpindle(d: Record<string, number>): Solid {
+  const { boreDia, shaftDia, hgt, fingers, fingerW, flange, taper } = d;
+
+  // The boss that presses into the bearing's inner race.
+  const boss = at(cyl(BEARING_608.w + 3, shaftDia / 2, 48), [0, 0, -(BEARING_608.w + 3) / 2]);
+  const plate = at(extrude(circle(flange / 2, 64), 3), [0, 0, 0]);
+
+  // Fingers: a tapered blade each, leaning inward at the top so a skein drops
+  // on and centres itself instead of being lined up by hand every colour change.
+  //
+  // Each blade is one hull from a slab buried IN the flange to a sphere at the
+  // tip. Two details the build gate insisted on: the bottom slab starts below
+  // the flange top so it welds rather than rests on it, and the taper is applied
+  // along local X — the radial direction after the rotation — because along Y it
+  // moved the tip sideways and left the rounded cap floating in space beside the
+  // blade it was meant to finish.
+  const blades: Solid[] = [];
+  for (let i = 0; i < fingers; i++) {
+    const a = (360 * i) / fingers;
+    const rad = (a * Math.PI) / 180;
+    const rIn = boreDia / 2;
+    blades.push(
+      at(
+        hull(
+          at(cube(4.5, fingerW, 2.4, true), [0, 0, -1.2]),
+          at(sphere(2.0, 24), [-taper, 0, hgt]),
+        ),
+        [rIn * Math.cos(rad), rIn * Math.sin(rad), 2.4],
+        [0, 0, a],
+      ),
+    );
+  }
+
+  return union(plate, boss, ...blades);
+}
+
+const swiftSpindlePart: PartDef = {
+  id: 'swift-spindle',
+  name: 'Yarn spinner spindle',
+  nameNo: 'Garnsnurrer — spindel',
+  kind: 'printed',
+  group: 'yarn',
+  tracks: ['bench', 'full'],
+  dims: {
+    boreDia: 44,
+    shaftDia: BEARING_608.id,
+    hgt: 62,
+    fingers: 4,
+    fingerW: 9,
+    flange: 62,
+    taper: 5,
+  },
+  qty: 4,
+  mount: { frame: 'base', position: [300, 74, -4] },
+  repeats: [
+    { position: [300, 74, -4] as const },
+    { position: [300, 146, -4] as const },
+    { position: [372, 74, -4] as const },
+    { position: [372, 146, -4] as const },
+  ],
+  build: swiftSpindle,
+  print: petg({
+    walls: 3,
+    infillPct: 20,
+    orientationWhy:
+      'Fingers up, flange on the bed. Printed on its side the fingers become cantilevers across the layers and snap off the first time a skein is dropped on.',
+  }),
+  interfaces: [
+    { kind: 'shaft', id: 'boss', dia: BEARING_608.id, len: BEARING_608.w + 3, at: [0, 0, 0], axis: [0, 0, 1] },
+  ],
+  note: 'Takes a nøste, a cake or a cone. Four sprung fingers, no adjustment, no fasteners.',
+};
+
+/**
+ * The guide that takes the strand off the top of the spinning skein and turns
+ * it into a fixed, repeatable feed line into the dancer.
+ *
+ * Ceramic eyelet, not a printed hole: cotton cuts a groove into PETG within a
+ * few hundred stitches and then runs in that groove, which is a slowly
+ * tightening feed path that nobody notices until loop heights start drifting.
+ */
+function swiftGuide(d: Record<string, number>): Solid {
+  const { hgt, armLen, w, t, eyelet } = d;
+
+  // Nothing here shares a plane with anything else, and that is the whole
+  // design note. Three prisms that happen to start and stop at the same z is
+  // how a union produces zero-area facets, and the build gate rejects the part
+  // rather than letting a sliver reach a slicer. So the arm hangs BELOW the
+  // post top, and the eyelet ring is thicker than the arm and centred on it.
+  const armZ = hgt - t - 3;
+
+  const post = at(extrude(roundedRect(w, w, 2), hgt), [0, 0, 0]);
+  const arm = at(extrude(roundedRect(armLen, w - 1.5, 2), t), [armLen / 2 - w / 2, 0, armZ]);
+  const ring = at(
+    subtract(
+      extrude(circle(eyelet / 2 + 3.4, 40), t + 3),
+      at(cyl(t + 8, eyelet / 2, 40), [0, 0, (t + 3) / 2]),
+    ),
+    [armLen - w / 2, 0, armZ - 1.5],
+  );
+
+  // Foot bolts into the same T-slot the base uses, so guide and base stay a set.
+  // Deliberately deeper than the post in y, for the same reason.
+  const foot = at(extrude(roundedRect(w + 16, w + 5, 2.5), 6), [0, 0, 0]);
+  const bolts = [-1, 1].map((sgn) => at(bore(CLEARANCE.M5, 12), [sgn * (w / 2 + 5), 0, 3]));
+
+  return subtract(union(post, foot, arm, ring), ...bolts);
+}
+
+const swiftGuidePart: PartDef = {
+  id: 'swift-guide',
+  name: 'Yarn spinner guide arm',
+  nameNo: 'Garnsnurrer — føringsarm',
+  kind: 'printed',
+  group: 'yarn',
+  tracks: ['bench', 'full'],
+  dims: { hgt: 118, armLen: 46, w: 14, t: 6, eyelet: 8.2 },
+  qty: 4,
+  mount: { frame: 'base', position: [258, 74, -14] },
+  repeats: [
+    { position: [258, 74, -14] as const },
+    { position: [258, 146, -14] as const },
+    { position: [330, 74, -14] as const },
+    { position: [330, 146, -14] as const },
+  ],
+  build: swiftGuide,
+  print: petg({
+    walls: 4,
+    infillPct: 25,
+    orientationWhy: 'Upright, no supports — the arm is a 46 mm overhang that bridges cleanly at this width.',
+  }),
+  fasteners: [
+    { sku: 'M5x10-BHCS', qty: 2 },
+    { sku: 'M5-TNUT', qty: 2 },
+  ],
+  note: 'The eyelet sits above and inboard of the skein, so the strand leaves the top of the roll and never rubs the spindle.',
+};
+/* ------------------------------------------------------------------------- */
 /* 8. Bench base — the one deliberately throwaway printed part                */
 /* ------------------------------------------------------------------------- */
 
@@ -761,12 +1142,15 @@ function benchBase(d: Record<string, number>): Solid {
   const slots = [-len / 4, 0, len / 4].map((x) =>
     at(extrude(slot2(CLEARANCE.M5, 20), t + 4), [x, 0, 0], [0, 0, 90]),
   );
+  // Captive M4 nuts, side-entry. No inserts, no iron, no fumes.
   const feet = [
     [-len / 2 + 12, -wide / 2 + 12],
     [len / 2 - 12, -wide / 2 + 12],
     [-len / 2 + 12, wide / 2 - 12],
     [len / 2 - 12, wide / 2 - 12],
-  ].map(([x, y]) => at(insertPocket(INSERT_BORE.M4, INSERT_DEPTH.M4), [x, y, t]));
+  ].map(([x, y]) =>
+    at(nutPocket(NUT_AF.M4, NUT_THICK.M4, 14, CLEARANCE.M4), [x, y, t / 2], [0, 0, x < 0 ? 90 : -90]),
+  );
   return subtract(plate, ...slots, ...feet);
 }
 
@@ -795,12 +1179,16 @@ export const BENCH_PARTS: readonly PartDef[] = [
   ...gateVariants,
   comb,
   tooth,
+  hook,
   collet,
   bracket,
   motorMount,
   camera,
   dancer,
   finger,
+  swiftBasePart,
+  swiftSpindlePart,
+  swiftGuidePart,
   shaft,
   base,
 ];

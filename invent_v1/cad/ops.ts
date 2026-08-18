@@ -142,15 +142,42 @@ export const capScrewPocket = (
   );
 
 /**
- * A heat-set brass insert pocket. Straight bore plus a lead-in chamfer so the
- * insert starts square — inserts that go in crooked are the single most common
- * way a printed assembly ends up unusable.
+ * A captive hex-nut pocket, entered from the side. The replacement for every
+ * heat-set brass insert on this machine.
+ *
+ * Inserts want a soldering iron at 240 C, a steady hand, and molten plastic
+ * fumes in a room somebody lives in — and a crooked insert is the commonest way
+ * a printed assembly ends up scrap. A nut dropped into a slot needs a nut.
+ *
+ * Three details make this print and hold without support:
+ *   - the pocket is a hex PRISM lying on its flats, so its roof is two 30-degree
+ *     faces rather than a flat bridge over a hole;
+ *   - a 0.2 mm squeeze on the across-flats means the nut goes in with thumb
+ *     pressure and stays there while you line the part up, upside down;
+ *   - the entry slot runs out to the nearest face, so the nut slides in after
+ *     printing instead of being paused into place mid-print.
+ *
+ * Origin is the bolt axis at the pocket's mid-plane; the bolt runs along Z, and
+ * the nut enters along +Y.
  */
-export const insertPocket = (boreDia: number, depth: number, leadIn = 0.6): Solid =>
-  union(
-    at(cyl(depth + 1, boreDia / 2, 32), [0, 0, -depth / 2]),
-    at(cone(leadIn * 2, boreDia / 2 + leadIn, boreDia / 2, 32), [0, 0, 0]),
+export const nutPocket = (
+  acrossFlats: number,
+  thickness: number,
+  entryLen: number,
+  boltDia: number,
+): Solid => {
+  const af = acrossFlats + 0.2;
+  const r = af / Math.sqrt(3); // circumradius of a hex given across-flats
+  const t = thickness + 0.15;
+  return union(
+    // The nut seat: a 6-sided prism, axis along Z, flat side up.
+    at(cyl(t, r, 6), [0, 0, 0], [0, 0, 30]),
+    // Entry slot out to the face, same height so the nut slides straight in.
+    at(cube(af, entryLen, t, true), [0, entryLen / 2, 0]),
+    // The bolt passes clean through the pocket.
+    at(cyl(t + 40, boltDia / 2, 32), [0, 0, 0]),
   );
+};
 
 /** Radially repeat a subtree n times about Z at radius r. */
 export const ringOf = (child: Solid, n: number, r: number, phaseDeg = 0): Solid =>
