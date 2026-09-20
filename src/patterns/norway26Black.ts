@@ -45,6 +45,10 @@ export const NORWAY26_BLACK = buildNorwayKit({
   ground: 'black',
   textColor: 'white',
   edge: 'white',
+  // Same short bucket as Home, and the bold upright NORGE («norgeDisplay26»)
+  // rather than the drawn italic — two-stitch strokes, no lean.
+  shortBrim: true,
+  wordmarkFontId: 'norgeDisplay26',
   field: {
     seed: 7,
     /**

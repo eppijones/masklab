@@ -160,6 +160,140 @@ function withEdges(geo, material, angle = 34) {
   return g;
 }
 
+/* -------------------------------------------------------- the fastmaske --- */
+
+/** Stitch height, in stitch widths. Same constant as the app's hatGeometry.ts. */
+const STITCH_H = 0.85;
+
+/**
+ * Merge indexed BufferGeometries that share position/normal.
+ *
+ * The stitch is three tubes and wants to be one instanced draw call. The app
+ * gets that from three/examples BufferGeometryUtils, which is not in the core
+ * bundle vendored here, and pulling the whole examples tree in for one function
+ * is not worth 200 kB on a page that already ships three WebGL contexts.
+ */
+function mergeGeo(list) {
+  let nv = 0;
+  let ni = 0;
+  for (const g of list) {
+    nv += g.attributes.position.count;
+    ni += g.index.count;
+  }
+  const pos = new Float32Array(nv * 3);
+  const nor = new Float32Array(nv * 3);
+  const idx = new Uint32Array(ni);
+  let vo = 0;
+  let io = 0;
+  for (const g of list) {
+    pos.set(g.attributes.position.array, vo * 3);
+    nor.set(g.attributes.normal.array, vo * 3);
+    const gi = g.index.array;
+    for (let k = 0; k < gi.length; k++) idx[io + k] = gi[k] + vo;
+    vo += g.attributes.position.count;
+    io += gi.length;
+  }
+  const out = new THREE.BufferGeometry();
+  out.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  out.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  out.setIndex(new THREE.BufferAttribute(idx, 1));
+  return out;
+}
+
+/** Deterministic [0,1) hash of one integer — the spiral's per-round wobble. */
+function hash01(n) {
+  let h = Math.imul(n + 0x9e37, 0x85ebca6b) >>> 0;
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35) >>> 0;
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+
+/** One tube along a Catmull-Rom curve through `pts`, scaled to stitch height. */
+function yarnTube(pts, radius, segments) {
+  const curve = new THREE.CatmullRomCurve3(
+    pts.map(([x, y, z]) => new THREE.Vector3(x, y, z).multiplyScalar(STITCH_H * 1.22)),
+  );
+  return new THREE.TubeGeometry(curve, segments, radius, 7, false);
+}
+
+/**
+ * One FASTMASKE (single crochet), worked in a spiral. Millimetres.
+ *
+ * Ported unchanged from the app's makeStitchGeometry(). This section used to
+ * draw a stitch as a flat torus, which is why the fabric read as perforated
+ * sheet rather than cloth — you could see daylight through every stitch. A
+ * single crochet is three things:
+ *
+ *   · a heavy vertical POST — the body of the stitch, pulled up through the
+ *     round below, and the thickest yarn on the face of the fabric;
+ *   · the two loops that close over the top of it, seen from the front as a
+ *     shallow V — the V you put the hook into on the next round;
+ *   · a slight lean to the right, because a spiral pulls every stitch a little
+ *     way round the hat as it is worked.
+ */
+function stitchGeometry(su) {
+  // The two legs. This is the part that has to TILE — it carries the mass of
+  // the fabric, and if it is thin the hat reads as chainmail instead of cloth.
+  const legs = yarnTube(
+    [
+      [-0.31, -0.54, -0.03],
+      [-0.36, -0.16, 0.03],
+      [-0.21, 0.2, 0.08],
+      [0.01, 0.32, 0.11],
+      [0.23, 0.2, 0.08],
+      [0.38, -0.16, 0.03],
+      [0.33, -0.54, -0.03],
+    ],
+    0.195,
+    22,
+  );
+  // The post: the heavy bar of yarn pulled up through the round below, sitting
+  // proud between the legs. This is what closes the lattice a loop leaves open.
+  const post = yarnTube(
+    [
+      [-0.02, -0.5, 0.07],
+      [0.01, -0.24, 0.14],
+      [0.04, 0.02, 0.17],
+      [0.06, 0.2, 0.14],
+    ],
+    0.205,
+    12,
+  );
+  // The top loops, seen from the front as a shallow V — the V the hook goes
+  // into on the next round. Set forward of the post so it reads as a ridge.
+  const topV = yarnTube(
+    [
+      [-0.33, 0.33, 0.09],
+      [-0.14, 0.22, 0.16],
+      [0.06, 0.18, 0.19],
+      [0.26, 0.24, 0.16],
+      [0.42, 0.35, 0.09],
+    ],
+    0.14,
+    14,
+  );
+
+  const geo = mergeGeo([legs, post, topV]);
+  legs.dispose();
+  post.dispose();
+  topV.dispose();
+  // The spiral lean: about 6 degrees of right tilt on every stitch.
+  geo.rotateZ(-0.105);
+  // Small vertical offset so the loop sits over the round below.
+  geo.translate(0, -STITCH_H * 0.05, 0);
+  // Authored in stitch widths; the sim works in millimetres.
+  geo.scale(su, su, su);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+/** Per-stitch tone jitter, so flat colour does not read as plastic. */
+function yarnShade(out, base, index) {
+  let h = Math.imul(index + 0x1f83, 0x85ebca6b) >>> 0;
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35) >>> 0;
+  const t = ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  return out.copy(base).multiplyScalar(0.955 + t * 0.09);
+}
+
 function place(camera, radius, az, el, k) {
   const d = radius * k;
   camera.position.set(
@@ -878,9 +1012,12 @@ export async function liveSim(canvas, hat, opts = {}) {
   const palette = hat.palette.map((h) => new THREE.Color(h));
   const total = hat.totalStitches;
 
-  // Where every stitch in the hat sits, precomputed once. This is the same
-  // relation the app's own 3D uses: a round of n stitches has radius
-  // n * su / 2pi, and the ring heights come from the snapshot profile.
+  // Where every stitch in the hat sits, precomputed once. Both the ring radii
+  // and the ring heights are read straight from the snapshot profile, which is
+  // the app's own buildProfile() output: a round of n stitches wants radius
+  // n * su / 2pi, and the profile is that, smoothed into an even crown disc and
+  // an eased brim. It is NOT recomputed here — recomputing it would put this
+  // page's hat and the app's hat on two different shapes.
   const starts = [];
   let acc = 0;
   for (const c of counts) {
@@ -890,9 +1027,8 @@ export async function liveSim(canvas, hat, opts = {}) {
 
   /* --------------------------------------------------------- the fabric -- */
 
-  const loop = new THREE.TorusGeometry(su * 0.36, Math.max(0.55, su * 0.115), 6, 10);
   const fabric = new THREE.InstancedMesh(
-    loop,
+    stitchGeometry(su),
     solid(0xffffff, { rough: 0.94, metal: 0 }),
     total,
   );
@@ -900,8 +1036,11 @@ export async function liveSim(canvas, hat, opts = {}) {
   fabric.count = 0;
   root.add(fabric);
 
-  const dummy = new THREE.Object3D();
-  const stitchPos = new Float32Array(total * 3);
+  const basis = new THREE.Matrix4();
+  const across = new THREE.Vector3();
+  const along = new THREE.Vector3();
+  const outward = new THREE.Vector3();
+  const tone = new THREE.Color();
 
   let k = 0;
   for (let r = 0; r < counts.length; r++) {
@@ -909,24 +1048,36 @@ export async function liveSim(canvas, hat, opts = {}) {
     const ring = profile[Math.min(r, profile.length - 1)];
     const rad = ring[0];
     const y = ring[1];
+    // The round above, which is what "up the fabric" points at. Above round 0
+    // there is only the centre of the crown.
+    const up = r > 0 ? profile[r - 1] : [0, y + STITCH_H * su * 0.5];
+    // Spiral phase drift. Real crochet worked in a spiral never stacks its
+    // stitches in dead-straight columns, and the mechanical grid is what made
+    // the fabric read as machine knit. A deterministic +/-0.2-stitch wobble per
+    // round breaks the columns without accumulating.
+    const drift = (hash01(r) - 0.5) * 0.4;
     for (let j = 0; j < n; j++) {
-      const th = (2 * Math.PI * j) / n;
-      const x = rad * Math.cos(th);
-      const z = rad * Math.sin(th);
-      stitchPos[k * 3] = x;
-      stitchPos[k * 3 + 1] = z;
-      stitchPos[k * 3 + 2] = y;
+      const th = (2 * Math.PI * (j + 0.5 + drift)) / n;
+      const cos = Math.cos(th);
+      const sin = Math.sin(th);
 
-      dummy.position.set(x, z, y);
-      // The loop plane holds the radial and vertical directions, so the V faces
-      // outward the way a stitch on a hat does.
-      dummy.rotation.set(0, 0, 0);
-      dummy.rotateZ(th);
-      dummy.rotateY(Math.PI / 2);
-      dummy.updateMatrix();
-      fabric.setMatrixAt(k, dummy.matrix);
+      // The stitch sits in the surface, not on a fixed radial axis. Its own
+      // frame is: across the fabric, up the fabric, out of the fabric. Getting
+      // "up" from the previous ring is the whole difference between a hat and
+      // a colander — on the crown the surface is nearly flat, and a stitch
+      // pinned to the radial direction there stands 72 degrees off the cloth.
+      across.set(-sin, cos, 0);
+      along.set((up[0] - rad) * cos, (up[0] - rad) * sin, up[1] - y);
+      if (along.lengthSq() < 1e-9) along.set(0, 0, 1);
+      along.normalize();
+      outward.crossVectors(across, along).normalize();
+      across.crossVectors(along, outward).normalize();
+      basis.makeBasis(across, along, outward);
+      basis.setPosition(rad * cos, rad * sin, y);
+      fabric.setMatrixAt(k, basis);
+
       const c = palette[hat.colors[k] ?? 0] ?? palette[0];
-      fabric.setColorAt(k, c);
+      fabric.setColorAt(k, yarnShade(tone, c, k));
       k++;
     }
   }
@@ -1036,6 +1187,11 @@ export async function liveSim(canvas, hat, opts = {}) {
   function apply() {
     fabric.count = Math.min(index, total);
     fabric.instanceMatrix.needsUpdate = true;
+
+    // The station is where the next stitch is being made. On a finished hat
+    // there is no next stitch, and leaving it parked on the brim edge reads as
+    // a piece of the machine broken off into the shot.
+    station.visible = index < total;
 
     const r = roundOf(Math.min(index, total - 1));
     const n = counts[r];
@@ -1184,6 +1340,17 @@ export async function liveSim(canvas, hat, opts = {}) {
       index = 0;
       phase = 0;
       apply();
+      invalidate();
+    },
+    /**
+     * Park the camera. The section's own UI orbits by drag; this exists so the
+     * sim can be driven to a known pose from a script, which is the only way to
+     * check this canvas without scrolling 4 000 px down a page to look at it.
+     */
+    view(az, el, dist) {
+      state.az = az;
+      state.el = el;
+      state.dist = dist ?? 1;
       invalidate();
     },
     dispose() {

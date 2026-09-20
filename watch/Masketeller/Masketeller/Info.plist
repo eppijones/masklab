@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>WKBackgroundModes</key>
+	<array>
+		<string>workout-processing</string>
+	</array>
+	<key>NSMotionUsageDescription</key>
+	<string>Masketeller bruker bevegelsen i håndleddet til å telle maskene du hekler.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Masketeller starter en treningsøkt slik at appen kan fortsette å telle når du senker armen.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Masketeller starter en treningsøkt slik at appen kan fortsette å telle når du senker armen.</string>
+</dict>
+</plist>

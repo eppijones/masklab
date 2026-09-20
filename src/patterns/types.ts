@@ -121,6 +121,16 @@ export interface PlainBrimSpec {
 export interface BrimFinishSpec {
   /** Solid rounds at the rim, counting the final round. */
   rimRounds: number;
+  /**
+   * Optional SHORT flare tail, replacing Helene's six wave rounds + final round.
+   * The two brim-increase rounds above it are untouched, so the fold still
+   * shapes body → 110 → 120; this only decides what happens between 120 and the
+   * edge. Each entry is one round: `count` is the stitch total after it and
+   * `increaseEvery` its rhythm (null = a straight round). The last `rimRounds`
+   * of the whole brim stay solid in the edge colour, so a custom tail can never
+   * lose its rim. Kits that omit this keep Helene's full schedule.
+   */
+  flareSchedule?: Array<{ count: number; increaseEvery: number | null }>;
 }
 
 /**

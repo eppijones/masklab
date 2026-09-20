@@ -1,6 +1,7 @@
-import type { PatternDefinition, PatternId } from './types';
+import type { PatternDefinition, PatternId, BrimFinishSpec } from './types';
 import type { ChartLayer, TextLayer } from '../data/chartLayers';
 import type { YarnColor } from '../data/types';
+import type { FontId } from '../data/fonts/types';
 import { YARN_HEX, YARN_NAME } from '../data/types';
 import { emptyOverride } from '../data/chartLayers';
 import { keepOutFromTextPlacement } from '../data/textKeepOut';
@@ -320,7 +321,36 @@ export interface NorwayKitSpec {
   edge: YarnColor;
   /** Statement fabric. Solid kits leave it out. */
   field?: NorwayFieldSpec;
+  /**
+   * Cut Helene's nine-round brim down to five (see `SHORT_BRIM_TAIL`): the hat
+   * still shapes body → 110 → 120 at the fold, then flares once to the full 144
+   * and finishes on the two rim rounds. Ends at Runde 36 instead of 40 — a short
+   * bucket rather than a deep one. Kits that omit it keep the full brim.
+   */
+  shortBrim?: boolean;
+  /**
+   * Wordmark face override. Default is the drawn italic; pass «norgeDisplay26»
+   * for the bold upright cut. See `norgeWordmark`.
+   */
+  wordmarkFontId?: FontId;
 }
+
+/**
+ * THE SHORT BRIM — five rounds below the wall instead of Helene's nine.
+ *
+ * Replaces her six wave rounds + final round. The two brim-increase rounds above
+ * it (body → 110 → 120) are untouched, so the fold still shapes the same; this is
+ * only what happens between 120 and the edge. One flare round takes 120 → 144 in a
+ * single pass (2 fm every 5th maske, +24 — reaches full width fast, so it flares
+ * hard and can ripple; the gentler finish is to spread it), then the last two
+ * rounds are the solid rim. Shared by every kit that sets `shortBrim`, so the
+ * collection's short hats are the same shape stitch for stitch.
+ */
+export const SHORT_BRIM_TAIL: NonNullable<BrimFinishSpec['flareSchedule']> = [
+  { count: 144, increaseEvery: 5 },
+  { count: 144, increaseEvery: null },
+  { count: 144, increaseEvery: null },
+];
 
 /**
  * The NORGE wordmark layer — identical on all seven hats but for its colour.
@@ -338,12 +368,22 @@ export interface NorwayKitSpec {
  * ground drawn on ground. It reads because the face is heavy, the colour
  * contrasts, and the panel is clean; that is §12, and it is the right way round.
  */
-export function norgeWordmark(colorId: YarnColor): TextLayer {
+export function norgeWordmark(
+  colorId: YarnColor,
+  /**
+   * Override the collection's default wordmark face. The default is the drawn
+   * italic «NorgeKursiv26»; pass «norgeDisplay26» for the bold upright cut. Both
+   * are set at `slantDeg` 0 (the lean, where there is one, is drawn into the
+   * master), and both lay NORGE out at the same width, so the corridor and the
+   * protected panel are unaffected by the swap.
+   */
+  fontId: FontId = NORGE_TEXT.fontId,
+): TextLayer {
   return {
     kind: 'text',
     id: 'norge-wordmark',
     text: 'NORGE',
-    fontId: NORGE_TEXT.fontId,
+    fontId,
     slantDeg: NORGE_TEXT.slantDeg,
     anchor: { row: NORGE_TEXT.row, col: 0 },
     centerFrac: NORGE_TEXT.centerFrac,
@@ -583,7 +623,7 @@ function evenCount(n: number): number {
 }
 
 export function buildNorwayKit(spec: NorwayKitSpec): PatternDefinition {
-  const wordmark = norgeWordmark(spec.textColor);
+  const wordmark = norgeWordmark(spec.textColor, spec.wordmarkFontId);
   const params = spec.field ? fieldParams(spec.field, wordmark) : null;
   const motifLayers: ChartLayer[] = [];
   if (spec.field && params) {
@@ -637,7 +677,10 @@ export function buildNorwayKit(spec: NorwayKitSpec): PatternDefinition {
      * has to run from under the wordmark straight out to the edge in one piece,
      * and the only colour that interrupts it is the edge itself.
      */
-    brimFinish: { rimRounds: EDGE_ROUNDS },
+    brimFinish: {
+      rimRounds: EDGE_ROUNDS,
+      ...(spec.shortBrim ? { flareSchedule: SHORT_BRIM_TAIL } : {}),
+    },
     finalBrim: { color: spec.edge },
     ...(spec.field && params
       ? {

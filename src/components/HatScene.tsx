@@ -192,7 +192,11 @@ function UpcomingPreview({
   curRound,
   stitchStepping,
 }: {
-  transforms: { position: THREE.Vector3; quaternion: THREE.Quaternion }[];
+  transforms: {
+    position: THREE.Vector3;
+    quaternion: THREE.Quaternion;
+    yScale: number;
+  }[];
   shown: number;
   curRound: number | null;
   stitchStepping: boolean;
@@ -224,9 +228,10 @@ function UpcomingPreview({
     const mesh = meshRef.current;
     if (!mesh) return;
     const m = new THREE.Matrix4();
-    const scale = new THREE.Vector3(0.92, 0.92, 0.92);
+    const scale = new THREE.Vector3();
     for (let j = 0; j < count; j++) {
       const t = transforms[start + j];
+      scale.set(0.92, 0.92 * t.yScale, 0.92);
       m.compose(t.position, t.quaternion, scale);
       mesh.setMatrixAt(j, m);
       mesh.setColorAt(j, COLORS[model.stitches[start + j].color]);
@@ -513,9 +518,11 @@ function Hat({ preview = false }: { preview?: boolean }) {
   useLayoutEffect(() => {
     const mesh = meshRef.current;
     const m = new THREE.Matrix4();
+    const baseScale = new THREE.Vector3();
     for (let i = 0; i < total; i++) {
       const t = transforms[i];
-      m.compose(t.position, t.quaternion, new THREE.Vector3(1, 1, 1));
+      baseScale.set(1, t.yScale, 1);
+      m.compose(t.position, t.quaternion, baseScale);
       mesh.setMatrixAt(i, m);
       mesh.setColorAt(i, yarnShade(COLORS[model.stitches[i].color], i));
     }
@@ -542,9 +549,10 @@ function Hat({ preview = false }: { preview?: boolean }) {
       const e = 1 - Math.pow(1 - k, 3);
       const s = 0.35 + 0.65 * e;
       const m = new THREE.Matrix4();
-      const scale = new THREE.Vector3(s, s, s);
+      const scale = new THREE.Vector3();
       for (let i = rev.from; i < rev.to && i < total; i++) {
         const t = transforms[i];
+        scale.set(s, s * t.yScale, s);
         m.compose(t.position, t.quaternion, scale);
         mesh.setMatrixAt(i, m);
       }

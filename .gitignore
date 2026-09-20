@@ -12,3 +12,14 @@ dist
 *.tsbuildinfo
 verify-shots/
 invent_v1/tools/node_modules
+
+# Xcode (watch/)
+xcuserdata/
+*.xcuserstate
+DerivedData/
+watch/Masketeller/Tools/.build/
+
+# Watch app data & build output (huge, not source)
+watch/Masketeller/recordings/
+watch/Masketeller/Engineering/
+watch/Masketeller/Builds/

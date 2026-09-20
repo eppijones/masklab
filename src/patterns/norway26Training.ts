@@ -1,4 +1,5 @@
 import { buildNorwayKit } from './norwayKit';
+import type { OverrideLayer } from '../data/chartLayers';
 
 /**
  * NORWAY'26 — Trening.
@@ -21,6 +22,60 @@ import { buildNorwayKit } from './norwayKit';
  * you can follow across the hat rather than an all-over texture. Athletic and
  * geometric, and every stroke at least two stitches wide.
  */
+/**
+ * RUNDE 30, CLOSED SOLID RED FROM MASK 80 — a hand finish on ONE round's tail.
+ *
+ * Espen worked rounds 1–29 and the first 79 masker of round 30 to the printed
+ * pattern before this override existed, so those are on the hook and cannot
+ * move: nothing here touches the field, the seed or any round but 30, and mask
+ * 79 stays navy exactly as the pattern already drew it. From mask 80 to the end
+ * of round 30 the four inks give way to plain red — he closes the round in one
+ * colour and carries the other three unbroken down the rest of the hat rather
+ * than keep changing yarn to the chart. Rounds 31→rim are left as generated.
+ *
+ * BUT THE CAMOUFLAGE HAS TO STAY CONNECTED, OR THE HAT STOPS LOOKING WOVEN.
+ * The transition corridor sits at mask ~84–85, and three of the field's strokes
+ * pass straight down it through round 30 — they are the «camouflage between the
+ * NORGE copies», and each one runs unbroken round 29 → 30 → 31 → brim:
+ *
+ *   • the NAVY core, masks 85–88 above and 84–87 below — the main corridor stroke;
+ *   • a thin LIGHT-BLUE companion at mask 82, carrying on into 82–83 below;
+ *   • a thin WHITE companion at mask 90, running mask 90 the whole way down.
+ *
+ * Flooding 80–100 red the first time cut all three at round 30, so the corridor
+ * dead-ended and the field read as a solid red band with strokes stopping dead
+ * against it — not believable. `RUNDE30_STROKES` keeps those masker in their own
+ * colour so every stroke passes through: the navy trimmed one stitch to 85–87
+ * (a believable 4→3→4 taper down its leftward-drifting centreline, not the old
+ * four-wide block), the two companions at their natural single-stitch width.
+ * Those are the FEW coloured stitches on the tail; everything else is red.
+ *
+ * The override is keyed on the WALL grid: round 30 is chart row 11, i.e. grid
+ * row index 10 (`derivePattern` reads `textGrid[chartRow-1][mask-1]`), and mask
+ * M sits at column M-1. Setting the whole 80–100 span — not only the masker that
+ * changed — makes the intent a complete statement of the round rather than a
+ * diff against a field that must not be re-read to understand it. Every colour
+ * here matches what the field itself drew, so the corridor is the original
+ * design, not an invention laid on top of it.
+ */
+const RUNDE30_GRID_ROW = 10; // chartRow 11 → grid row index 10
+/** The corridor's camouflage strokes, kept in their own colour so the field
+ *  reads continuous through round 30. Colours match the generated field. */
+const RUNDE30_STROKES: Record<number, 'blue' | 'white' | 'lightblue'> = {
+  82: 'lightblue',
+  85: 'blue',
+  86: 'blue',
+  87: 'blue',
+  90: 'white',
+};
+function closeRunde30Red(): OverrideLayer {
+  const cells: OverrideLayer['cells'] = {};
+  for (let mask = 80; mask <= 100; mask++) {
+    cells[`${RUNDE30_GRID_ROW},${mask - 1}`] = RUNDE30_STROKES[mask] ?? 'red';
+  }
+  return { kind: 'override', cells };
+}
+
 export const NORWAY26_TRAINING = buildNorwayKit({
   id: 'norway26-training',
   title: "NORGE Home",
@@ -53,4 +108,16 @@ export const NORWAY26_TRAINING = buildNorwayKit({
     curve: 0.28,
     tipSharp: 0.3,
   },
+  /**
+   * A SHORTER BRIM THAN HELENE'S — Espen's own finish, four rounds off the end.
+   * On the head at round 31 the hat already sat where he wanted it, so instead of
+   * her nine-round brim it takes the collection's five-round `SHORT_BRIM_TAIL`
+   * (see `norwayKit.ts`): still shapes 100 → 110 → 120 at the fold, one flare
+   * round to 144, two navy rim rounds, ending at Runde 36 not 40. `fieldRows` is
+   * pinned, so dropping brim rounds cannot move the crown or wall he has already
+   * crocheted — and he was on round 31 when this was cut, all of it still ahead.
+   */
+  shortBrim: true,
 });
+
+NORWAY26_TRAINING.chartOverride = closeRunde30Red();

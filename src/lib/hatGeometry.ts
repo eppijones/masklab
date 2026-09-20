@@ -285,6 +285,14 @@ export function buildProfile(rounds: Round[]): RingPos[] {
 export interface StitchTransform {
   position: THREE.Vector3;
   quaternion: THREE.Quaternion;
+  /**
+   * Stretch along the stitch's surface-up axis, so a round whose ring steps
+   * further than one stitch-height from the round above still reads as solid
+   * fabric instead of showing the ground between rounds. 1 on the wall and crown
+   * (rings already sit ~one stitch apart there); larger only where the profile
+   * spreads — chiefly a short, hard-flaring brim. Never below 1.
+   */
+  yScale: number;
 }
 
 /**
@@ -341,11 +349,16 @@ export function buildStitchTransforms(
 
     const pos = new THREE.Vector3(ring.r * cos, ring.y, ring.r * sin);
 
-    // Up along the surface: towards where the previous round's ring is.
-    yAxis
-      .set((prev.r - ring.r) * cos, prev.y - ring.y, (prev.r - ring.r) * sin)
-      .normalize();
-    if (yAxis.lengthSq() < 0.5) yAxis.set(0, 1, 0);
+    // Up along the surface: towards where the previous round's ring is. Its
+    // length before normalising is the surface gap to that round — a stitch is
+    // one STITCH_H tall, so anything past that is ground the fabric has to cover.
+    yAxis.set((prev.r - ring.r) * cos, prev.y - ring.y, (prev.r - ring.r) * sin);
+    const gap = yAxis.length();
+    if (gap < 1e-3) yAxis.set(0, 1, 0);
+    else yAxis.multiplyScalar(1 / gap);
+    // Stretch to span the gap (capped so a hard increase row fills rather than
+    // spikes), never below 1 so the wall and crown are left exactly as drawn.
+    const yScale = Math.min(3.4, Math.max(1, gap / STITCH_H));
     // Circumferential tangent:
     xAxis.set(-sin, 0, cos);
     zAxis.crossVectors(xAxis, yAxis).normalize();
@@ -354,7 +367,7 @@ export function buildStitchTransforms(
 
     m.makeBasis(xAxis, yAxis, zAxis);
     const q = new THREE.Quaternion().setFromRotationMatrix(m);
-    out.push({ position: pos, quaternion: q });
+    out.push({ position: pos, quaternion: q, yScale });
   }
   return out;
 }

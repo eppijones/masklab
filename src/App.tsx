@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import WatchSync from './sync/WatchSync';
 import HatScene from './components/HatScene';
 import StepPanel from './components/StepPanel';
 import StageFoot from './components/StageFoot';
@@ -102,6 +103,7 @@ function TopBar() {
         {/* Flags only — language was chosen on welcome; frees space for the title */}
         <LanguageSwitcher flagsOnly />
         <BookmarkButton />
+        <WatchSync />
         <button
           type="button"
           className="icon-btn"

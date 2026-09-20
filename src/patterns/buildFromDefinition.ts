@@ -215,19 +215,46 @@ export function buildRoundsFromDefinition(
   const brimInc = buildBrimIncRounds(bodyCount, num, def.background).map(paintInc);
   num += brimInc.length;
   const waveBase = brimInc[brimInc.length - 1]?.count ?? bodyCount;
-  const waves = buildWaveRounds(waveBase, num, def.includeWave).map(paintInc);
-  num += waves.length;
 
-  const finalCount =
-    waves.length > 0 ? waves[waves.length - 1].count : waveBase;
-  const finalBrim: Omit<Round, 'label'> = {
-    num,
-    phase: 'brim',
-    count: finalCount,
-    color: def.finalBrim.color,
-    increaseEvery: null,
-    chartRow: null,
-  };
+  /**
+   * A kit may replace Helene's six wave rounds + final round with a shorter,
+   * explicit flare tail (`BrimFinishSpec.flareSchedule`) — the two brim-increase
+   * rounds above are untouched, so the fold still shapes body → 110 → 120. Each
+   * entry is one round below them; the last takes the `brim` phase, and the
+   * finish path still forces the last `rimRounds` solid, so the edge is kept.
+   */
+  const customTail = finish?.flareSchedule;
+  let waves: Omit<Round, 'label'>[];
+  let finalBrim: Omit<Round, 'label'>;
+  if (customTail && customTail.length > 0) {
+    const tail = customTail.map((r, i) =>
+      paintInc({
+        num: num + i,
+        phase: (i === customTail.length - 1 ? 'brim' : 'wave') as Round['phase'],
+        count: r.count,
+        color: def.background,
+        increaseEvery: r.increaseEvery,
+        chartRow: null,
+        waveRow: null,
+      }),
+    );
+    num += tail.length;
+    waves = tail.slice(0, -1);
+    finalBrim = tail[tail.length - 1];
+  } else {
+    waves = buildWaveRounds(waveBase, num, def.includeWave).map(paintInc);
+    num += waves.length;
+    const finalCount =
+      waves.length > 0 ? waves[waves.length - 1].count : waveBase;
+    finalBrim = {
+      num,
+      phase: 'brim',
+      count: finalCount,
+      color: def.finalBrim.color,
+      increaseEvery: null,
+      chartRow: null,
+    };
+  }
 
   if (finish) {
     /**

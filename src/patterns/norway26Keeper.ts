@@ -30,6 +30,10 @@ export const NORWAY26_KEEPER = buildNorwayKit({
   ground: 'yellow',
   textColor: 'black',
   edge: 'black',
+  // Same short bucket as Home, and the bold upright NORGE («norgeDisplay26»)
+  // rather than the drawn italic — two-stitch strokes, no lean.
+  shortBrim: true,
+  wordmarkFontId: 'norgeDisplay26',
   field: {
     seed: 1926,
     // Gold twice: it is the tonal note the shirt is built on, and against a

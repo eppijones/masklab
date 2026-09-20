@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>One yarn, or four — NORGE Home</title>
+<style>
+@font-face{font-family:Karla;font-weight:500;font-style:normal;font-display:swap;src:url(data:font/ttf;base64,@@FONT_MEDIUM@@) format('truetype')}
+@font-face{font-family:Karla;font-weight:800;font-style:normal;font-display:swap;src:url(data:font/ttf;base64,@@FONT_BOLD@@) format('truetype')}
+
+:root{
+  --bg:#EDE7DA; --card:#FDFAF3; --ink:#201D18; --ink-soft:#55503F; --ink-faint:#8A8070;
+  --line:#EDE4D0; --card-border:#E4DAC5; --chip:#F3ECDC;
+  --red:#BA0C2F; --blue:#00205B; --lightblue:#6E86C0; --white-yarn:#F6F0E1;
+  --stage:#C6C2BA; --go:#2F6B4F;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:radial-gradient(1200px 600px at 50% -220px,#F4EEDF 0%,rgba(244,238,223,0) 70%),var(--bg);
+  color:var(--ink); font-family:Karla,ui-sans-serif,system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  font-weight:500; -webkit-font-smoothing:antialiased; line-height:1.55;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 96px}
+a{color:var(--red)}
+
+/* ---------- type ---------- */
+h1,h2,h3{font-weight:800;letter-spacing:-.015em;line-height:1.1;margin:0}
+h1{font-size:clamp(34px,5.6vw,60px)}
+h2{font-size:clamp(22px,3vw,30px);margin-bottom:14px}
+h3{font-size:16px;letter-spacing:.02em}
+p{margin:0 0 14px}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint)}
+.deck{font-size:clamp(16px,2vw,19px);color:var(--ink-soft);max-width:64ch;margin-top:16px}
+.small{font-size:13.5px;color:var(--ink-soft)}
+.tiny{font-size:12px;color:var(--ink-faint)}
+strong{font-weight:800}
+.num{font-variant-numeric:tabular-nums}
+
+header{padding:64px 0 34px;border-bottom:1px solid var(--card-border)}
+
+/* ---------- stage ---------- */
+.stage{margin:34px 0 0}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:860px){.pair{grid-template-columns:1fr}}
+
+.panel{background:var(--card);border:1px solid var(--card-border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.panel-head{padding:14px 16px 12px;border-bottom:1px solid var(--line)}
+.panel-head .tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border-radius:999px;margin-bottom:8px}
+.tag-now{background:#E8F0EA;color:var(--go)}
+.tag-alt{background:#F2E3E6;color:var(--red)}
+.panel-head h3{margin-bottom:3px}
+.panel-head p{margin:0;font-size:13px;color:var(--ink-soft)}
+.canvas-hold{position:relative;background:var(--stage);aspect-ratio:1/1;touch-action:none}
+canvas{display:block;width:100%;height:100%;transition:filter .25s ease}
+body.squint canvas{filter:blur(7px) saturate(.94)}
+.swatches{display:flex;gap:6px;padding:11px 16px;border-top:1px solid var(--line);align-items:center;flex-wrap:wrap}
+.sw{width:15px;height:15px;border-radius:4px;border:1px solid rgba(0,0,0,.16)}
+.sw-marl{background:conic-gradient(from 20deg,#BA0C2F 0 25%,#F6F0E1 0 50%,#00205B 0 75%,#6E86C0 0);}
+.swatches .lbl{font-size:11.5px;color:var(--ink-faint);letter-spacing:.02em}
+
+/* ---------- controls ---------- */
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 0;padding:12px 14px;background:var(--card);border:1px solid var(--card-border);border-radius:14px}
+button{font:inherit;font-size:13px;font-weight:800;letter-spacing:.02em;padding:7px 13px;border-radius:999px;border:1px solid var(--card-border);background:var(--chip);color:var(--ink);cursor:pointer}
+button:hover{background:#EDE3CC}
+button[aria-pressed=true]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.sep{width:1px;height:22px;background:var(--card-border);margin:0 4px}
+.hint{margin-left:auto;font-size:12px;color:var(--ink-faint)}
+@media (max-width:640px){.hint{margin-left:0;width:100%}}
+
+.sliders{margin-top:10px;padding:14px;background:var(--card);border:1px solid var(--card-border);border-radius:14px}
+.sliders .row{display:grid;grid-template-columns:190px 1fr 62px;gap:12px;align-items:center;margin-bottom:9px}
+.sliders .row:last-of-type{margin-bottom:0}
+.sliders label{font-size:13px;font-weight:800}
+.sliders .val{font-size:12.5px;color:var(--ink-faint);text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--red)}
+.sliders .note{margin:11px 0 0;font-size:12px;color:var(--ink-faint);line-height:1.5}
+
+/* ---------- sections ---------- */
+section{padding-top:56px}
+.lede{max-width:66ch;color:var(--ink-soft)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+@media (max-width:860px){.cards{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:18px}
+.card h3{margin-bottom:8px}
+.card p{margin:0;font-size:14px;color:var(--ink-soft)}
+.card .big{font-size:30px;font-weight:800;letter-spacing:-.02em;display:block;margin-bottom:2px;font-variant-numeric:tabular-nums}
+
+table{width:100%;border-collapse:collapse;margin-top:20px;background:var(--card);border:1px solid var(--card-border);border-radius:14px;overflow:hidden}
+th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top}
+thead th{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint);background:#F7F2E6}
+tbody tr:last-child td{border-bottom:0}
+td:first-child{font-weight:800;width:26%}
+td.yes{color:var(--go)} td.no{color:var(--red)}
+@media (max-width:640px){th,td{padding:10px 11px;font-size:13px}td:first-child{width:34%}}
+
+.diagram{margin-top:24px;background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:20px}
+.diagram svg{width:100%;height:auto;display:block}
+
+ol.steps{counter-reset:s;list-style:none;padding:0;margin:22px 0 0}
+ol.steps li{counter-increment:s;position:relative;padding:0 0 0 46px;margin-bottom:16px;max-width:70ch}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:-1px;width:30px;height:30px;border-radius:999px;background:var(--ink);color:var(--card);font-weight:800;font-size:14px;display:grid;place-items:center}
+ol.steps b{font-weight:800}
+ol.steps p{margin:3px 0 0;font-size:14px;color:var(--ink-soft)}
+
+.verdict{margin-top:26px;background:var(--ink);color:#F4EEDF;border-radius:16px;padding:30px 32px}
+.verdict h2{color:#fff;margin-bottom:10px}
+.verdict p{color:#D8D1C2;max-width:62ch;font-size:15px}
+.verdict p:last-child{margin-bottom:0}
+.verdict em{color:#fff;font-style:normal;font-weight:800}
+
+footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--card-border);font-size:12px;color:var(--ink-faint);max-width:70ch}
+.loading{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6D6960;background:var(--stage)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">NORGE · Home — yarn study</div>
+  <h1>One yarn, or four</h1>
+  <p class="deck">The four balls wind around each other while you work, and the fix on the table is to ply red, white, navy and light blue into a single strand so there is only ever one yarn in your hand. This is what that hat looks like, next to the one the recipe makes now.</p>
+</header>
+
+<div class="stage">
+  <div class="pair">
+    <div class="panel">
+      <div class="panel-head">
+        <span class="tag tag-now">The recipe now</span>
+        <h3>Four yarns, kept apart</h3>
+        <p>You choose the colour at every stitch. 3&nbsp;694 stitches, 42 rounds.</p>
+      </div>
+      <div class="canvas-hold"><canvas id="cv-now"></canvas><div class="loading" id="ld-now">Loading</div></div>
+      <div class="swatches">
+        <span class="sw" style="background:#BA0C2F"></span>
+        <span class="sw" style="background:#F6F0E1"></span>
+        <span class="sw" style="background:#00205B"></span>
+        <span class="sw" style="background:#6E86C0"></span>
+        <span class="lbl">four balls · placed stitch by stitch</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <span class="tag tag-alt">The anti-tangle idea</span>
+        <h3>One yarn, plied from all four</h3>
+        <p>The twist chooses the colour. Same rounds, same shape, one strand.</p>
+      </div>
+      <div class="canvas-hold"><canvas id="cv-marl"></canvas><div class="loading" id="ld-marl">Loading</div></div>
+      <div class="swatches">
+        <span class="sw sw-marl"></span>
+        <span class="lbl">one ball · colour arrives on the ply cycle</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button data-view="front" aria-pressed="true">Front</button>
+    <button data-view="side">Side</button>
+    <button data-view="crown">Crown</button>
+    <button data-view="detail">Close up</button>
+    <span class="sep"></span>
+    <button id="btn-spin" aria-pressed="true">Spin</button>
+    <button id="btn-squint" aria-pressed="false">Squint</button>
+    <span class="hint">Drag either hat — both turn together. Scroll to zoom.</span>
+  </div>
+
+  <div class="sliders">
+    <div class="row">
+      <label for="sl-turns">Ply twist</label>
+      <input id="sl-turns" type="range" min="10" max="140" value="70" />
+      <span class="val" id="v-turns">0.70</span>
+    </div>
+    <div class="row">
+      <label for="sl-wobble">Hand-plied unevenness</label>
+      <input id="sl-wobble" type="range" min="0" max="100" value="45" />
+      <span class="val" id="v-wobble">0.45</span>
+    </div>
+    <p class="note">Ply twist is how many turns of the ply pass through one single crochet — tight plying at the top of the range, a long lazy ply at the bottom. Unevenness is how much the pitch wanders, which is what hand-plying on a drill actually gives you. Move both ends to ends: nothing anywhere in the range puts a letter back.</p>
+  </div>
+</div>
+
+<section>
+  <h2>What is actually different</h2>
+  <p class="lede">Only one thing changed between the two hats above — the yarn. Same 42 rounds, same increases, same silhouette, same four colours by weight. The difference is who decides where a colour lands.</p>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Four yarns apart</h3>
+      <p><span class="big num">1 412</span>colour changes across the hat, and at every one of them <em>you</em> put a specific colour on the hook. That is what a wordmark is made of.</p>
+    </div>
+    <div class="card">
+      <h3>One plied yarn</h3>
+      <p><span class="big num">0</span>colour changes you control. The strand carries all four at once and the ply decides which one faces out. Colour stops being a decision.</p>
+    </div>
+    <div class="card">
+      <h3>The busiest round</h3>
+      <p><span class="big num">49</span>changes in round 23 alone, on 100 stitches. This is the round that tangles the balls — and it is also the round that draws the deepest kink in the zigzag.</p>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>On the hat</th><th>Four yarns apart</th><th>One plied yarn</th></tr></thead>
+    <tbody>
+      <tr><td>NORGE, front and back</td><td class="yes">Reads from any angle — 36 stitches of ink in a 38-stitch panel, worked twice</td><td class="no">Gone. White lands where the twist puts it, not where the chart says</td></tr>
+      <tr><td>The twelve zigzag bundles</td><td class="yes">Run unbroken from the crown centre, down the wall, out to the rim</td><td class="no">Gone. Replaced by an even all-over speckle</td></tr>
+      <tr><td>Red ground</td><td class="yes">1 428 of 3 694 stitches — the field everything else reads against</td><td class="no">No ground. Red is a quarter of every stitch instead of the base of any</td></tr>
+      <tr><td>Navy rim</td><td class="yes">Two solid rounds, like the collar band</td><td class="no">Gone. Nothing can be solid</td></tr>
+      <tr><td>Colour at arm's length</td><td class="yes">Red hat with a graphic on it</td><td class="no">One muddied violet-grey — four opposites average out</td></tr>
+      <tr><td>Balls in play</td><td class="no">Four, and they wind round each other</td><td class="yes">One. The tangle really is solved</td></tr>
+      <tr><td>Yarn thickness</td><td class="yes">One DK strand, 4.0 mm hook, 20 fm per 10 cm</td><td class="no">Four strands in one — about four times the cross-section</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Why the pattern cannot survive it</h2>
+  <p class="lede">Not a matter of taste, and not something a better ply would fix. Colourwork is the act of choosing which yarn is on the hook. Plying the yarns together is the act of giving that choice away — permanently, because you cannot pull them back apart once they are worked.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 900 250" role="img" aria-label="Four separate strands feeding a hook, versus one plied strand feeding a hook">
+      <defs>
+        <style>
+          .lbl{font:800 13px Karla,sans-serif;fill:#8A8070;letter-spacing:.1em;text-transform:uppercase}
+          .cap{font:500 13px Karla,sans-serif;fill:#55503F}
+          .yarn{fill:none;stroke-width:9;stroke-linecap:round}
+        </style>
+      </defs>
+
+      <text class="lbl" x="0" y="18">Four yarns apart</text>
+      <path class="yarn" style="stroke:#BA0C2F" d="M6 56 C 120 56, 200 60, 300 92" />
+      <path class="yarn" style="stroke:#DFD4BA;stroke-width:12" d="M6 84 C 120 84, 200 86, 300 100" />
+      <path class="yarn" style="stroke:#F6F0E1" d="M6 84 C 120 84, 200 86, 300 100" />
+      <path class="yarn" style="stroke:#00205B" d="M6 112 C 120 112, 200 110, 300 108" />
+      <path class="yarn" style="stroke:#6E86C0" d="M6 140 C 120 140, 200 132, 300 116" />
+      <circle cx="316" cy="104" r="15" fill="none" stroke="#201D18" stroke-width="3"/>
+      <text class="cap" x="0" y="184">One goes over the hook. Three wait.</text>
+      <text class="cap" x="0" y="206">You pick, every stitch. The picture is the picking.</text>
+
+      <line x1="430" y1="10" x2="430" y2="230" stroke="#E4DAC5" stroke-width="2"/>
+
+      <text class="lbl" x="470" y="18">One plied yarn</text>
+      <g id="plied"></g>
+      <circle cx="786" cy="104" r="15" fill="none" stroke="#201D18" stroke-width="3"/>
+      <text class="cap" x="470" y="184">All four go over the hook, every stitch.</text>
+      <text class="cap" x="470" y="206">Whichever one faces out is whichever one faces out.</text>
+    </svg>
+  </div>
+
+  <ol class="steps">
+    <li><b>The wordmark needs white in exactly 36 places per copy.</b>
+      <p>NORGE is set as 36 stitches of ink inside a 38-stitch protected panel, stamped twice so the hat reads front and back. A plied yarn puts white on the face roughly a quarter of the time, spread evenly — which is another way of saying never where you need it and always where you do not.</p></li>
+    <li><b>The zigzag is one continuous stroke, not a texture.</b>
+      <p>Twelve bundles start at the crown's centre and sweep down the wall and out over the brim without a break. That continuity is the kit. A ply cycle produces the opposite thing: a fine even speckle with no direction anyone can follow across the hat.</p></li>
+    <li><b>Red is a ground, and a marl has no ground.</b>
+      <p>1 428 of 3 694 stitches are red, and their job is to be the quiet thing the other three cut across. Plied, red is a quarter of every single stitch instead of the whole of some — and red, white, navy and light blue averaged together land on a dull violet-grey. Step back three metres from the right-hand hat and that is the only colour left.</p></li>
+    <li><b>And the yarn is four times as thick.</b>
+      <p>The recipe is one DK strand on a 4.0 mm hook at 20 fastmasker per 10 cm. Four of them plied is roughly four times the cross-section — call it a 9 mm hook and something near half the stitches around. At that gauge NORGE would not fit even if you could place it: the word needs a 38-stitch panel twice over, and there are only about fifty stitches in the round.</p></li>
+  </ol>
+</section>
+
+<section>
+  <h2>What to do about the tangling instead</h2>
+  <p class="lede">The problem is real. Four balls, 1 412 colour changes, and a hat you rotate the same way for 42 rounds — the twist has nowhere to go but into the yarns. It just has cheaper fixes than giving up the colourwork.</p>
+  <ol class="steps">
+    <li><b>Let the hat hang and unwind, every few rounds.</b>
+      <p>Working in a spiral means you turn the work the same direction continuously, so the twist between the balls is cumulative and one-directional. Drop the hat and let it spin itself out. Thirty seconds, and it undoes rounds of winding.</p></li>
+    <li><b>Give each ball its own container, spaced apart.</b>
+      <p>Four jars, four bags or a yarn bowl per colour, set in a fixed left-to-right order and never crossed. Strands that enter your hand in a constant order do not braid.</p></li>
+    <li><b>Carry the passive yarns inside the fabric — the recipe already says so.</b>
+      <p>Crochet over the colours you are not using rather than letting them dangle. Nothing that travels inside the stitches can wrap around anything, and it kills the long floats at the same time. Loose enough that the hat does not draw in.</p></li>
+    <li><b>Bobbin the colours that only show up in one place.</b>
+      <p>Light blue is 381 stitches out of 3 694, in bundles. It does not need a whole ball hanging off the hat — wind a butterfly and clip it.</p></li>
+    <li><b>If you still want a marl, put it somewhere it costs nothing.</b>
+      <p>Two strands plied is a real colour, and a hat has places that carry no drawing — a lining, a pompom, a plain second hat. Not the ground of this one, which has to stay quiet enough for twelve strokes and a five-letter word to sit on top of it.</p></li>
+  </ol>
+</section>
+
+<div class="verdict">
+  <h2>The verdict</h2>
+  <p>Your instinct is right, and the render is not the reason — the arithmetic is. <em>Colourwork is a decision made 1 412 times.</em> A plied yarn is the decision to stop making it. You get one ball and no tangle, and you pay for it with the wordmark, the twelve strokes, the rim and the ground: everything that makes this hat NORGE Home rather than a nice speckled bucket hat.</p>
+  <p>And the pattern the four separate yarns give you really is the more unusual one. Not because the marl is ugly — up close it is quite good — but because a marl is a texture, and it is the same texture on every hat anyone ever crochets from it. The zigzag corridor running from the crown centre down to the rim past a word set in a runic italic is not a texture. It only exists if someone puts each colour where it goes.</p>
+</div>
+
+<footer>
+  Both hats are the same 3 694 stitches on the same 42-round schedule. The left one is the real NORGE Home stitch map, exported straight out of the pattern engine — every colour is the one the recipe calls for. The right one takes that same geometry and replaces the colour with a simulated 4-ply marl: twist phase accumulates along the working path, each stitch shows the arc of the ply that faces out of it, with a low-frequency wander for hand-plied pitch. It is a model of a marl, not a photograph of one — the ply sliders are there so you can push it around and see that the conclusion does not move.
+</footer>
+
+</div>
+
+<!-- three.js, bundled to a single IIFE that sets globalThis.THREE -->
+<script>@@THREE@@</script>
+<script>
+(() => {
+/* ================================ hat data ================================= */
+const D = @@DATA@@;
+/* ================================== page =================================== */
+
+/* ---- decorative plied-yarn diagram ------------------------------------- */
+(() => {
+  const g = document.getElementById('plied');
+  if (!g) return;
+  const cols = ['#BA0C2F', '#F6F0E1', '#00205B', '#6E86C0'];
+  const x0 = 476, x1 = 770, y = 100, amp = 26, turns = 3.4;
+  const ns = 'http://www.w3.org/2000/svg';
+  // Draw back-facing halves first so the strands read as wrapping around.
+  for (const pass of [0, 1]) {
+    cols.forEach((c, k) => {
+      let d = '';
+      for (let i = 0; i <= 220; i++) {
+        const t = i / 220;
+        const ph = t * turns * Math.PI * 2 + (k * Math.PI) / 2;
+        const front = Math.cos(ph) > 0;
+        const px = x0 + t * (x1 - x0);
+        const py = y + Math.sin(ph) * amp * (1 - t * 0.22);
+        if (front === !!pass) d += (d ? 'L' : 'M') + px.toFixed(1) + ' ' + py.toFixed(1);
+        else d += '';
+        if (front !== !!pass) d += ' M' + px.toFixed(1) + ' ' + py.toFixed(1);
+      }
+      // Off-white needs an outline or it vanishes into the card.
+      if (c === '#F6F0E1') {
+        const o = document.createElementNS(ns, 'path');
+        o.setAttribute('d', d);
+        o.setAttribute('fill', 'none');
+        o.setAttribute('stroke', '#DFD4BA');
+        o.setAttribute('stroke-width', pass ? '12' : '11');
+        o.setAttribute('stroke-linecap', 'round');
+        o.setAttribute('opacity', pass ? '1' : '.55');
+        g.appendChild(o);
+      }
+      const p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', d);
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke', c);
+      p.setAttribute('stroke-width', pass ? '9' : '8');
+      p.setAttribute('stroke-linecap', 'round');
+      p.setAttribute('opacity', pass ? '1' : '.55');
+      g.appendChild(p);
+    });
+  }
+})();
+
+/* ---- palette ------------------------------------------------------------ */
+const PAL = D.palette.map((p) => new THREE.Color(p.hex));
+const N = D.stitchCount;
+
+/* ---- geometry ----------------------------------------------------------- */
+function toGeo(src) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(src.position, 3));
+  if (src.normal) g.setAttribute('normal', new THREE.Float32BufferAttribute(src.normal, 3));
+  if (src.index) g.setIndex(src.index);
+  if (!src.normal) g.computeVertexNormals();
+  return g;
+}
+const STITCH_GEO = toGeo(D.stitchGeo);
+const SHELL_GEO = toGeo(D.shellGeo);
+
+/* Deterministic ±5 % per stitch — two stitches off one ball never take the
+   light the same way, and a flat colour field reads as moulded plastic. */
+function shade(i) {
+  let h = Math.imul(i + 0x1f83, 0x85ebca6b) >>> 0;
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35) >>> 0;
+  return 0.955 + (((h ^ (h >>> 16)) >>> 0) / 4294967296) * 0.09;
+}
+
+/* ---- colour A: the recipe ----------------------------------------------- */
+const colNow = new Float32Array(N * 3);
+{
+  const c = new THREE.Color();
+  for (let i = 0; i < N; i++) {
+    c.copy(PAL[D.color[i]]).multiplyScalar(shade(i));
+    colNow[i * 3] = c.r; colNow[i * 3 + 1] = c.g; colNow[i * 3 + 2] = c.b;
+  }
+}
+
+/* ---- colour B: a 4-ply marl --------------------------------------------- */
+/* Twist phase accumulates along the working path: every stitch eats a fixed
+   length of yarn, so it advances the ply by a fixed number of turns. What a
+   stitch SHOWS is the arc of that ply which ends up on the face of it — not
+   one strand and not the average of all four, but the integral over a window.
+   Tighter ply, wider window, muddier stitch. Value noise on the pitch stands
+   in for a ply wound by hand rather than by machine. */
+const colMarl = new Float32Array(N * 3);
+const noise = new Float32Array(Math.ceil(N / 37) + 2);
+{
+  let s = 0x2f6b4f;
+  for (let i = 0; i < noise.length; i++) {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    noise[i] = s / 4294967296 - 0.5;
+  }
+}
+function drift(i) {
+  const t = i / 37, k = Math.floor(t), f = t - k;
+  const w = (1 - Math.cos(f * Math.PI)) * 0.5;
+  return noise[k] * (1 - w) + noise[k + 1] * w;
+}
+
+function buildMarl(turns, wobble) {
+  const win = Math.min(0.5, Math.max(0.05, turns * 0.42));   // visible arc, in turns
+  const P = 1.7, SAMPLES = 7;
+  const w = [0, 0, 0, 0];
+  const c = new THREE.Color();
+  let phase = 0, wob = 0;
+  for (let i = 0; i < N; i++) {
+    wob += (drift(i) - wob) * 0.5;
+    phase += turns * (1 + wob * wobble * 1.5);
+    w[0] = w[1] = w[2] = w[3] = 0;
+    for (let s = 0; s < SAMPLES; s++) {
+      const ph = (phase + (s / (SAMPLES - 1)) * win) * Math.PI * 2;
+      for (let k = 0; k < 4; k++) {
+        const f = Math.cos(ph + k * Math.PI * 0.5);
+        if (f > 0) w[k] += Math.pow(f, P);
+      }
+    }
+    const tot = w[0] + w[1] + w[2] + w[3] || 1;
+    let r = 0, g = 0, b = 0;
+    for (let k = 0; k < 4; k++) {
+      const p = PAL[k], q = w[k] / tot;
+      r += p.r * q; g += p.g * q; b += p.b * q;
+    }
+    const sh = shade(i);
+    c.setRGB(r * sh, g * sh, b * sh);
+    colMarl[i * 3] = c.r; colMarl[i * 3 + 1] = c.g; colMarl[i * 3 + 2] = c.b;
+  }
+}
+buildMarl(0.7, 0.45);
+
+/* ---- shared camera ------------------------------------------------------ */
+/* The wordmark's centre sits at hat angle FRONT_THETA + (front-0.5)/cols·2π
+   minus TEXT_CENTER_FRAC·2π — 0.82 rad off +X for this kit. Camera azimuth is
+   measured the same way, so pointing the camera at 0.82 puts NORGE dead on. */
+const FRONT_AZ = 0.82;
+const CENTER = new THREE.Vector3(0, 14, 0);
+const cam = { az: FRONT_AZ, el: 0.34, dist: 100, tx: 0, ty: 14 };
+const VIEWS = {
+  front:  { az: FRONT_AZ, el: 0.22, dist: 100, ty: 14 },
+  side:   { az: FRONT_AZ + Math.PI / 2, el: 0.18, dist: 100, ty: 14 },
+  crown:  { az: FRONT_AZ, el: 1.05, dist: 92, ty: 15.5 },
+  detail: { az: FRONT_AZ, el: 0.10, dist: 36, ty: 16.5 },
+};
+let target = { ...VIEWS.front };
+let spin = true;
+
+/* ---- a viewport --------------------------------------------------------- */
+function makeView(canvasId, loaderId, colors) {
+  const canvas = document.getElementById(canvasId);
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
+  renderer.setClearColor(0xc6c2ba, 1);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(30, 1, 1, 400);
+
+  scene.add(new THREE.HemisphereLight(0xfff6e8, 0x6a6358, 1.5));
+  const key = new THREE.DirectionalLight(0xfff3e2, 2.0);
+  key.position.set(24, 34, 26);
+  scene.add(key);
+  const fill = new THREE.DirectionalLight(0xdce4f2, 0.7);
+  fill.position.set(-28, 8, -18);
+  scene.add(fill);
+
+  // Backing so the fabric is not see-through between the stitches.
+  const shell = new THREE.Mesh(
+    SHELL_GEO,
+    new THREE.MeshStandardMaterial({ color: 0x2b2723, roughness: 1, side: THREE.DoubleSide }),
+  );
+  shell.scale.set(0.955, 1, 0.955);
+  scene.add(shell);
+
+  const mesh = new THREE.InstancedMesh(
+    STITCH_GEO,
+    new THREE.MeshStandardMaterial({ roughness: 0.86, metalness: 0 }),
+    N,
+  );
+  const m = new THREE.Matrix4();
+  const p = new THREE.Vector3();
+  const q = new THREE.Quaternion();
+  const sc = new THREE.Vector3(1, 1, 1);
+  for (let i = 0; i < N; i++) {
+    p.set(D.pos[i * 3], D.pos[i * 3 + 1], D.pos[i * 3 + 2]);
+    q.set(D.quat[i * 4], D.quat[i * 4 + 1], D.quat[i * 4 + 2], D.quat[i * 4 + 3]);
+    m.compose(p, q, sc);
+    mesh.setMatrixAt(i, m);
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  mesh.instanceColor = new THREE.InstancedBufferAttribute(colors, 3);
+  scene.add(mesh);
+
+  document.getElementById(loaderId).remove();
+
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    const w = Math.max(1, Math.round(r.width)), h = Math.max(1, Math.round(r.height));
+    if (canvas.width !== w * renderer.getPixelRatio() || canvas.height !== h * renderer.getPixelRatio()) {
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+  }
+
+  function render() {
+    resize();
+    const ce = Math.cos(cam.el), se = Math.sin(cam.el);
+    camera.position.set(
+      cam.tx + cam.dist * ce * Math.cos(cam.az),
+      cam.ty + cam.dist * se,
+      cam.tx + cam.dist * ce * Math.sin(cam.az),
+    );
+    CENTER.set(0, cam.ty, 0);
+    camera.lookAt(CENTER);
+    renderer.render(scene, camera);
+  }
+
+  return { canvas, render, colorAttr: mesh.instanceColor };
+}
+
+const viewNow = makeView('cv-now', 'ld-now', colNow);
+const viewMarl = makeView('cv-marl', 'ld-marl', colMarl);
+
+/* ---- interaction -------------------------------------------------------- */
+for (const v of [viewNow, viewMarl]) {
+  let dragging = false, lx = 0, ly = 0;
+  v.canvas.addEventListener('pointerdown', (e) => {
+    dragging = true; lx = e.clientX; ly = e.clientY;
+    v.canvas.setPointerCapture(e.pointerId);
+    spin = false; setPressed(document.getElementById('btn-spin'), false);
+  });
+  v.canvas.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    target.az = cam.az - (e.clientX - lx) * 0.008;
+    target.el = Math.max(-0.45, Math.min(1.45, cam.el + (e.clientY - ly) * 0.006));
+    target.dist = cam.dist; target.ty = cam.ty;
+    cam.az = target.az; cam.el = target.el;
+    lx = e.clientX; ly = e.clientY;
+  });
+  const stop = () => { dragging = false; };
+  v.canvas.addEventListener('pointerup', stop);
+  v.canvas.addEventListener('pointercancel', stop);
+  v.canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    target.dist = cam.dist = Math.max(24, Math.min(190, cam.dist * (1 + Math.sign(e.deltaY) * 0.09)));
+  }, { passive: false });
+}
+
+function setPressed(btn, on) { btn.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+
+document.querySelectorAll('[data-view]').forEach((b) => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('[data-view]').forEach((o) => setPressed(o, o === b));
+    const v = VIEWS[b.dataset.view];
+    // Take the shortest way round rather than unwinding the spin.
+    const twoPi = Math.PI * 2;
+    let az = v.az;
+    while (az - cam.az > Math.PI) az -= twoPi;
+    while (cam.az - az > Math.PI) az += twoPi;
+    target = { ...v, az };
+  });
+});
+
+const btnSpin = document.getElementById('btn-spin');
+btnSpin.addEventListener('click', () => { spin = !spin; setPressed(btnSpin, spin); });
+const btnSquint = document.getElementById('btn-squint');
+btnSquint.addEventListener('click', () => {
+  const on = !document.body.classList.contains('squint');
+  document.body.classList.toggle('squint', on);
+  setPressed(btnSquint, on);
+});
+
+/* ---- ply sliders -------------------------------------------------------- */
+const slT = document.getElementById('sl-turns');
+const slW = document.getElementById('sl-wobble');
+function updateMarl() {
+  const turns = +slT.value / 100, wob = +slW.value / 100;
+  document.getElementById('v-turns').textContent = turns.toFixed(2);
+  document.getElementById('v-wobble').textContent = wob.toFixed(2);
+  buildMarl(turns, wob);
+  viewMarl.colorAttr.needsUpdate = true;
+}
+slT.addEventListener('input', updateMarl);
+slW.addEventListener('input', updateMarl);
+
+/* ---- loop --------------------------------------------------------------- */
+function tick() {
+  if (spin) target.az += 0.0022;
+  cam.az += (target.az - cam.az) * 0.09;
+  cam.el += (target.el - cam.el) * 0.09;
+  cam.dist += (target.dist - cam.dist) * 0.09;
+  cam.ty += (target.ty - cam.ty) * 0.09;
+  viewNow.render();
+  viewMarl.render();
+  requestAnimationFrame(tick);
+}
+tick();
+})();
+</script>
+</body>
+</html>
