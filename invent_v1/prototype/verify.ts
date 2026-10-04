@@ -13,6 +13,7 @@ import { reliability } from './redesign.ts';
 import { HAT, HAT_ROUNDS, HAT_PHASES, STITCH_POSES, RO_HAT, processAt, crochetHours } from './hat-process.ts';
 import { buildRounds, buildStitches } from '../../src/data/pattern.ts';
 import { YARN_HEX } from '../../src/data/types.ts';
+import { LETTER_ROWS, stitchContext, firstLetterColorChange, cyclePose } from './stitch-cycle.ts';
 const root=fileURLToPath(new URL('./public/',import.meta.url));
 const data=JSON.parse(readFileSync(root+'manifest.json','utf8'));
 let checks=0;
@@ -43,6 +44,20 @@ check('RO RO RO colors and increases match the canonical pattern, not a generic 
   assert.deepEqual(STITCH_POSES.map(p=>p.color),stitches.map(s=>YARN_HEX[s.color]));
   assert.equal(stitches.filter(s=>s.changeColorAfter!==null).length,HAT.colorChanges);
   assert.deepEqual(data.hatRounds.map((r:any)=>r.colors),RO_HAT.rounds.map(r=>r.colors));
+});
+check('Exterior lettering reads left-to-right both during playback and on the completed hat',()=>{
+  const row=LETTER_ROWS[0];const centre=STITCH_POSES[row.start+9].angle;
+  const right=[-Math.sin(centre),Math.cos(centre)];
+  const projected=(i:number)=>{const s=STITCH_POSES[row.start+i];return s.x*right[0]+s.y*right[1];};
+  for(let i=0;i<18;i++)assert.ok(projected(i+1)>projected(i),'mirrored outside chart');
+  for(let i=0;i<row.count;i++)assert.ok(Math.abs(processAt(row.start+i).angle-STITCH_POSES[row.start+i].angle)<1e-9);
+});
+check('Color changes are prepared on the last pull-through of the preceding stitch',()=>{
+  const c=stitchContext(firstLetterColorChange());
+  assert.equal(c.row.num,20);assert.equal(c.column,1);assert.equal(c.colorName,'Hvit');assert.equal(c.nextColorName,'Rød');assert.ok(c.changes);
+  assert.equal(cyclePose(3).twoLoops,true);assert.equal(cyclePose(4).secondCatch,true);
+  assert.equal(cyclePose(5).twoLoops,false);assert.equal(cyclePose(5).finished,true);
+  for(let i=0;i<5;i+=.1)assert.equal(cyclePose(i).finished,false);
 });
 await initKernel(ManifoldModule);
 const rack=evalSolid(FIT_RACK.build!(FIT_RACK.dims));

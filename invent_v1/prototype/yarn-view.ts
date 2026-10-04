@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { RO_HAT, STITCH_POSES } from './hat-process.ts';
+import { RO_HAT, STITCH_POSES, processAt } from './hat-process.ts';
 
 /** Yarn supplies and a schematic feed route. These are bought yarn, not printable parts. */
 export function makeYarnView() {
@@ -21,8 +21,15 @@ export function makeYarnView() {
   });
   const marker=new THREE.Mesh(new THREE.TorusGeometry(8,.65,6,28),new THREE.MeshBasicMaterial({color:'#dd8756'}));
   marker.rotation.x=Math.PI/2;marker.position.set(210,-17.6,66);group.add(marker);
+  const connection=new THREE.Line(new THREE.BufferGeometry(),new THREE.LineDashedMaterial({color:'#d68139',dashSize:3,gapSize:3,transparent:true,opacity:.85}));
+  group.add(connection);
+  let lastProgress=-1;
   return {group,update(progress:number){
-    const active=STITCH_POSES[Math.min(STITCH_POSES.length-1,Math.floor(progress))].color;
+    if(progress===lastProgress)return;lastProgress=progress;
+    const stitch=STITCH_POSES[Math.min(STITCH_POSES.length-1,Math.floor(progress))],active=stitch.color,p=processAt(progress);
     strands.forEach((mesh,i)=>{const mat=mesh.material as THREE.MeshStandardMaterial;mat.transparent=true;mat.opacity=RO_HAT.palette[i].hex===active?1:.22;});
+    const a=stitch.angle-p.angle,r=Math.hypot(stitch.x,stitch.y);
+    connection.visible=!p.complete;
+    const old=connection.geometry;connection.geometry=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(210,-17.6,66),new THREE.Vector3(r*Math.cos(a),r*Math.sin(a),stitch.z)]);old.dispose();connection.computeLineDistances();
   }};
 }

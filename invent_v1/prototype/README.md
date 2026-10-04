@@ -18,6 +18,14 @@ play/pause, scrubbing and crown/wall/brim selection. Its stitch symbols are not
 interlinked yarn geometry. The table turns to illustrate the recipe order;
 the unqualified hook/head is deliberately not shown executing a stitch.
 
+The linked stitch lesson magnifies a regular single crochet into six manually
+steppable stages, including one/two/one loops and advance color selection on the
+last pull-through. Clicking the first RO chart moves the whole-hat cursor to the
+same stitch; completing the lesson adds one stitch there. Paths are deliberately
+separated for instruction, not yarn physics or actuator instructions. A dashed
+orange line shows the unresolved gap between the current CAD hook and workpoint.
+Exterior chart orientation has a regression check for the reported mirror defect.
+
 `x1-reference-slice.json` records a local Bambu Studio 02.08.02.61 prediction:
 74 copies on 22 plates, 1,409.53 g and 47.0458 hours. Each part type is a separate
 job, with generic PETG/PLA/TPU, Textured PEI, original per-part layers/walls/infill,

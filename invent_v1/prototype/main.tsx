@@ -6,6 +6,7 @@ import type { Data, Part } from './types.ts';
 import { HAT, HAT_PHASES, HAT_HOURS, processAt } from './hat-process.ts';
 import { WholeBuild } from './whole-build.tsx';
 import { MachineInstructions, SafetyAndPatent } from './workshop.tsx';
+import { StitchLesson } from './stitch-lesson.tsx';
 import './style.css';
 
 const BASE = import.meta.env.BASE_URL;
@@ -129,6 +130,7 @@ function App({ data }: { data: Data }) {
               <div className="playback"><button className="button primary" onClick={() => {if(active.complete)setProgress(0);setPlaying(!playing);}}>{playing ? 'Pause' : active.complete ? 'Spill igjen' : 'Spill forløpet'}</button><input aria-label="Hattens fremdrift i masker" type="range" min="0" max={HAT.totalStitches} step="1" value={Math.floor(progress)} onChange={e => seek(Number(e.target.value))}/><span>{num(active.fraction * 100)} %</span></div>
               <div className="phase-buttons">{HAT_PHASES.map(p => <button key={p.id} aria-pressed={active.row.phase===p.id} onClick={() => seek(p.start)}><i/>{p.name}<small>{p.firstRound}–{p.lastRound}</small></button>)}<button className="complete-hat" onClick={() => seek(HAT.totalStitches)}>Vis hel hatt ↗</button></div>
               <p>Oppskriftsvisning · 36 masker/sekund i avspillingen, ikke maskinens arbeidstempo.</p>
+              {progress>0&&!active.complete&&<p>Oransje stiplet linje: avstanden fra dagens krok til masken den må nå. Dette festet og bevegelsen må utvikles.</p>}
             </div>}
           </section>
           <aside className="build-summary">
@@ -156,8 +158,9 @@ function App({ data }: { data: Data }) {
             </>}
           </aside>
         </div>
-        <div className="yarn-legend"><span><i style={{background:'#F6F0E1'}}/>Hvit bunn</span><span><i style={{background:'#BA0C2F'}}/>Røde RO RO RO-bokstaver</span><span><i style={{background:'#00205B'}}/>Blå bølgekant</span><button className="text-button" onClick={() => showPart('crochet-hook')}>Se heklepinnen i 3D →</button></div>
+        <div className="yarn-legend"><span><i style={{background:'#F6F0E1'}}/>Hvit bunn</span><span><i style={{background:'#BA0C2F'}}/>Røde RO RO RO-bokstaver</span><span><i style={{background:'#00205B'}}/>Blå bølgekant</span><button className="text-button" onClick={()=>document.getElementById('stitch-lesson')?.scrollIntoView({behavior:'smooth',block:'start'})}>Se én maske i sakte film ↓</button><button className="text-button" onClick={() => showPart('crochet-hook')}>Heklekroken som 3D-del →</button></div>
         <div className="build-note"><span className="note-dot" /><p><strong>Dette er ikke en byggeklar maskin ennå.</strong> V1 har {data.findings.length} åpne konstruksjonspunkter. Maskeholding, heklehode og styring må fungere fysisk før hele maskinen kan frigis til print og montering.</p><button onClick={() => setPage('Bygg og tid')}>Se hele byggegrunnlaget →</button></div>
+        <StitchLesson onLocate={cursor=>{seek(cursor);setSelected(null);setShowProcess(true);setFocusHat(true);setExplode(0);}} />
         <MachineInstructions onSelect={showPart} />
       </>}
 
