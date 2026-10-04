@@ -1,0 +1,10 @@
+{
+  "revision": "R2-RO",
+  "scope": "full",
+  "printer": "Bambu Lab X1 Carbon",
+  "nozzleMm": null,
+  "slicerVersion": "",
+  "profile": "",
+  "note": "Hele V1-referanselisten inkludert reservedeler. Fyll inn faktisk printer, nozzleMm, slicerVersion, profile og en plates-rad per plate med id, material, grams, hours og contents (del-ID: antall). Gram skal inkludere støtte, brim og purge. Ikke bruk CAD-estimater som slicerdata.",
+  "plates": []
+}

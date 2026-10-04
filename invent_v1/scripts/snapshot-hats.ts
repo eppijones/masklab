@@ -27,10 +27,10 @@ const OUT = join(DATA, 'hats.json');
 const PROFILE_OUT = join(DATA, 'mandrel-profile.ts');
 
 /**
- * Which hat the mandrel is cut for. The widest of the eight, so a former that
- * fits this one fits them all.
+ * Which hat the mandrel is cut for. The owner selected RO RO RO, 56 cm.
+ * Do not silently substitute a generic or longer hat profile.
  */
-const MANDREL_REF = 'norway26-black';
+const MANDREL_REF = 'ro-ro-ro';
 
 export interface HatSnap {
   id: string;

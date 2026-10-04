@@ -1,0 +1,20 @@
+{
+  "revision": "R1",
+  "scope": "fit",
+  "printer": "",
+  "nozzleMm": null,
+  "slicerVersion": "",
+  "profile": "",
+  "note": "SCHEMA EXAMPLE ONLY — DELETE example plate before using. These are not sliced results.",
+  "plates": [
+    {
+      "id": "example-plate",
+      "material": "PETG",
+      "grams": 1,
+      "hours": 1,
+      "contents": {
+        "fit-rack-r1": 1
+      }
+    }
+  ]
+}

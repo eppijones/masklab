@@ -1,0 +1,10 @@
+{
+  "revision": "R1",
+  "scope": "fit",
+  "printer": "",
+  "nozzleMm": null,
+  "slicerVersion": "",
+  "profile": "",
+  "note": "Enter one row per sliced plate, INCLUDING supports/brim/purge in grams. Contents maps part IDs to the count ON THAT PLATE. Do not put estimated CAD grams here.",
+  "plates": []
+}

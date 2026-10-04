@@ -176,7 +176,7 @@ const mandrelWall: PartDef = {
   mount: { frame: 'C', position: [0, 0, 12] },
   build: mandrelSection,
   print: petg({ infillPct: 15, orientationWhy: 'Open cylinder, printed as-is. Bayonets top and bottom.' }),
-  note: 'Carries the 14 chart rounds — the part of the hat the lettering lands on.',
+  note: 'Profile selected for RO RO RO; carries its 10 chart rounds — the part of the hat the lettering lands on.',
 };
 
 const mandrelBrim: PartDef = {

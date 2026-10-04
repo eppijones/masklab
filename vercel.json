@@ -4,13 +4,30 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/((?!system|api/).*)",
+      "source": "/heklomat",
+      "destination": "/heklomat/index.html"
+    },
+    {
+      "source": "/heklomat/",
+      "destination": "/heklomat/index.html"
+    },
+    {
+      "source": "/((?!system|api/|heklomat/).*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
     {
       "source": "/system/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/heklomat/(.*)",
       "headers": [
         {
           "key": "X-Robots-Tag",

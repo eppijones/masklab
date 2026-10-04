@@ -1,0 +1,240 @@
+{
+  "revision": "R2-RO",
+  "scope": "full",
+  "printer": "Bambu Lab X1 Carbon",
+  "nozzleMm": 0.4,
+  "nozzleConfirmed": false,
+  "slicerVersion": "02.08.02.61",
+  "profile": "X1C 0.4 / Generic PETG, PLA, TPU / Textured PEI / part-specific layers, walls and infill / automatic normal supports and brim",
+  "basis": "Bambu Studio print-time and material estimate for R2-RO reference parts. Hat-form geometry matches RO RO RO. Not a tested manufacturing release.",
+  "layout": "All copies of each distinct part sliced together; separate parts on separate jobs. Not optimized across part types.",
+  "printed": false,
+  "generatedAt": "2026-10-04",
+  "sha256": {
+    "gate-8": "4de45d8ce40471a4327a5896df5a8ec1ecc8d68b00ee8ee156429080206917b3",
+    "wheel-tooth": "43c4ea0d8a858a44edabc605a47d8a0445df140f412d03da705c2118f9c1bf8c",
+    "crochet-hook": "ae5feefb2150de0d5643613b27a5b8e6a14d49d8c5e25d084cf96cc88d328fa6",
+    "hook-collet": "d6792041e9c7c121711000688175e6a5d7a8d1060da12d48e35b4bff99666b7f",
+    "rail-bracket": "da9441843bcb2d867a5afe8be4c962207714dda2e92d8b7273c64d3456770711",
+    "nema17-mount": "c721a0a5b879044b6f5727e2753862f67b91ff8d0f9ef830e66c6a4506b4bd4f",
+    "camera-pod": "61ad4f7af99028ed5943ea6e719b7818b818590fac35d305e2fdba79af87d66a",
+    "tension-dancer": "7c6103e763d0bd905e3cae391dda9ef65314e3ec66b157fa2214d3359a3a873c",
+    "yarn-finger": "c20e08701f98f396bd786b616255048299fc277e7ae60e27995b69fc6ede054f",
+    "swift-base": "e93247c8d09795ef8768374a2f26b694bc14df8c973c86079b2787a1279d3795",
+    "swift-spindle": "24c270f16f06805c0f978e26447154cfd6e3bc889da1c23e062bacc181a17830",
+    "swift-guide": "c5d45f57cf458280f597b6d68f520ef1298db33db76d217e25ad2d6043a1c314",
+    "mandrel-crown": "34bc2c2acc6238009e124a6762e34128c1fa06d52ce67853512364d0244d5d9d",
+    "mandrel-wall": "0b07d7129d46f44e67fa384722571a9d69f31f1cc0fe7e45c78a43847ce79576",
+    "mandrel-brim": "e1a6f8566e056707a8d5cc78a3d54fe251e3993cfe4e6e35657d4b8be2e58c74",
+    "platter": "2249e50d656254dee42e2555910a9298ac93822b5eb94c70bcea7d5277a8e384",
+    "hub-adapter": "d0e05976f4b51dfe7896e912309df7e723653212f1ea089ac63aeac80909c9dc",
+    "comb-arc": "c2fba30390757c205f3960b9b2ea595157644bc506b153528c238720426dce3b",
+    "wheel-hub": "e44f76d8831474f129555a9d77bb295ee8e62be6149154d4b7110c332025875d",
+    "turret-drum": "e4bf55dd4455e40aada67646b23c8c056544c5869744bf5d1181761f79adda25",
+    "takedown-skirt": "7ec7411d5ec52891f00f146b96c76d0e00e55cb8572bd35d4f9df4736386969e",
+    "column-bracket": "e85bbc753b3d43d4095cd93494f87e989b8a58347e1ebf35ccf6b3e1066571df"
+  },
+  "failures": [],
+  "warnings": [],
+  "plates": [
+    {
+      "id": "gate-8-1",
+      "material": "PETG",
+      "grams": 13.29,
+      "hours": 0.8219444444444445,
+      "contents": {
+        "gate-8": 20
+      }
+    },
+    {
+      "id": "wheel-tooth-1",
+      "material": "PETG",
+      "grams": 16.74,
+      "hours": 0.7316666666666667,
+      "contents": {
+        "wheel-tooth": 9
+      }
+    },
+    {
+      "id": "crochet-hook-1",
+      "material": "PETG",
+      "grams": 8.04,
+      "hours": 1.73,
+      "contents": {
+        "crochet-hook": 5
+      }
+    },
+    {
+      "id": "hook-collet-1",
+      "material": "PETG",
+      "grams": 16.82,
+      "hours": 0.9716666666666667,
+      "contents": {
+        "hook-collet": 2
+      }
+    },
+    {
+      "id": "rail-bracket-1",
+      "material": "PETG",
+      "grams": 39.77,
+      "hours": 1.2316666666666667,
+      "contents": {
+        "rail-bracket": 2
+      }
+    },
+    {
+      "id": "nema17-mount-1",
+      "material": "PETG",
+      "grams": 116.23,
+      "hours": 3.792222222222222,
+      "contents": {
+        "nema17-mount": 6
+      }
+    },
+    {
+      "id": "camera-pod-1",
+      "material": "PLA",
+      "grams": 26.77,
+      "hours": 0.9241666666666667,
+      "contents": {
+        "camera-pod": 1
+      }
+    },
+    {
+      "id": "tension-dancer-1",
+      "material": "PETG",
+      "grams": 15.45,
+      "hours": 0.6277777777777778,
+      "contents": {
+        "tension-dancer": 4
+      }
+    },
+    {
+      "id": "yarn-finger-1",
+      "material": "PETG",
+      "grams": 5.41,
+      "hours": 0.3497222222222222,
+      "contents": {
+        "yarn-finger": 2
+      }
+    },
+    {
+      "id": "swift-base-1",
+      "material": "PETG",
+      "grams": 139.82,
+      "hours": 3.576388888888889,
+      "contents": {
+        "swift-base": 4
+      }
+    },
+    {
+      "id": "swift-spindle-1",
+      "material": "PETG",
+      "grams": 91.58,
+      "hours": 3.825833333333333,
+      "contents": {
+        "swift-spindle": 4
+      }
+    },
+    {
+      "id": "swift-guide-1",
+      "material": "PETG",
+      "grams": 140.11,
+      "hours": 4.2444444444444445,
+      "contents": {
+        "swift-guide": 4
+      }
+    },
+    {
+      "id": "mandrel-crown-1",
+      "material": "PETG",
+      "grams": 42.5,
+      "hours": 1.95,
+      "contents": {
+        "mandrel-crown": 1
+      }
+    },
+    {
+      "id": "mandrel-wall-1",
+      "material": "PETG",
+      "grams": 122.58,
+      "hours": 3.1141666666666667,
+      "contents": {
+        "mandrel-wall": 1
+      }
+    },
+    {
+      "id": "mandrel-brim-1",
+      "material": "PETG",
+      "grams": 58.65,
+      "hours": 2.129166666666667,
+      "contents": {
+        "mandrel-brim": 1
+      }
+    },
+    {
+      "id": "platter-1",
+      "material": "PETG",
+      "grams": 241.3,
+      "hours": 6.575833333333334,
+      "contents": {
+        "platter": 1
+      }
+    },
+    {
+      "id": "hub-adapter-1",
+      "material": "PETG",
+      "grams": 83.08,
+      "hours": 2.249722222222222,
+      "contents": {
+        "hub-adapter": 1
+      }
+    },
+    {
+      "id": "comb-arc-1",
+      "material": "PETG",
+      "grams": 27.41,
+      "hours": 1.14,
+      "contents": {
+        "comb-arc": 1
+      }
+    },
+    {
+      "id": "wheel-hub-1",
+      "material": "PETG",
+      "grams": 16.83,
+      "hours": 0.8327777777777777,
+      "contents": {
+        "wheel-hub": 1
+      }
+    },
+    {
+      "id": "turret-drum-1",
+      "material": "PETG",
+      "grams": 44.84,
+      "hours": 1.26,
+      "contents": {
+        "turret-drum": 1
+      }
+    },
+    {
+      "id": "takedown-skirt-1",
+      "material": "TPU",
+      "grams": 23.31,
+      "hours": 1.8966666666666667,
+      "contents": {
+        "takedown-skirt": 1
+      }
+    },
+    {
+      "id": "column-bracket-1",
+      "material": "PETG",
+      "grams": 119.0,
+      "hours": 3.07,
+      "contents": {
+        "column-bracket": 2
+      }
+    }
+  ],
+  "hat": "RO RO RO / 56 cm / 38 rounds"
+}

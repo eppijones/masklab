@@ -1,14 +1,16 @@
 # HEKLOMAT V1 — gate-wheel crochet machine
 
-The live design. Supersedes all four dossiers in [`../invent/`](../invent/).
+**Retired development concept — critical review, 4 October 2026.** The gate-wheel
+route is no longer the selected development path. Start with the
+[engineering workshop](prototype/README.md) and its
+[critical review](prototype/public/DESIGN-REVIEW.html). The older material below
+is retained as history; its assembly, procurement and component-reuse claims
+are not a validated manufacturing release.
 
 **Start here:** open `index.html` — what to print, what to order, and what to do
 with it, in the order the work actually happens.
 
-> **Do not deploy this publicly before a patent is filed.** Norway follows the
-> EPC, which has no grace period, so publishing the disclosure destroys its own
-> novelty on the day it goes up. `invent` and `invent_v1` are both in
-> `.vercelignore`.
+> **Publication update, 4 October 2026:** the owner explicitly requested the current workshop at `masklab.vercel.app/heklomat`. The older dossier below remains historical. The included patent document is an unfiled draft; publication is not evidence of patent protection or machine qualification.
 
 ## The idea
 
