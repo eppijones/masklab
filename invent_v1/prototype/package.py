@@ -103,5 +103,6 @@ review += [(p, f'source/invent_v1/prototype/{p.name}') for p in sorted(ROOT.glob
 review.append((ROOT.parent / 'data/mandrel-profile.ts', 'source/invent_v1/data/mandrel-profile.ts'))
 review.append((ROOT.parent / 'data/hats.json', 'source/invent_v1/data/hats.json'))
 review.append((ROOT.parent / 'tools/package.json', 'source/invent_v1/tools/package.json'))
+review += [(p, f'source/invent_v1/prototype/procurement/{p.name}') for p in sorted((ROOT/'procurement').glob('*.json'))]
 archive(PUBLIC / 'design-review-r1.zip', review)
 print(json.dumps({'fitArchiveBytes': (PUBLIC/'fit-kit-r1.zip').stat().st_size, 'reviewArchiveBytes': (PUBLIC/'design-review-r1.zip').stat().st_size, '3mfObjects': len(resources), '3mfPieces':len(items)}, indent=2))

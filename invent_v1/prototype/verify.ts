@@ -13,6 +13,7 @@ import { reliability } from './redesign.ts';
 import { HAT, HAT_ROUNDS, HAT_PHASES, STITCH_POSES, RO_HAT, processAt, crochetHours } from './hat-process.ts';
 import { buildRounds, buildStitches } from '../../src/data/pattern.ts';
 import { YARN_HEX } from '../../src/data/types.ts';
+import { motionPose, yarnPaths } from './yarn-motion.ts';
 import { LETTER_ROWS, stitchContext, firstLetterColorChange, cyclePose } from './stitch-cycle.ts';
 const root=fileURLToPath(new URL('./public/',import.meta.url));
 const data=JSON.parse(readFileSync(root+'manifest.json','utf8'));
@@ -58,6 +59,34 @@ check('Color changes are prepared on the last pull-through of the preceding stit
   assert.equal(cyclePose(3).twoLoops,true);assert.equal(cyclePose(4).secondCatch,true);
   assert.equal(cyclePose(5).twoLoops,false);assert.equal(cyclePose(5).finished,true);
   for(let i=0;i<5;i+=.1)assert.equal(cyclePose(i).finished,false);
+});
+check('Continuous yarn keeps strand identity through colour change and never completes early',()=>{
+  for(const mode of ['single','carry','double'] as const){
+    const start=yarnPaths(0,mode,'#F6F0E1','#BA0C2F');
+    for(let n=0;n<=140;n++){
+      const t=n/20,paths=yarnPaths(t,mode,'#F6F0E1','#BA0C2F');
+      assert.equal(paths.length,mode==='single'?1:2);
+      paths.forEach((path,i)=>{assert.equal(path.points.length,start[i].points.length);assert.equal(path.color,start[i].color);assert.ok(path.points.flat().every(Number.isFinite));assert.deepEqual(path.points.at(-1),start[i].points.at(-1));});
+      assert.equal(motionPose(t).completed,t===7);
+    }
+  }
+  assert.ok(motionPose(4).tip+.65<motionPose(4).drawnLoopZ);
+  assert.ok(motionPose(5).tip+.65>motionPose(5).drawnLoopZ);
+  assert.ok(motionPose(5).tip+.65<motionPose(5).oldLoopZ);
+  assert.ok(motionPose(6).tip+.65>motionPose(6).oldLoopZ);
+  assert.equal(motionPose(6).tighten,0);
+});
+check('Procurement preserves all old rows and unknown delivered totals',()=>{
+  const no=JSON.parse(readFileSync(new URL('./procurement/norwegian.json',import.meta.url),'utf8'));
+  const foreign=JSON.parse(readFileSync(new URL('./procurement/foreign.json',import.meta.url),'utf8'));
+  assert.equal(new Set(no.records.map((r:any)=>r.id)).size,36);
+  assert.equal(new Set(foreign.rows.map((r:any)=>r.id)).size,24);
+  for(const p of data.purchases)assert.ok(no.records.some((r:any)=>r.id===p.id));
+  for(const p of data.purchases.filter((p:any)=>p.priceNok!==null))assert.ok(foreign.rows.some((r:any)=>r.id===p.id));
+  assert.equal(foreign.foreignLandedTotalNok,null);assert.equal(foreign.verifiedCompleteBasket,false);
+  const ids=['nema17','gt2-belt','bearing-608','driver-tmc2209'];
+  const subtotal=no.records.filter((r:any)=>ids.includes(r.id)).reduce((s:number,r:any)=>s+r.totalPrice,0);
+  assert.ok(Math.abs(subtotal-1956.2)<1e-6);
 });
 await initKernel(ManifoldModule);
 const rack=evalSolid(FIT_RACK.build!(FIT_RACK.dims));

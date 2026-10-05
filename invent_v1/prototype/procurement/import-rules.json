@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-05",
+  "country": "NO",
+  "buyerAssumption": "Private consumer, not VAT-registered business",
+  "destinationPostalCode": null,
+  "standardVatRate": 0.25,
+  "completeDeliveredQuoteAvailable": false,
+  "foreignLandedTotalNok": null,
+  "rules": [
+    {
+      "id": "voec-threshold",
+      "title": "VOEC-grensen gjelder per vare",
+      "thresholdNok": 3000,
+      "comparison": "strictly less than",
+      "valueExcludes": [
+        "shipping",
+        "additional costs"
+      ],
+      "note": "Several eligible items can share a parcel even if its total exceeds NOK 3000. A pack sold as one product requires its own valuation.",
+      "source": "https://www.skatteetaten.no/bedrift-og-organisasjon/avgifter/mva/utland/e-handel-voec/sending-av-pakker-i-voec-ordningen/"
+    },
+    {
+      "id": "voec-vat",
+      "title": "Norsk mva betales ved kjøp",
+      "note": "Eligible correctly declared VOEC goods are duty-exempt. Norwegian VAT also applies to shipping/additional costs; verify it appears once in final total.",
+      "source": "https://www.toll.no/no/netthandel/VOEC"
+    },
+    {
+      "id": "voec-digital",
+      "title": "VOEC må meldes elektronisk",
+      "note": "Seller/carrier must transmit the VOEC identifier digitally. A generic tax-included claim or a printed number alone is insufficient evidence of correct processing.",
+      "source": "https://www.skatteetaten.no/bedrift-og-organisasjon/avgifter/mva/utland/e-handel-voec/sending-av-pakker-i-voec-ordningen/"
+    },
+    {
+      "id": "voec-register",
+      "title": "Kontroller registreringen",
+      "note": "The marketplace may be the registered entity instead of an individual shop. No seller's VOEC status was conclusively verified in this research.",
+      "source": "https://www.skatteetaten.no/bedrift-og-organisasjon/avgifter/mva/utland/e-handel-voec/nettbutikker/"
+    },
+    {
+      "id": "ordinary-import",
+      "title": "Vanlig import",
+      "note": "For non-VOEC transactions, import VAT and any applicable duty arrive at import, usually with carrier clearance charges. General rate is 25% for these non-food goods.",
+      "source": "https://www.toll.no/no/netthandel/ikke-voec"
+    },
+    {
+      "id": "vat-base",
+      "title": "Mva-grunnlag",
+      "note": "Goods price plus freight, insurance, duty and other taxable charges/commissions. Foreign VAT paid and not removed is part of the goods price. Use customs exchange rate at clearance for import tax, which can differ from card conversion.",
+      "source": "https://www.toll.no/no/netthandel/utregning-mva/"
+    },
+    {
+      "id": "duty",
+      "title": "Tollavgift er ikke et universelt prosentpåslag",
+      "note": "Tolletaten's consumer page identifies clothes and food as dutiable categories. No SKU-level tariff classification or origin verification was completed for this basket; do not call every line's duty formally verified zero. Cotton yarn is not automatically classified as a finished garment.",
+      "source": "https://www.toll.no/no/netthandel/ikke-voec"
+    },
+    {
+      "id": "carrier-fee",
+      "title": "Fortolling prises per sending",
+      "note": "Posten tariffs apply only if Posten performs the clearance. Other couriers have their own tariffs. Do not apply one Posten fee across multiple vendor parcels, or append it to confirmed prepaid all-inclusive delivery.",
+      "source": "https://www.posten.no/fortolling/motta-fra-utlandet"
+    },
+    {
+      "id": "double-vat",
+      "title": "Dobbel mva",
+      "note": "For VOEC purchases charged again at import, seek refund of purchase VAT from the seller and document both payments. Norwegian tax/customs authorities do not correct that seller collection.",
+      "source": "https://www.skatteetaten.no/person/avgifter/kjop-fra-utlandet/"
+    }
+  ],
+  "postenFees": {
+    "currency": "NOK",
+    "per": "consignment",
+    "source": "https://www.posten.no/fortolling/motta-fra-utlandet",
+    "items": [
+      {
+        "label": "VOEC: correct electronic notification and prepaid VAT",
+        "amount": 0
+      },
+      {
+        "label": "Value 0–500 NOK",
+        "amount": 46
+      },
+      {
+        "label": "Value 500–3000 NOK",
+        "amount": 78
+      },
+      {
+        "label": "Above 3000 NOK, restricted goods or food; certain other declarations",
+        "amount": 278
+      },
+      {
+        "label": "Handling of self-clearance / customs storage",
+        "amount": 155
+      }
+    ],
+    "boundaryNote": "Labels reproduced as bands; at an exact boundary confirm the applicable band with Posten."
+  },
+  "sellerSpecific": [
+    {
+      "supplier": "StepperOnline",
+      "shipFrom": "CN",
+      "shipTo": "NO",
+      "taxModel": "Optional prepaid estimated import duty/VAT at checkout, selected by default",
+      "norwayListed": true,
+      "listingPriceIncludesTax": false,
+      "checkoutTaxAmount": null,
+      "shippingAmount": null,
+      "note": "Norway expressly listed. Keep prepayment selected to use seller's promise of no later import-tax/customs-fee demand. Do not assume this is VOEC, and do not add 25% twice.",
+      "source": "https://www.omc-stepperonline.com/import-tax-vat"
+    }
+  ],
+  "formulas": {
+    "ordinaryImport": "B = G + S + I + D + O; VAT = 0.25 × B; delivered = G + S + I + D + O + VAT + C",
+    "definitions": {
+      "G": "Goods paid price in NOK; include foreign VAT if seller has not removed/refunded it",
+      "S": "Freight in NOK",
+      "I": "Insurance",
+      "D": "Verified duty for classified goods",
+      "O": "Other costs included in VAT base",
+      "C": "Carrier clearance charge actually applicable, tax-inclusive where quoted; do not double count in O"
+    },
+    "voec": "Delivered = confirmed Norway checkout total (goods + freight + Norwegian VAT + any seller charges); no additional carrier fee only if proper electronic VOEC handling.",
+    "prepaid": "Delivered = confirmed checkout goods + shipping + prepaid import tax/duty + any explicit fees; no additional VAT added to an already tax-inclusive final total.",
+    "allocation": "Calculate tax/fees by consignment first. Allocate freight among rows only as an explicitly stated comparison method.",
+    "ifMissing": "If variant, shipping, tax treatment, carrier, FX or stock is unverified, delivered total remains null."
+  },
+  "requiredInputs": [
+    "Norwegian postcode",
+    "Final SKU/variant and purchasable packs",
+    "Warehouse stock for required quantity",
+    "Freight per seller/consignment",
+    "Norway tax treatment at checkout",
+    "Carrier and applicable clearance charge",
+    "Currency rate and payment FX cost",
+    "Final tariff classification if ordinary import"
+  ],
+  "budgetFx": {
+    "source": "Norges Bank EXR official API",
+    "url": "https://data.norges-bank.no/api/data/EXR/B.USD+EUR.NOK.SP?format=sdmx-json&startPeriod=2026-09-28&endPeriod=2026-10-05",
+    "methodologyUrl": "https://www.norges-bank.no/tema/Statistikk/Valutakurser/",
+    "retrievedAt": "2026-10-05T21:18:37",
+    "rates": {
+      "USD": {
+        "nokPerUnit": 9.6015,
+        "date": "2026-10-05",
+        "unit": 1
+      },
+      "EUR": {
+        "nokPerUnit": 10.7575,
+        "date": "2026-10-05",
+        "unit": 1
+      }
+    },
+    "purpose": "Budget goods-price conversion only. Indicative mid-market rates, not a card/checkout rate or future customs rate.",
+    "cardMarkupPercent": null
+  }
+}

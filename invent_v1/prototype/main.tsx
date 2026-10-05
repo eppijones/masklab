@@ -7,6 +7,7 @@ import { HAT, HAT_PHASES, HAT_HOURS, processAt } from './hat-process.ts';
 import { WholeBuild } from './whole-build.tsx';
 import { MachineInstructions, SafetyAndPatent } from './workshop.tsx';
 import { StitchLesson } from './stitch-lesson.tsx';
+import { Procurement } from './procurement.tsx';
 import './style.css';
 
 const BASE = import.meta.env.BASE_URL;
@@ -121,6 +122,8 @@ function App({ data }: { data: Data }) {
     <main>
       {page === 'Maskinen' && <>
         <div className="page-heading"><div><span className="eyebrow">RO RO RO / 56 CM / HEKLOMAT</span><h1>RO RO RO, maske for maske.</h1><p>Hvit hatt, røde bokstaver og blå bølgekant. Hatten hekles i garn; maskindelene 3D-printes.</p></div><button className="button primary" onClick={() => setPage('Deler og pris')}>Se alle printdeler <span>↗</span></button></div>
+        {!part && <StitchLesson onLocate={cursor=>{seek(cursor);setSelected(null);setShowProcess(true);setFocusHat(true);setExplode(0);}} />}
+        <details className="cad-reference" open={!!part}><summary>Printdeler og tidligere V1-modell{part ? ` · ${name(part)}` : ""}</summary>
         <div className="model-layout">
           <section className="viewer" aria-label="Maskinmodell">
             <div className="viewer-toolbar"><div className="switch"><button aria-pressed={!part && showProcess} onClick={() => {setSelected(null);setShowProcess(true);setExplode(0);}}>Hattforløp</button><button aria-pressed={!part && !showProcess} onClick={() => {setSelected(null);setShowProcess(false);setPlaying(false);}}>Alle deler</button>{part && <button aria-pressed>Valgt del</button>}</div><span className="reference-tag">V1 · CAD-referanse</span></div>
@@ -159,14 +162,14 @@ function App({ data }: { data: Data }) {
           </aside>
         </div>
         <div className="yarn-legend"><span><i style={{background:'#F6F0E1'}}/>Hvit bunn</span><span><i style={{background:'#BA0C2F'}}/>Røde RO RO RO-bokstaver</span><span><i style={{background:'#00205B'}}/>Blå bølgekant</span><button className="text-button" onClick={()=>document.getElementById('stitch-lesson')?.scrollIntoView({behavior:'smooth',block:'start'})}>Se én maske i sakte film ↓</button><button className="text-button" onClick={() => showPart('crochet-hook')}>Heklekroken som 3D-del →</button></div>
+        </details>
         <div className="build-note"><span className="note-dot" /><p><strong>Dette er ikke en byggeklar maskin ennå.</strong> V1 har {data.findings.length} åpne konstruksjonspunkter. Maskeholding, heklehode og styring må fungere fysisk før hele maskinen kan frigis til print og montering.</p><button onClick={() => setPage('Bygg og tid')}>Se hele byggegrunnlaget →</button></div>
-        <StitchLesson onLocate={cursor=>{seek(cursor);setSelected(null);setShowProcess(true);setFocusHat(true);setExplode(0);}} />
         <MachineInstructions onSelect={showPart} />
       </>}
 
       {page === 'Deler og pris' && <>
         <div className="page-heading"><div><span className="eyebrow">ØYVIND / 3D-PRINT</span><h1>Alle printdelene, samlet.</h1><p>Øyvind printer. Espen dekker filamentene.</p></div><span className="reference-tag">Foreløpig V1-grunnlag</span></div>
-        <div className="print-handoff"><div><strong>Én pakke til Øyvind</strong><p>{job.length} STL-filer, antall, materialer og printoversikt. Modellene er konstruksjonsgrunnlag; kjente feil må rettes før full maskin printes.</p></div><a className="button primary" href={BASE+'heklomat-oyvind-printpakke.zip'} download>Last ned alle 3D-filene · ZIP ↓</a></div>
+        <div className="print-handoff"><div><strong>Én pakke til Øyvind</strong><p>{job.length} STL-filer, antall, materialer og printoversikt. Dette er V1-konstruksjonsgrunnlaget. Den nye animerte heklecellen er ikke med som ferdige printfiler. Kjente feil må rettes før full maskin printes.</p></div><a className="button primary" href={BASE+'heklomat-oyvind-printpakke.zip'} download>Last ned alle 3D-filene · ZIP ↓</a></div>
         <div className="cost-overview">
           <article><span>01 / FILAMENT</span><strong>{money(cost.materialNok)}</strong><p>{num(grams / 1000, 2)} kg {quote ? 'beregnet av printprogrammet' : 'estimert'} · pris med {inputs.wastePct} % tillegg</p></article>
           <article><span>02 / PRINTTID</span><strong>{cost.hours===null ? 'Beregnes' : num(cost.hours,1)+' timer'}</strong><p>Beregnet av Bambu Studio, før platebytte og etterarbeid</p></article>
@@ -194,11 +197,7 @@ function App({ data }: { data: Data }) {
         </details>
       </>}
 
-      {page === 'Innkjøp' && <>
-        <div className="page-heading"><div><span className="eyebrow">ESPEN / BESTILLING OG BETALING</span><h1>Dette kjøper Espen.</h1><p>Komponenter, garn og filament til Øyvinds printer.</p></div></div>
-        <div className="purchase-budget"><strong>{money(bought)}</strong><p>Foreløpig delsum. {unpriced} poster mangler pris. Filament kommer i tillegg med {money(cost.materialNok)} i beregnet forbruk og tillegg. Dette er ikke en komplett byggepris.</p></div>
-        <details className="disclosure" open><summary><span>Espen kjøper inn</span><span>{data.purchases.length} poster · {money(bought)} + uavklart</span></summary><p className="small">Espen bestiller og betaler motorer, elektronikk, skruer, presisjonsdeler og garn. Listen er et foreløpig budsjett for V1. De fleste prisene er tidligere budsjettanslag. Eksakte produkter og antall må tilpasses den nye konstruksjonen.</p><div className="table-wrap"><table><thead><tr><th>Komponent</th><th>Antall</th><th>Delsum</th></tr></thead><tbody>{data.purchases.map(p => <tr key={p.id}><td>{p.url ? <a href={p.url} target="_blank" rel="noreferrer">{p.item} ↗</a> : p.item}<small>{p.priceNok === null ? 'Spesifikasjon og pris mangler' : p.id === 'driver-tmc2209' ? 'Leverandørpris hentet 4. oktober 2026' : 'Tidligere budsjettanslag'}</small></td><td>{p.qty}</td><td>{p.priceNok === null ? 'Uavklart' : money(p.priceNok * p.qty)}</td></tr>)}</tbody></table></div></details>
-      </>}
+      {page === 'Innkjøp' && <Procurement data={data} filament={cost.materialNok}/> }
 
       {page === 'Bygg og tid' && <>
         <div className="page-heading"><div><span className="eyebrow">ESPEN, ELLER ESPEN OG ØYVIND SAMMEN</span><h1>Ett samlet bygg.</h1><p>Montering og oppstart gjør Espen alene, eller Espen og Øyvind sammen.</p></div></div>

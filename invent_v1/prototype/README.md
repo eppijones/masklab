@@ -162,3 +162,11 @@ npm run build
 ```
 
 The chat can be archived after commit/push and production verification. The source, print inventory, patent attachment, constraints and build instructions remain in Git; the public page does not depend on the local preview server.
+
+## 6 October 2026 visualisation and sourcing update
+
+`yarn-motion.ts` keeps one ordered open centreline per physical strand. The work cell and hat share a coordinate system; the close camera hides the rest of the hat for clarity. One yarn, tapestry carrying, and held-double modes are distinct. A/B/C labels and eight stages explain draw-through; old loops never change colour when the new working colour is selected. This is an illustrative motion proposal, not yarn/contact simulation, an exact CroMat reproduction, or a manufactured head. Physical stitch retention, tension, transfer, increases and colour switching remain unverified. This new work cell is not in the STL release.
+
+Supplier evidence is retained in `procurement/*.json`, checked 5 October. All 36 purchase IDs remain visible. The matched four-row subset totals 1,956.20 NOK at Norwegian vendors including VAT, versus 1,099.47 NOK in foreign goods prices before clarified Norwegian VAT/delivery. No complete in-stock, fit-qualified or delivered foreign basket is established. The old 9,379 NOK is not a current quotation. Unknown costs stay unknown; the import calculator is explicitly a per-consignment scenario using user-entered freight, duty and fees. No purchase was made.
+
+The deployed page and ZIP remain shareable independently of this chat. No original project source files outside HEKLOMAT were changed by this update.
